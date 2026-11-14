@@ -19,7 +19,9 @@ Read these first, in order:
 ## Infrastructure (all already set up by the team)
 
 - **Modal:** workspace `constant-lab`, which has the hackathon credits. Everyone uses one shared API token (`modal token set --token-id ... --token-secret ...`). Name apps `town-trial-*`, the Volume `town-trial`, and the secret `town-trial-keys`.
-- **Secrets** go in the Modal secret, never in the repo: `modal secret create town-trial-keys EXA_API_KEY=... PAST_DEV_API_KEY=... ANTHROPIC_API_KEY=...`. For local runs, copy `.env.example` to `.env` (gitignored).
+- **Secrets** go in the Modal secret, never in the repo: `modal secret create town-trial-keys EXA_API_KEY=... PAST_DEV_API_KEY=... OPENAI_API_KEY=...`. For local runs, copy `.env.example` to `.env` (gitignored).
+- **LLM:** OpenAI, through the official `openai` Python SDK and `OPENAI_API_KEY`. Use structured outputs (JSON schema) for Bo's proposals and Cy's reviews, and use the same model for every baseline arm.
+- **Secrets status:** the Modal secret `town-trial-keys` already exists in workspace `constant-lab`, holding `EXA_API_KEY`, `PAST_DEV_API_KEY` and `OPENAI_API_KEY`. Attach it with `modal.Secret.from_name("town-trial-keys")`. Don't recreate it.
 - **Exa:** use the `exa_py` SDK. **past.dev:** a REST API plus a docs MCP server at `https://past.dev/mcp`. Check its docs for exact endpoints before coding; the concepts are in BACKEND_PLAN.md.
 - **Frontend:** Vercel, deployed from `main`. The backend must send CORS headers for the Vercel domain and `localhost`.
 
