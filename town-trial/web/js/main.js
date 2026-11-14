@@ -6,6 +6,7 @@ import { Resident, Researcher } from "./people.js";
 import { buildHeaven, HEAVEN_Y, RESEARCHERS } from "./heaven.js";
 import { makeResidents, createModel, TICKS_PER_DAY, BASELINE_HOURS } from "./sim.js";
 import { createResearch, classify } from "./research.js";
+import { createLive } from "./live.js";
 import * as UI from "./ui.js";
 import { box } from "./voxel.js";
 
@@ -351,8 +352,53 @@ $("prompt-form").addEventListener("submit", (e) => {
   if (!prompt) { toast("Type a policy idea first, or pick an example."); return; }
   startTrial(prompt);
 });
+// Live mode: the backend (Modal) runs the research loop when TOWN_TRIAL_API is set.
+// Any network error offers to continue in demo mode, which needs no backend.
+let liveDisabled = false;
+const DEMO_BANNER = $("demo-banner").textContent;
+const LIVE_BANNER = "LIVE: research loop on the backend. Scripted steps and FIXTURE sources are labelled in the log.";
 function startTrial(prompt) {
-  mode = classify(prompt);
+  if (window.TOWN_TRIAL_API && !liveDisabled) { startLiveTrial(prompt); return; }
+  $("demo-banner").textContent = DEMO_BANNER;
+  beginTrial(classify(prompt));
+  research = createResearch({
+    mode, prompt, town, residents, emit, heaven, researchers,
+    onChange: () => renderPanels(true),
+    onView: (x) => { startReplay(x); renderPanels(true); },
+    setBusy: (b) => b && toast("Dee is fanning experiments out to Modal..."),
+  });
+  afterTrialStart();
+}
+async function startLiveTrial(prompt) {
+  if (research && research.stop) research.stop();
+  toast("Starting a live trial on the backend...");
+  try {
+    const live = await createLive({
+      api: window.TOWN_TRIAL_API, city: town.name, prompt, emit, heaven, researchers, town,
+      onChange: () => renderPanels(true),
+      onView: (x) => { startReplay(x); renderPanels(true); },
+      onError: (err) => offerDemo(err, prompt),
+    });
+    beginTrial(live.mode);
+    research = live;
+    $("demo-banner").textContent = LIVE_BANNER;
+    afterTrialStart();
+  } catch (err) { offerDemo(err, prompt); }
+}
+function offerDemo(err, prompt) {
+  const t = $("toast");
+  t.innerHTML = "";
+  t.append(`Backend error: ${err.message}. `);
+  const b = document.createElement("button");
+  b.textContent = "Continue in demo mode";
+  b.className = "chip";
+  b.addEventListener("click", () => { liveDisabled = true; t.classList.add("hidden"); startTrial(prompt); });
+  t.append(b);
+  t.classList.remove("hidden");
+  clearTimeout(toastT);
+}
+function beginTrial(m) {
+  mode = m;
   events = [];
   $("log").innerHTML = "";
   const badge = $("mode-badge");
@@ -360,12 +406,8 @@ function startTrial(prompt) {
   badge.classList.toggle("perception", mode === "perception");
   badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : "SERVICE TRIAL";
   startReplay(null);
-  research = createResearch({
-    mode, prompt, town, residents, emit, heaven, researchers,
-    onChange: () => renderPanels(true),
-    onView: (x) => { startReplay(x); renderPanels(true); },
-    setBusy: (b) => b && toast("Dee is fanning experiments out to Modal..."),
-  });
+}
+function afterTrialStart() {
   for (const r of Object.values(researchers)) r.moveTo(heaven.stations[r.spec.station].stand);
   updateRunbar();
   toast(mode === "perception"
