@@ -233,7 +233,9 @@ async function start() {
   if (live) { $("landingStatus").textContent = "Connected to the live lab."; setInterval(poll, 2000); render(); return; }
   S.mode = "demo"; $("landingStatus").textContent = "No live lab found, so this is a sample replay with made-up scores.";
   try {
-    const txt = await (await fetch("demo/events.jsonl", { cache: "no-store" })).text();
+    let res = await fetch("demo/events.jsonl", { cache: "no-store" });
+    if (!res.ok) res = await fetch("demo/events.txt", { cache: "no-store" }); // same file, for hosts that won't serve .jsonl
+    const txt = await res.text();
     replay.queue = txt.split("\n").filter(Boolean).map((l) => JSON.parse(l));
     while (replay.queue.length && ["PEAK", "AGENT"].includes(replay.queue[0].type)) apply(replay.queue.shift());
     replay.timer = setInterval(() => { if (!replay.queue.length) { clearInterval(replay.timer); chips(); return; } apply(replay.queue.shift()); if (view.screen === "app") render(); }, 900);
