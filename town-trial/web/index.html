@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Town Trial</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="labels"></div>
+
+<!-- Landing -->
+<section id="landing">
+  <div class="landing-card">
+    <div class="logo">TOWN<br>TRIAL</div>
+    <p class="tag">A test bench for local policy ideas</p>
+    <form id="city-form" autocomplete="off">
+      <input id="city-input" type="text" maxlength="40" placeholder="Enter a city..." spellcheck="false">
+      <button type="submit" class="btn btn-go">BUILD TOWN &#9654;</button>
+    </form>
+    <div class="examples">
+      try: <a data-city="Waitsfield, VT">Waitsfield, VT</a> &middot;
+      <a data-city="Evart, MI">Evart, MI</a> &middot;
+      <a data-city="Kiowa, CO">Kiowa, CO</a>
+    </div>
+    <p class="fine">Towns are generated from the name for now. Real street maps come later.</p>
+  </div>
+</section>
+
+<!-- In-town HUD -->
+<section id="hud" class="hidden">
+  <div id="topbar">
+    <div class="panel town-badge">
+      <div id="town-name">-</div>
+      <div id="clock">Mon 08:00</div>
+    </div>
+    <div class="panel speed">
+      <button class="btn small" data-speed="0" title="Pause">II</button>
+      <button class="btn small active" data-speed="1">1x</button>
+      <button class="btn small" data-speed="4">4x</button>
+      <button class="btn small" data-speed="16">16x</button>
+    </div>
+    <div id="mode-badge" class="panel mode hidden">-</div>
+    <div class="spacer"></div>
+    <div class="panel views">
+      <button class="btn small active" id="view-town">TOWN</button>
+      <button class="btn small" id="view-heaven">HEAVEN &#8593;</button>
+    </div>
+    <button class="btn small" id="toggle-panel" title="Show/hide the side panel">PANEL</button>
+  </div>
+
+  <div id="demo-banner">DEMO: in-browser simulation with illustrative inputs. Sources marked FIXTURE are placeholders.</div>
+
+  <!-- Side panel -->
+  <aside id="side" class="panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="log">LOG</button>
+      <button class="tab" data-tab="exp">EXPERIMENTS</button>
+      <button class="tab" data-tab="aud">AUDIENCES</button>
+    </div>
+    <div id="selected" class="hidden"></div>
+    <div class="tab-body" id="tab-log"><div id="log"></div></div>
+    <div class="tab-body hidden" id="tab-exp"></div>
+    <div class="tab-body hidden" id="tab-aud"></div>
+  </aside>
+
+  <!-- Run viewer -->
+  <div id="runbar" class="panel hidden">
+    <button class="btn small" id="run-prev">&#9664;</button>
+    <div id="run-label">-</div>
+    <button class="btn small" id="run-next">&#9654;</button>
+  </div>
+
+  <!-- Prompt -->
+  <form id="prompt-form" class="panel" autocomplete="off">
+    <div class="chips">
+      <button type="button" class="chip" data-prompt="Extend library hours two evenings a week to reach residents who work during the day">Library: two late evenings</button>
+      <button type="button" class="chip" data-prompt="Will working parents hear about the new library hours if we only post the notice online?">Perception: who hears the notice?</button>
+    </div>
+    <div class="prompt-row">
+      <input id="prompt-input" type="text" placeholder="What policy idea do you want to test?" spellcheck="false">
+      <button type="submit" class="btn btn-go">RUN TRIAL &#9654;</button>
+    </div>
+  </form>
+</section>
+
+<div id="toast" class="hidden"></div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
