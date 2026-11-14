@@ -11,7 +11,7 @@ import traceback
 
 from agents import fixtures
 from events import EventStore
-from policy import BASELINE_HOURS, H, days_for, hours_text, hours_with, primary, staff_hours
+from policy import BASELINE_HOURS, H, days_for, fixed, hours_text, hours_with, primary, staff_hours
 from sim import Runner
 
 SEEDS = 16        # matched seeds per experiment
@@ -94,7 +94,7 @@ class Trial:
         if not r:
             return "-"
         k = self.P["key"]
-        return f"{r['mean'][k]:.1f}{self.P['unit']} ± {r['sd'][k]:.1f}"
+        return f"{fixed(r['mean'][k])}{self.P['unit']} ± {fixed(r['sd'][k])}"
 
     def value(self, x: dict) -> float:
         return x["result"]["mean"][self.P["key"]]
@@ -137,7 +137,7 @@ class Trial:
         out = self.run([E0, E1], say="Fanning E0 + E1 out to Modal")
         for x, view in ((E0, None), (E1, "E1")):
             self.emit("RUN_DONE", agent="dee", exp=x["id"], metric=P["key"], value=self.fmt(x), staff_hours=staff_hours(x["policy"]["hours"]),
-                      turned_away=f"{x['result']['mean']['turnedAway']:.1f}", wall_s=out["wall_s"], workers=out["workers"], view=view)
+                      turned_away=fixed(x['result']['mean']['turnedAway']), wall_s=out["wall_s"], workers=out["workers"], view=view)
 
         self.emit("FAILURE", agent="cy", say="E1 works, but can we staff it?", scripted=True, exp="E1",
                   trace=f"E1 beats E0 ({self.fmt(E1)} vs {self.fmt(E0)}), but uses {staff_hours(E1['policy']['hours'])} staff hours vs "
@@ -167,7 +167,7 @@ class Trial:
         self.emit("REVIEW", agent="cy", say="E3 approved", scripted=True, exp="E3", ok=True, reason=f"Supported actions, staff hours unchanged ({cap}).")
         out = self.run([E3], say="Running E3")
         self.emit("RUN_DONE", agent="dee", exp="E3", metric=P["key"], value=self.fmt(E3), staff_hours=staff_hours(shift),
-                  turned_away=f"{E3['result']['mean']['turnedAway']:.1f}", wall_s=out["wall_s"], workers=out["workers"], view="E3")
+                  turned_away=fixed(E3['result']['mean']['turnedAway']), wall_s=out["wall_s"], workers=out["workers"], view="E3")
         self.emit("FAILURE", agent="cy", say="Inspecting E3's turned-away log", scripted=True, exp="E3",
                   trace="Mornings lost on Tue/Thu cost some daytime visits. Many residents who work Saturdays are still turned away.",
                   next_question="Would moving Saturday later reach them?")
@@ -177,7 +177,7 @@ class Trial:
         self.emit("REVIEW", agent="cy", scripted=True, exp="E4", ok=True, reason="Supported actions, staff hours unchanged.")
         out = self.run([E4])
         self.emit("RUN_DONE", agent="dee", exp="E4", metric=P["key"], value=self.fmt(E4), staff_hours=staff_hours(shift3),
-                  turned_away=f"{E4['result']['mean']['turnedAway']:.1f}", wall_s=out["wall_s"], workers=out["workers"])
+                  turned_away=fixed(E4['result']['mean']['turnedAway']), wall_s=out["wall_s"], workers=out["workers"])
 
         # Baselines with matched budgets: sweep (6 configs fanned out together) and one-shot
         options = []
@@ -219,7 +219,7 @@ class Trial:
                  say="Searching: how this town gets news")
         P0 = self.exp(id="P0", label="Online post only", role="baseline", policy={"channels": ["online"]}, change="website + social post")
         out = self.run([P0], say="Running P0 on Modal")
-        self.emit("RUN_DONE", agent="dee", exp="P0", metric=P["key"], value=self.fmt(P0), overall=f"{P0['result']['mean']['awarePct']:.0f}%",
+        self.emit("RUN_DONE", agent="dee", exp="P0", metric=P["key"], value=self.fmt(P0), overall=fixed(P0['result']['mean']['awarePct'], 0) + "%",
                   wall_s=out["wall_s"], workers=out["workers"], view="P0")
         self.emit("FAILURE", agent="cy", say="Who did the notice miss?", scripted=True, exp="P0",
                   trace=f"Only {self.fmt(P0)} of working parents heard. Most parents are offline during the day and learn by word of mouth, if at all.",
@@ -243,7 +243,7 @@ class Trial:
         self.emit("REVIEW", agent="cy", scripted=True, exp="P3", ok=False, reason="Open rate is not in any local source. Keep it as a labelled sensitivity range, not an input.")
         out = self.run([P1, P2], say="Running P1 + P2")
         for x, view in ((P1, None), (P2, "P2")):
-            self.emit("RUN_DONE", agent="dee", exp=x["id"], metric=P["key"], value=self.fmt(x), overall=f"{x['result']['mean']['awarePct']:.0f}%",
+            self.emit("RUN_DONE", agent="dee", exp=x["id"], metric=P["key"], value=self.fmt(x), overall=fixed(x['result']['mean']['awarePct'], 0) + "%",
                       wall_s=out["wall_s"], workers=out["workers"], view=view)
 
         combos = [["online", "board"], ["online", "bulletin"], ["online", "board", "bulletin"], ["board"], ["bulletin"], ["online"]][:SWEEP_BUDGET]

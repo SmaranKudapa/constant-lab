@@ -6,6 +6,8 @@ numbers; constraints such as staff hours are checked here, in code.
 """
 from __future__ import annotations
 
+from decimal import ROUND_HALF_UP, Decimal
+
 DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 
@@ -68,3 +70,10 @@ def hours_from_action(action: dict) -> list:
     """Bo's action schema {"hours_changes": [{day, open, close}]} -> full week of [open, close] minutes."""
     return hours_with([(c["day"], None if c.get("open") is None else to_minutes(c["open"]),
                         None if c.get("close") is None else to_minutes(c["close"])) for c in action.get("hours_changes", [])])
+
+
+def fixed(x: float, digits: int = 1) -> str:
+    """Number.prototype.toFixed: exact binary value, ties away from zero (Python's format rounds ties to even)."""
+    if x == 0:
+        x = 0.0  # JS prints -0 as "0"
+    return str(Decimal(x).quantize(Decimal(1).scaleb(-digits), rounding=ROUND_HALF_UP))

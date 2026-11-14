@@ -17,6 +17,10 @@ def check(name, ok, info=""):
     print(f"{'PASS' if ok else 'FAIL'} {name} {info}")
     fails += not ok
 
+# Log text must round like the browser's toFixed (5.25 -> "5.3", not Python's "5.2")
+from policy import fixed  # noqa: E402
+check("fixed() matches JS toFixed", [fixed(5.25), fixed(-0.0), fixed(94.875), fixed(47.9, 0)] == ["5.3", "0.0", "94.9", "48"])
+
 # Chunked fan-out == one runBatch over all seeds
 runner = Runner(mapper=local_mapper(), where="local")
 pol = {"hours": [[600, 1080]] * 6 + [None]}

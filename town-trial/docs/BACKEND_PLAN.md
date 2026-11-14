@@ -24,7 +24,7 @@ town-trial/web  ── POST /api/trials ─▶  town-trial-api   (FastAPI, asgi_
   - Split `web/js/town.js` into a pure layout module (`web/js/layout.js`: buildings, ids, doors, nodes, `pathBetween`, no three.js) and the renderer, which imports it. **Keep RNG call order identical**, so the same city name gives the same town and residents in the browser and in Node.
   - Add `town-trial/sim/run_batch.mjs`: reads JSON `{city, mode, policy, seeds, days, scenario}` on stdin and prints `runBatch` JSON. Uses `layout.js`, `sim.js`, `rng.js`.
   - Add a parity test: a hash of `makeResidents(layout("Evart, MI"))` matches what the browser computes (expose it via `window.__townTrial`). Keep `tests/sim_check.mjs` passing.
-- [ ] **M1: end-to-end live mode with the scripted loop (target Sat 6 PM)**
+- [x] **M1: end-to-end live mode with the scripted loop (target Sat 6 PM)**: done. Deployed at `https://constant-lab--town-trial-api-web.us-east.modal.run` (frontend: `?api=<url>` or `config.js`). Words scripted (`scripted: true`), evidence FIXTURE, numbers real (Modal `run_batch.map`, up to 30 workers).
   - `town-trial/backend/` (Python): `app.py` (Modal app `town-trial-api`), `orchestrator.py`, `agents/`, `events.py`.
   - Port the step order of `research.js` to Python first, with fixtures, so the frontend live mode works before any external API does.
   - Modal worker `run_batch` (image: `debian_slim` + `nodejs` + `town-trial/web/js` + `town-trial/sim`) and fan-out with `.map()` over (policy × seed-chunk × scenario).
