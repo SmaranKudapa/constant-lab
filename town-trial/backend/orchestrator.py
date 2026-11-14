@@ -7,6 +7,7 @@ M2/M3 swap the scripted steps for live Exa, LLM and past.dev calls.
 """
 from __future__ import annotations
 
+import os
 import traceback
 
 from agents import fixtures
@@ -75,16 +76,21 @@ class Trial:
             self.note(f"Modal fan-out failed ({out['error']}); ran the batch in the orchestrator instead.", agent="dee")
         return out
 
-    def run(self, xs: list[dict], say: str | None = None) -> dict:
-        """RUN_START, then fan out every experiment in xs over matched seeds."""
+    def run(self, xs: list[dict], say: str | None = None, trace: bool = False) -> dict:
+        """RUN_START, then fan out every experiment in xs over matched seeds (trace: keep failure traces on x["_trace"])."""
         jobs = [self.job(x["id"], x["policy"]) for x in xs]
+        if trace:
+            for j in jobs:
+                j["trace"] = True
         for x in xs:
             self.set(x, status="running")
         self.emit("RUN_START", agent="dee", say=say, exps=[x["id"] for x in xs], seeds=SEEDS,
                   workers=len(self.runner.plan(jobs)), where=self.runner.where)
         out = self.fanout(jobs)
         for x in xs:
-            res = out["results"][x["id"]]
+            res = dict(out["results"][x["id"]])
+            if "trace" in res:
+                x["_trace"] = res.pop("trace")
             ok = self.constraint is None or self.constraint[1](x)
             self.set(x, result=res, status="done" if ok else "infeasible")
         return out
@@ -281,21 +287,38 @@ class Trial:
         self.emit("HELD_OUT_TABLE", agent="cy", metric=P["label"], table=table,
                   finalists=[{"id": f["id"], "label": f["label"], "role": ROLE_NAME.get(f["role"], f["role"]), "feasible": f["status"] != "infeasible"} for f in finalists])
 
+        self.held_out_table = table
         feasible = [x for x in self.exps if x["result"] and x["status"] == "done"]
         best = max(feasible, key=self.value)
         self.set(best, best=True)
         base = self.exps[0]
+        b = self.write_brief(best, base)
+        self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
+                  summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"])
+
+    def write_brief(self, best: dict, base: dict) -> dict:
         service = self.mode == "service"
-        self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=True, recommend=best["id"], label=best["label"],
-                  summary=f"{best['label']}: {self.fmt(best)} vs {self.fmt(base)} for current practice ({P['label']}).",
-                  assumptions="Arrival patterns are synthetic; staffing cap from a fixture source." if service else "Channel use and word-of-mouth rates are synthetic.",
-                  pilot="Pilot for 4 weeks; count evening visitors and ask whether they could have come before 18:00." if service
-                  else "Ask the school to include the notice for 2 weeks; survey parents at pickup.")
+        return {
+            "summary": f"{best['label']}: {self.fmt(best)} vs {self.fmt(base)} for current practice ({self.P['label']}).",
+            "assumptions": "Arrival patterns are synthetic; staffing cap from a fixture source." if service else "Channel use and word-of-mouth rates are synthetic.",
+            "pilot": "Pilot for 4 weeks; count evening visitors and ask whether they could have come before 18:00." if service
+            else "Ask the school to include the notice for 2 weeks; survey parents at pickup.",
+            "scripted": True,
+        }
 
 
-def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner) -> None:
-    trial = Trial(store, trial_id, city, prompt, mode, runner)
+def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner, memory=None) -> None:
+    """Live loop when an OpenAI key is available (and TOWN_TRIAL_SCRIPTED is not set); otherwise the labelled scripted loop."""
+    live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
     try:
+        if live:
+            from memory import LocalMemory
+            from research_loop import LiveTrial
+            trial = LiveTrial(store, trial_id, city, prompt, mode, runner, memory=memory or LocalMemory({}))
+        else:
+            trial = Trial(store, trial_id, city, prompt, mode, runner)
+            store.append(trial_id, "NOTE", {"level": "info", "message": "No LLM key configured: running the scripted research loop. "
+                                            "Agents' words are scripted and evidence is FIXTURE; every number is a real simulator run."})
         trial.start()
         store.finish(trial_id)
     except Stopped:

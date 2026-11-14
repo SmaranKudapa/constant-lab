@@ -77,3 +77,50 @@ def fixed(x: float, digits: int = 1) -> str:
     if x == 0:
         x = 0.0  # JS prints -0 as "0"
     return str(Decimal(x).quantize(Decimal(1).scaleb(-digits), rounding=ROUND_HALF_UP))
+
+
+CHANNELS = ["online", "board", "bulletin"]
+_HHMM = __import__("re").compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+def apply_changes(base: list, changes: list[dict]) -> list:
+    """Apply Bo's hours_changes [{day, open, close}] to a full week of hours."""
+    h = [list(x) if x else None for x in base]
+    for c in changes:
+        h[c["day"]] = None if c.get("open") is None else [to_minutes(c["open"]), to_minutes(c["close"])]
+    return h
+
+
+def validate_action(mode: str, action: dict) -> str | None:
+    """Return an error message if Bo's action is outside the supported schema, else None. Checked in code, never by the LLM."""
+    if mode == "service":
+        changes = action.get("hours_changes") or []
+        if not changes:
+            return "hours_changes is empty"
+        days = [c.get("day") for c in changes]
+        if len(set(days)) != len(days):
+            return "a day appears twice"
+        for c in changes:
+            d, o, cl = c.get("day"), c.get("open"), c.get("close")
+            if not isinstance(d, int) or not 0 <= d <= 6:
+                return f"day must be 0..6 (got {d})"
+            if o is None and cl is None:
+                continue  # closes that day
+            if not (isinstance(o, str) and isinstance(cl, str) and _HHMM.match(o) and _HHMM.match(cl)):
+                return f"open/close must be HH:MM or both null (day {d})"
+            if not (H(6) <= to_minutes(o) < to_minutes(cl) <= H(23)):
+                return f"hours must satisfy 06:00 <= open < close <= 23:00 (day {d})"
+        return None
+    chans = action.get("channels") or []
+    if not chans:
+        return "channels is empty"
+    bad = [c for c in chans if c not in CHANNELS]
+    if bad:
+        return f"unsupported channels {bad}; allowed {CHANNELS}"
+    if len(set(chans)) != len(chans):
+        return "a channel appears twice"
+    return None
+
+
+def describe_hours(hours: list) -> str:
+    return ", ".join(f"{DAYS[d]} " + (f"{_fmt(x[0])}-{_fmt(x[1])}" if x else "closed") for d, x in enumerate(hours))

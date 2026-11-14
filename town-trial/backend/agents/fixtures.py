@@ -23,3 +23,15 @@ def library_news(city: str) -> list[dict]:
 def school_bulletin(city: str) -> list[dict]:
     return [{"title": f"{city} Elementary: Friday family folder (FIXTURE)", "url": "fixture://school-bulletin",
              "passage": "A weekly bulletin goes home with every student on Fridays and by email to families."}]
+
+
+# What a reader would extract from each fixture (used only when Exa or the LLM is unavailable).
+FIXTURE_EXTRACT = {
+    "fixture://board-minutes": {"kind": "no_additional_staff_hours", "hours_per_week": None,
+                                "statement": "No additional staff hours approved for FY2027.",
+                                "quote": "No additional staff hours approved for FY2027.", "url": "fixture://board-minutes"},
+    "fixture://school-bulletin": {"channels": ["bulletin"], "statement": "The school sends a weekly family bulletin.",
+                                  "quote": "A weekly bulletin goes home with every student on Fridays", "url": "fixture://school-bulletin"},
+    "fixture://library-news": {"channels": ["online"], "statement": "Hours updates are posted online.",
+                               "quote": "Hours updates are posted on the website and social media.", "url": "fixture://library-news"},
+}

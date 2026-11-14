@@ -16,15 +16,17 @@ import uvicorn  # noqa: E402
 
 from api import create_app  # noqa: E402
 from events import EventStore  # noqa: E402
+from memory import LocalMemory  # noqa: E402
 from orchestrator import run_trial  # noqa: E402
 from sim import Runner, local_mapper  # noqa: E402
 
 store = EventStore({})
 runner = Runner(mapper=local_mapper(), where="local Node processes (no Modal)")
+memory = LocalMemory({})
 
 
 def start(**kw):
-    threading.Thread(target=run_trial, kwargs={"store": store, "runner": runner, **kw}, daemon=True).start()
+    threading.Thread(target=run_trial, kwargs={"store": store, "runner": runner, "memory": memory, **kw}, daemon=True).start()
 
 
 app = create_app(store, start)

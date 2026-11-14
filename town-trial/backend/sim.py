@@ -47,6 +47,20 @@ def aggregate(runs: list[dict]) -> dict:
     return {"n": n, "mean": mean, "sd": sd}
 
 
+def merge_traces(traces: list[dict], n_seeds: int) -> dict:
+    """Sum per-chunk trace counts; residentsByCohort is the same in every chunk."""
+    out: dict = {"seeds": n_seeds}
+    for t in traces:
+        for k, counts in t.items():
+            if k == "residentsByCohort":
+                out[k] = counts
+                continue
+            dst = out.setdefault(k, {})
+            for kk, v in counts.items():
+                dst[kk] = dst.get(kk, 0) + v
+    return out
+
+
 Mapper = Callable[[list[list[dict]]], list[list[dict]]]
 
 
@@ -99,11 +113,15 @@ class Runner:
         results, gi = {}, 0
         for e in experiments:
             seeds = e["seeds"] if isinstance(e["seeds"], list) else list(range(e["seeds"]))
-            runs = []
+            runs, traces = [], []
             for _ in range(0, len(seeds), self.chunk):
                 runs.extend(out[gi][0]["runs"])
+                if "trace" in out[gi][0]:
+                    traces.append(out[gi][0]["trace"])
                 gi += 1
             results[e["key"]] = aggregate(runs)
+            if traces:
+                results[e["key"]]["trace"] = merge_traces(traces, len(seeds))
         return {"results": results, "wall_s": round(wall, 2), "workers": len(groups), "where": where, "error": error}
 
     def info(self, city: str, scenario: dict | None = None) -> dict:

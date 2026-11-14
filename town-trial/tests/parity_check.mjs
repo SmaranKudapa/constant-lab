@@ -39,4 +39,9 @@ const hours = BASELINE_HOURS.map((x) => (x ? x.slice() : null)); hours[1] = [H(1
 const direct = runBatch({ town: t, residents: makeResidents(t, city), mode: "service", policy: { hours }, seeds: [0, 1, 2, 3], days: 7 });
 check("run_batch == runBatch", JSON.stringify(viaCli.mean) === JSON.stringify(direct.mean), JSON.stringify(viaCli.mean));
 
+// trace: true must not change the numbers
+const pt = spawnSync(process.execPath, [script], { input: JSON.stringify({ ...job, trace: true }), encoding: "utf8" });
+const traced = JSON.parse(pt.stdout || "{}");
+check("trace keeps runs identical", JSON.stringify(traced.runs) === JSON.stringify(viaCli.runs), JSON.stringify(traced.trace && traced.trace.turnedAwayByCohort));
+
 process.exit(fails ? 1 : 0);
