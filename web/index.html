@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constant Lab — the climb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section id="landing" class="screen">
+  <canvas id="heroCanvas" width="240" height="150" aria-hidden="true"></canvas>
+  <h1>Constant Lab</h1>
+  <p class="tag">A team of AI agents climbing toward world records on open math constants.</p>
+  <button id="enterBtn" class="btn primary" type="button">View the climb →</button>
+  <p id="landingStatus" class="status"></p>
+</section>
+
+<section id="app" class="screen" hidden>
+  <header class="topbar">
+    <button id="homeBtn" class="logo" type="button" aria-label="Back to start">Constant Lab</button>
+    <div class="modes" role="tablist" aria-label="View">
+      <button id="modeClimb" class="btn small" role="tab" type="button" aria-selected="true">Climb</button>
+      <button id="modeWorld" class="btn small" role="tab" type="button" aria-selected="false">World</button>
+    </div>
+    <div class="chips">
+      <span id="chipLive" class="chip"></span>
+      <span id="chipBudget" class="chip"></span>
+      <span id="chipSummits" class="chip"></span>
+      <button id="skipBtn" class="btn small" type="button" hidden>Skip to end</button>
+    </div>
+  </header>
+
+  <main id="climbView" class="layout">
+    <div class="stageWrap">
+      <div class="peakNav">
+        <button id="prevBtn" class="btn nav" type="button" aria-label="Previous mountain">←</button>
+        <div class="peakTitle"><span id="peakIdx" class="pix dim"></span><h2 id="peakName"></h2><span id="peakConst" class="dim"></span></div>
+        <button id="nextBtn" class="btn nav" type="button" aria-label="Next mountain">→</button>
+      </div>
+      <div id="stage" class="stage"><canvas id="peakCanvas" width="240" height="150"></canvas><div id="overlay"></div></div>
+      <div class="scorebar" id="scorebar"></div>
+    </div>
+    <aside id="panel" class="panel" aria-live="polite"></aside>
+  </main>
+
+  <main id="worldView" class="world" hidden>
+    <p class="dim worldHint">Every mountain is one constant. Click a mountain to see its climb.</p>
+    <div id="worldRow" class="worldRow"></div>
+  </main>
+
+  <section class="logWrap">
+    <h3 class="pix">Logbook <span id="logScope" class="dim"></span></h3>
+    <ol id="log" class="log"></ol>
+  </section>
+</section>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
