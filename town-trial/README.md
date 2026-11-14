@@ -13,6 +13,12 @@ cd town-trial/web && python3 -m http.server 8000
 Open http://localhost:8000. No build step and no internet needed (three.js and fonts are vendored).
 Shortcut URL params: `?city=Evart, MI&prompt=...&speed=16&view=heaven`.
 
+### Deploy the frontend (Vercel)
+
+Import the repo in Vercel and set **Root Directory = `town-trial/web`**, Framework Preset = **Other**, no build command, no output directory. It's a static site. Every push to `main` redeploys.
+
+The frontend talks to the backend through one setting: `window.TOWN_TRIAL_API` in `web/config.js`. Leave it empty for the demo. Once the Modal backend is deployed (branch `main-backend`), put its URL there, or test with `?api=<modal url>` on any Vercel preview. The backend must allow CORS from the Vercel domain.
+
 Simulator checks: `node town-trial/tests/sim_check.mjs` (capacity cap, nobody lost, closed library gives 0 visits, staff-hour arithmetic, deterministic replay, no outreach gives 0 awareness).
 
 ## What's real and what's demo
