@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { buildTown, windowMat, libraryWindowMat, lampMat } from "./town.js";
+import { townFingerprint } from "./layout.js";
 import { Resident, Researcher } from "./people.js";
 import { buildHeaven, HEAVEN_Y, RESEARCHERS } from "./heaven.js";
 import { makeResidents, createModel, TICKS_PER_DAY, BASELINE_HOURS } from "./sim.js";
@@ -417,7 +418,7 @@ function frame() {
 }
 
 // Debug handle for tests and the console
-window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; } };
+window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, fingerprint: () => townFingerprint(town, residents) };
 
 // ---------- boot ----------
 (async function boot() {

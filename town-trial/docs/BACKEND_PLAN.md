@@ -20,7 +20,7 @@ town-trial/web  ── POST /api/trials ─▶  town-trial-api   (FastAPI, asgi_
 
 ## Milestones (check them off in this file as you go)
 
-- [ ] **M0: one simulator, callable from Node (target Sat 4 PM)**
+- [x] **M0: one simulator, callable from Node (target Sat 4 PM)**: done. `web/js/layout.js`, `sim/run_batch.mjs`, `tests/parity_check.mjs`; browser `window.__townTrial.fingerprint()` for "Evart, MI" matches Node.
   - Split `web/js/town.js` into a pure layout module (`web/js/layout.js`: buildings, ids, doors, nodes, `pathBetween`, no three.js) and the renderer, which imports it. **Keep RNG call order identical**, so the same city name gives the same town and residents in the browser and in Node.
   - Add `town-trial/sim/run_batch.mjs`: reads JSON `{city, mode, policy, seeds, days, scenario}` on stdin and prints `runBatch` JSON. Uses `layout.js`, `sim.js`, `rng.js`.
   - Add a parity test: a hash of `makeResidents(layout("Evart, MI"))` matches what the browser computes (expose it via `window.__townTrial`). Keep `tests/sim_check.mjs` passing.
