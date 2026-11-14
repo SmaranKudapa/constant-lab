@@ -7,7 +7,8 @@
 //   policy: {hours: [[openMin, closeMin]|null x7]} | {hours_changes: [{day, open:"HH:MM"|null, close}]}
 //           | {channels: ["online","board","bulletin"]}, optional capacity
 //   scenario: {name?, seed?, mix?, interestMult?, count?}  (seed defaults to the city name)
-// Output: runBatch result ({n, mean, sd, runs}) plus {ms}, or an array of them.
+//   {info: true, city, scenario?} returns {residents: {n, byCohort}} without simulating.
+// Output: runBatch result ({n, mean, sd, runs}) plus {seeds, ms}, or an array of them.
 import { pathToFileURL } from "node:url";
 import { layoutTown } from "../web/js/layout.js";
 import { makeResidents, runBatch, hoursWith } from "../web/js/sim.js";
@@ -25,7 +26,7 @@ export function normalizePolicy(policy = {}) {
 
 const towns = new Map();
 const residentCache = new Map();
-export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null }) {
+export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null, info = false }) {
   if (!city) throw new Error("job.city is required");
   const t0 = Date.now();
   if (!towns.has(city)) towns.set(city, layoutTown(city));
@@ -33,6 +34,11 @@ export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, 
   const rkey = JSON.stringify([city, scenario]);
   if (!residentCache.has(rkey)) residentCache.set(rkey, scenario ? makeResidents(town, scenario.seed ?? city, scenario) : makeResidents(town, city));
   const residents = residentCache.get(rkey);
+  if (info) {
+    const byCohort = {};
+    for (const r of residents) byCohort[r.cohort] = (byCohort[r.cohort] || 0) + 1;
+    return { residents: { n: residents.length, byCohort, restricted: residents.filter((r) => r.restricted).length } };
+  }
   const seedList = Array.isArray(seeds) ? seeds : [...Array(seeds).keys()];
   const res = runBatch({ town, residents, mode, policy: normalizePolicy(policy), seeds: seedList, days: days ?? (mode === "service" ? 7 : 3) });
   return { ...res, seeds: seedList, ms: Date.now() - t0 };
