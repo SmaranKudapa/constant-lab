@@ -230,7 +230,7 @@ export function researcherHTML(spec, events) {
 }
 
 export function stationHTML(id, label, events) {
-  const filter = { lookout: (e) => e.type === "EXA", archive: (e) => e.type.startsWith("MEMORY") || e.type === "AUDIENCE" && e.op !== "update_traits", court: (e) => e.type === "REVIEW" || e.type === "FAILURE" || e.type === "HELD_OUT", portal: (e) => e.type.startsWith("RUN"), drafting: (e) => ["CLAIM", "PROPOSE", "BRIEF"].includes(e.type) }[id];
+  const filter = { altar: (e) => e.type === "RUN_START", treasury: (e) => e.type === "BUDGET_CHECK", lookout: (e) => ["EXA", "COMPARABLE", "TOWN_PROFILE"].includes(e.type), archive: (e) => e.type.startsWith("MEMORY") || e.type === "AUDIENCE" && e.op !== "update_traits", court: (e) => e.type === "REVIEW" || e.type === "FAILURE" || e.type === "HELD_OUT", portal: (e) => e.type.startsWith("RUN"), drafting: (e) => ["CLAIM", "PROPOSE", "BRIEF"].includes(e.type) }[id] || (() => false);
   const mine = events.filter(filter).slice(-30).reverse();
   return `<h3><span>${esc(label)}</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>${mine.length ? mine.map((e) => entryHTML(e)).join("") : `<p class="note">Nothing here yet.</p>`}`;
 }

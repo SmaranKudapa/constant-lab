@@ -86,8 +86,33 @@ function roll(el, delay) {
 }
 
 let onClosed = null;
+function failHTML(s) {
+  const nosim = s.fail === "nosim";
+  return `<div class="rp-backdrop" data-close></div>
+  <div class="rp-win rp-fail" role="dialog" aria-label="Trial result">
+    <div class="rp-glow"></div>
+    <button class="rp-x" data-close title="Close">✕</button>
+    <div class="rp-head">
+      <div class="rp-kicker">✕ ${nosim ? "CAN'T BE SIMULATED" : "NO OPTION WORKED"} · ${esc(s.city || "")}</div>
+      <div class="rp-q">"${esc(s.prompt)}"</div>
+    </div>
+    <div class="rp-body">
+      <section class="rp-sec rp-failsec"><h4 class="rp-h">${nosim ? "WHY THIS QUESTION CAN'T BE SIMULATED" : "WHY NOTHING WAS RECOMMENDED"}</h4>
+        <p class="rp-lead">${esc((s.brief && s.brief.summary) || "The question can't be expressed with the actions the town model supports.")}</p></section>
+      ${nosim ? "" : `<h4 class="rp-h">WHAT WAS TRIED</h4>${othersHTML(s)}`}
+    </div>
+  </div>`;
+}
+
 export function openSummary(s, origin = null, onClose = null) {
   onClosed = onClose;
+  if (s.fail) {  // red popup: no numbers, no tabs, just why
+    const root = $("results");
+    root.innerHTML = failHTML(s);
+    root.classList.remove("hidden", "closing");
+    root.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closeSummary));
+    return;
+  }
   const root = $("results");
   const tiles = s.tiles.map((t, i) => `<div class="rp-tile ${t.good ? "good" : "bad"}" style="--i:${i}"><div class="rp-tl">${esc(t.label)}</div><div class="rp-tv">${esc(t.text)}</div><div class="rp-ts">${esc(t.sub)}</div></div>`).join("");
   root.innerHTML = `<div class="rp-backdrop" data-close></div><div class="rp-rays"></div>

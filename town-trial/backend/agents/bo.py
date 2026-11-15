@@ -71,7 +71,9 @@ class Bo:
         return self.llm.json("brief", schema, SYSTEM, context)
 
     def research_brief(self, city: str, prompt: str) -> dict:
-        schema = strict({"reason": {"type": "string", "description": "why the idea cannot be simulated with the supported actions"},
+        schema = strict({"reason": {"type": "string", "description": "3-4 plain-language sentences for a resident: what the question asks for, which "
+                                                          "of the supported levers it would need, and why none of them can represent it (e.g. data centers are "
+                                                          "private industrial sites, not public places with hours or visitors). No jargon, no lists."},
                          "data_plan": {"type": "string", "description": "what data to collect, from whom, to evaluate the idea"}})
         actions = ("Supported actions: change opening hours, capacity, per-visit fees or close any public place (library, clinic, pharmacy, "
                    "community centre, sports, park, post office, town hall); open a new place of those kinds; send a notice through "

@@ -105,7 +105,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     act(() => emit("REVIEW", { agent: "cy", exp: "E1", ok: true, reason: "Supported actions only. Flag: needs 12 more staff hours a week, and staffing is an unverified input." }));
     say("treasurer", "Costing E1", "treasury");
     act(() => treasurer(E1));
-    say("dee", "Fanning E0 + E1 out to Modal", "portal");
+    say("dee", "Fanning E0 + E1 out to Modal", "altar");
     act(() => {
       emit("RUN_START", { agent: "dee", exps: ["E0", "E1"], seeds: SEEDS, workers: SEEDS * 2, where: "Modal (demo: in-browser)" });
       heaven.drop(heaven.stations.portal, town.byId.library, 12, 0x5be37d);
@@ -148,7 +148,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     });
     say("cy", "E3 approved", "court");
     act(() => { emit("REVIEW", { agent: "cy", exp: "E3", ok: true, reason: "Supported actions, staff hours unchanged (96)." }); treasurer(E3); });
-    say("dee", "Running E3", "portal");
+    say("dee", "Running E3", "altar");
     act(() => { emit("RUN_START", { agent: "dee", exps: ["E3"], seeds: SEEDS, workers: SEEDS, where: "Modal (demo: in-browser)" }); heaven.drop(heaven.stations.portal, town.byId.library, 8); }, 1.4);
     act(() => { run(E3); emit("RUN_DONE", { agent: "dee", exp: "E3", metric: P.key, value: fmt(E3), staff_hours: 96, turned_away: E3.result.mean.turnedAway.toFixed(1) }); onView(E3);
       chain(1, "E1 needs 12 more staff hours a week, and nobody had checked whether that's allowed.", "Is extra evening staffing allowed this fiscal year?", "fixture://board-minutes", "E3: shift Tue/Thu to 13:00-21:00 (same 96 staff hours)", E1, E3); });
@@ -164,7 +164,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       chain(2, "Residents who work Saturdays are still turned away under E3.", "Would moving Saturday later reach them?", null, "E4: E3 + Saturday 12:00-20:00", E3, E4); }, 2);
 
     // Baselines with matched budgets
-    say("dee", "Running the baselines", "portal");
+    say("dee", "Running the baselines", "altar");
     act(() => {
       heaven.drop(heaven.stations.portal, town.byId.library, 12);
       const options = [];
@@ -200,7 +200,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       heaven.drop(heaven.stations.lookout, town.byId.library, 3, 0x59c2ff);
       P0 = exp({ id: "P0", label: "Online post only", role: "baseline", parent: null, policy: { channels: ["online"] }, change: "website + social post" });
     });
-    say("dee", "Running P0 on Modal", "portal");
+    say("dee", "Running P0 on Modal", "altar");
     act(() => { emit("RUN_START", { agent: "dee", exps: ["P0"], seeds: SEEDS, workers: SEEDS, where: "Modal (demo: in-browser)" }); heaven.drop(heaven.stations.portal, town.byId.plaza, 10); }, 1.4);
     act(() => { run(P0); emit("RUN_DONE", { agent: "dee", exp: "P0", metric: P.key, value: fmt(P0), overall: P0.result.mean.awarePct.toFixed(0) + "%" }); onView(P0); });
     say("cy", "Who did the notice miss?", "court");
@@ -227,7 +227,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       P3.status = "rejected"; onChange();
       emit("REVIEW", { agent: "cy", exp: "P3", ok: false, reason: "Open rate is not in any local source. Keep it as a labelled sensitivity range, not an input." });
     });
-    say("dee", "Running P1 + P2", "portal");
+    say("dee", "Running P1 + P2", "altar");
     act(() => { emit("RUN_START", { agent: "dee", exps: ["P1", "P2"], seeds: SEEDS, workers: SEEDS * 2, where: "Modal (demo: in-browser)" }); heaven.drop(heaven.stations.portal, town.byId.school, 12); }, 1.4);
     act(() => {
       run(P1); run(P2);

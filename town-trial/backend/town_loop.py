@@ -345,7 +345,7 @@ class TownTrial(LiveTrial):
         self.set_scope(out)
         if not out["representable"]:
             rb, err2 = self.attempt("bo", "research brief", lambda e: self.bo.research_brief(self.city, self.prompt))
-            self.emit("BRIEF", agent="bo", say="This needs data, not a simulation", recommend="none", label="Research brief (no simulation)",
+            self.emit("BRIEF", agent="bo", say="This needs data, not a simulation", recommend="none", label="Research brief (no simulation)", no_sim=True,
                       summary=(rb or {}).get("reason", "The idea can't be expressed with the supported actions."),
                       assumptions="No simulated number is reported for ideas outside the supported actions.",
                       pilot=(rb or {}).get("data_plan", "Collect local data on the idea before simulating it."), scripted=bool(err2))

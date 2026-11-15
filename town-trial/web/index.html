@@ -49,7 +49,13 @@
       <button class="btn small" data-speed="4">4x</button>
       <button class="btn small" data-speed="16">16x</button>
     </div>
+    <div id="town-stats" class="panel stats hidden">
+      <span title="Real population of the town"><i>RESIDENTS</i><b id="st-pop">-</b></span>
+      <span title="Residents the simulator models (each stands for a share of the real population)"><i>SIMULATED</i><b id="st-sim">-</b></span>
+      <span title="Town budget from a verified source (Exa Dude's town profile)"><i>TOWN BUDGET</i><b id="st-bud">-</b></span>
+    </div>
     <div id="mode-badge" class="panel mode hidden">-</div>
+    <div id="status-chip" class="panel status hidden"><i class="spin"></i><span id="status-text"></span></div>
     <div class="spacer"></div>
     <div class="panel views">
       <button class="btn small active" id="view-town">TOWN</button>
@@ -99,6 +105,7 @@
 </section>
 
 <div id="toast" class="hidden"></div>
+<div id="loading" class="hidden"><div class="ld-card panel"><div class="ld-spin"></div><div id="ld-title">Building the town</div><div id="ld-sub"></div></div></div>
 <div id="celebrate-banner" class="hidden"><span>BEST POLICY FOUND!</span></div>
 <div id="results" class="hidden"></div>
 <div id="hover-tip" class="hidden"></div>
