@@ -13,6 +13,7 @@ import { buildSummary } from "./summary.js";
 import { openSummary, closeSummary, remember, initHistory } from "./popup.js";
 import { createCelebration } from "./celebrate.js";
 import { ANGEL_SCALE } from "./people.js";
+import { roleOf, reaction } from "./voices.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -63,7 +64,7 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
-let trialPrompt = "", briefAt = 0, summaryDone = true, cheering = false;
+let trialPrompt = "", briefAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
@@ -85,6 +86,8 @@ function emit(type, fields) {
   const e = { seq: events.length + 1, t: new Date().toISOString(), type, clock: model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : "", ...fields };
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
+  if (type === "VOICES") voicesFor = { exp: fields.exp, byCohort: Object.fromEntries((fields.voices || []).map((v) => [v.cohort, v])) };
+  if (fields.resident && (type === "VISIT" || type === "TURNED_AWAY" || type === "LEARN")) residentSay(fields.resident, type === "TURNED_AWAY" ? "turned" : type === "LEARN" ? "heard" : fields.restricted ? "restricted" : "visit");
   if (type === "BRIEF" && research !== undefined) { briefAt = performance.now(); if (fields.recommend && fields.recommend !== "none") celebrate(); }
   const log = $("log");
   log.insertAdjacentHTML("afterbegin", UI.entryHTML(e));
@@ -223,6 +226,23 @@ function finishTrial() {
   openSummary(sum, screenOf(winningPlace()));
 }
 
+// ---------- residents' point of view: short reaction bubbles ----------
+const saySlots = [];
+let lastSay = 0;
+function residentSay(id, kind) {
+  const v = views[id], now = performance.now();
+  if (!v || now - lastSay < 900 / Math.max(1, Math.sqrt(speed))) return;
+  const slot = saySlots.find((q) => q.until < now);
+  if (!slot) return;
+  const voice = voicesFor && viewExp && viewExp.id === voicesFor.exp ? voicesFor.byCohort[v.data.cohort] : null;
+  if (!voice && kind === "visit" && Math.random() < 0.6) return; // ordinary visits are common; keep the chatter readable
+  lastSay = now;
+  slot.until = now + 3600;
+  slot.pos = new THREE.Vector3(v.pos.x, 3.4, v.pos.z);
+  slot.html = `<b>${UI.esc(v.data.name)} · ${UI.esc(roleOf(v.data))}</b>${UI.esc(reaction(kind, v.data, voice))}`;
+  slot.cls = `lbl say ${kind === "turned" ? "hurt" : voice ? voice.stance : kind === "restricted" ? "helped" : ""}`;
+}
+
 // ---------- day / night ----------
 const DAY = new THREE.Color(0x8fd3ff), DUSK = new THREE.Color(0xff9f7a), NIGHT = new THREE.Color(0x1d1b45);
 function lighting() {
@@ -277,8 +297,19 @@ function buildLabels() {
     const N = add(r.spec.name.toUpperCase(), () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE, r.pos.z), "lbl");
     N.update = () => { N.el.style.display = r.bubble ? "none" : ""; };
   }
+  saySlots.length = 0;
+  for (let k = 0; k < 5; k++) {
+    const slot = { until: 0, pos: new THREE.Vector3(0, -999, 0), html: "", cls: "lbl say", shown: "" };
+    const L = add("", () => slot.pos, "lbl say");
+    L.update = () => {
+      const on = slot.until > performance.now();
+      L.el.style.display = on ? "" : "none";
+      if (on && slot.shown !== slot.html) { L.el.innerHTML = slot.html; L.el.className = slot.cls; slot.shown = slot.html; }
+    };
+    saySlots.push(slot);
+  }
   const sel = add("", () => selectedPos() || new THREE.Vector3(0, -999, 0), "lbl sign");
-  sel.update = () => { sel.el.style.display = selected && selected.kind === "resident" ? "" : "none"; if (selected && selected.kind === "resident") sel.el.textContent = views[selected.id].data.name; };
+  sel.update = () => { sel.el.style.display = selected && selected.kind === "resident" ? "" : "none"; if (selected && selected.kind === "resident") sel.el.textContent = `${views[selected.id].data.name} · ${roleOf(views[selected.id].data)}`; };
 }
 const tmpV = new THREE.Vector3();
 function placeLabels() {
@@ -412,10 +443,15 @@ document.querySelectorAll("[data-city]").forEach((a) => a.addEventListener("clic
 $("city-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = $("city-input").value.trim() || "Anytown";
+  if (name.toUpperCase() === "DEV67") { // dev mode: the sample town and the scripted demo loop, no backend
+    devMode = true; liveDisabled = true;
+    await enterTown("Anytown", false);
+    return;
+  }
   await enterTown(name);
 });
-async function enterTown(name) {
-  await makeTown(name, true);
+async function enterTown(name, real = true) {
+  await makeTown(name, real);
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
@@ -445,7 +481,7 @@ let liveDisabled = false;
 const DEMO_BANNER = $("demo-banner").textContent;
 const LIVE_BANNER = "LIVE: research loop on the backend. Scripted steps and FIXTURE sources are labelled in the log.";
 function setBanner(live) {
-  $("demo-banner").textContent = (live ? LIVE_BANNER : DEMO_BANNER) +
+  $("demo-banner").textContent = (devMode ? "DEV MODE (DEV67): sample town, scripted demo loop, no backend. " : "") + (live ? LIVE_BANNER : DEMO_BANNER) +
     (townSpec ? " · REAL TOWN (streets schematic) · Map data © OpenStreetMap contributors" : "");
 }
 function startTrial(prompt) {
@@ -512,6 +548,48 @@ function afterTrialStart() {
   renderPanels(true);
 }
 
+// ---------- keyboard camera ----------
+// WASD pan (relative to the view), E/Q up/down, arrows orbit/tilt, O/I zoom out/in.
+const keys = new Set();
+const CAM_KEYS = new Set(["w", "a", "s", "d", "e", "q", "o", "i", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
+const keyName = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
+const typing = () => { const a = document.activeElement; return !!a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.isContentEditable); };
+window.addEventListener("keydown", (e) => {
+  if (typing() || e.ctrlKey || e.metaKey || e.altKey || !inTown || !$("landing").classList.contains("hidden")) return;
+  const k = keyName(e);
+  if (!CAM_KEYS.has(k)) return;
+  keys.add(k); e.preventDefault(); fly = null; follow = false; controls.autoRotate = false;
+});
+window.addEventListener("keyup", (e) => keys.delete(keyName(e)));
+window.addEventListener("blur", () => keys.clear());
+const _off = new THREE.Vector3(), _fwd = new THREE.Vector3(), _right = new THREE.Vector3(), _mv = new THREE.Vector3(), _sph = new THREE.Spherical();
+function keyboardCamera(dt) {
+  if (!keys.size || typing()) return;
+  _off.copy(camera.position).sub(controls.target);
+  const pan = Math.max(12, _off.length() * 0.9) * dt;
+  _fwd.set(-_off.x, 0, -_off.z).normalize();
+  _right.crossVectors(_fwd, camera.up).normalize();
+  _mv.set(0, 0, 0);
+  if (keys.has("w")) _mv.addScaledVector(_fwd, pan);
+  if (keys.has("s")) _mv.addScaledVector(_fwd, -pan);
+  if (keys.has("d")) _mv.addScaledVector(_right, pan);
+  if (keys.has("a")) _mv.addScaledVector(_right, -pan);
+  if (keys.has("e")) _mv.y += pan;
+  if (keys.has("q")) _mv.y -= pan;
+  controls.target.add(_mv);
+  controls.target.y = THREE.MathUtils.clamp(controls.target.y, -2, HEAVEN_Y + 20);
+  _sph.setFromVector3(_off);
+  if (keys.has("ArrowLeft")) _sph.theta -= 1.6 * dt;
+  if (keys.has("ArrowRight")) _sph.theta += 1.6 * dt;
+  if (keys.has("ArrowUp")) _sph.phi -= 1.0 * dt;
+  if (keys.has("ArrowDown")) _sph.phi += 1.0 * dt;
+  if (keys.has("o")) _sph.radius *= 1 + 1.4 * dt;
+  if (keys.has("i")) _sph.radius *= 1 - 1.4 * dt;
+  _sph.phi = THREE.MathUtils.clamp(_sph.phi, 0.08, controls.maxPolarAngle);
+  _sph.radius = THREE.MathUtils.clamp(_sph.radius, controls.minDistance, controls.maxDistance);
+  camera.position.copy(controls.target).add(_off.setFromSpherical(_sph));
+}
+
 // ---------- main loop ----------
 const clock = new THREE.Clock();
 function frame() {
@@ -548,6 +626,7 @@ function frame() {
     const p = selectedPos();
     if (p) { const d = new THREE.Vector3(p.x, 0, p.z).sub(controls.target); controls.target.add(d.multiplyScalar(0.08)); camera.position.add(d); }
   }
+  keyboardCamera(dt);
   const sp = selectedPos();
   marker.visible = !!sp;
   if (sp) { marker.position.set(sp.x, sp.y > 5 ? sp.y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }

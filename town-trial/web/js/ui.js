@@ -1,5 +1,6 @@
 // DOM rendering for the side panel: log, experiments, audiences/live stats, selection.
 import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
+import { roleOf } from "./voices.js";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 export const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
@@ -63,9 +64,9 @@ export function entryHTML(e, residentsById) {
     case "CONSTRAINT": body = `New constraint: <b>${esc(e.constraint)}</b> (was ${esc(e.previous)}). ${esc(e.changes.join("; "))}<br><i>${esc(e.source)}</i>`; break;
     case "HELD_OUT": body = `${e.finalists.join(", ")} frozen and tested on ${e.scenarios} held-out scenarios × ${e.seeds} seeds. ${esc(e.note)}`; break;
     case "BRIEF": body = `Recommend <b>${esc(e.recommend)}: ${esc(e.label)}</b><br>${esc(e.summary)}<br><i>Assumes:</i> ${esc(e.assumptions)}<br><i>Pilot:</i> ${esc(e.pilot)}`; break;
-    case "LEARN": body = `${esc(e.name)} heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
-    case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
-    case "TURNED_AWAY": body = `${esc(e.name)} turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
+    case "LEARN": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
+    case "VISIT": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}, ${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
+    case "TURNED_AWAY": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
     case "VOICES": body = `How residents would react to <b>${esc(e.exp)}</b> (${e.scripted ? "scripted" : "LLM-written"}, not real people):` + (e.voices || []).map((v) => `<div class="src"><b>${esc(v.role)}</b> (${esc(v.label)}, ${esc(v.stance)}: ${v.before} → ${v.after} ${esc(v.unit)}): "${esc(v.quote)}"</div>`).join(""); break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
@@ -151,6 +152,7 @@ export function residentHTML(r, s, mode, events) {
   if (s && s.aware) aud.push("heard-library-notice");
   const mine = events.filter((e) => e.resident === r.id).slice(-12).reverse();
   return `<h3><span>${esc(r.name)}</span><span class="close" data-close>CLOSE ✕</span></h3>
+  <div class="role-badge">${esc(roleOf(r))}</div>
   <div class="kv"><b>past.dev identity</b><span>${r.id}</span><b>Group</b><span>${esc(COHORTS[r.cohort].label)}</span><b>Gets news via</b><span>${esc(r.channel)}</span>
   <b>Neighborhood</b><span>${esc(r.neighborhood)}</span><b>Home</b><span>${esc(r.home.name)}</span><b>Now at</b><span>${esc(s ? s.at.name : r.home.name)}</span>
   <b>Library visits/wk</b><span>${r.interest} wanted${s ? `, ${s.visitsWeek} made` : ""}</span><b>Current hours?</b><span>${r.restricted ? "can't make them" : "can make them"}</span></div>
