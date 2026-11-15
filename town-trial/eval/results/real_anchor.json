@@ -1,0 +1,99 @@
+{
+  "case": "Toronto Public Library, 8 branches, July 2024: Monday service + extra mornings and evenings",
+  "sources": [
+    "https://tpl.ca/wp-content/uploads/sites/164/2025/05/12a-2025-revised-open-hours-plan-and-implementation-combined.pdf",
+    "https://blogs.tpl.ca/programming/2024/09/city-librarians-report-for-september-2024/"
+  ],
+  "real": {
+    "treated_yoy_pct": 61,
+    "control_yoy_pct": 6,
+    "treated_mom_pct": 55,
+    "control_mom_pct": -1,
+    "net_effect_pct_vs_control": 51.9,
+    "note": "Year-over-year July traffic; control = branches whose hours did not change. One month of data, 8 branches."
+  },
+  "assumed_schedules": {
+    "before": "40 h band: Tue/Thu 12:30-20:30, Wed/Fri 10:00-18:00, Sat 9:00-17:00",
+    "after": "62 h band: Mon-Thu 9:00-20:30, Fri-Sat 9:00-17:00",
+    "note": "Our inference from TPL's band table; TPL did not publish per-branch schedules in these sources."
+  },
+  "simulated": {
+    "towns": [
+      {
+        "town": "Evart, MI",
+        "visits_before": 66.6875,
+        "visits_after": 69.625,
+        "change_pct": 4.404873477038418,
+        "unique_before": 50.53125,
+        "unique_after": 51.78125,
+        "turned_away_before": 91.34375,
+        "turned_away_after": 11.5
+      },
+      {
+        "town": "Marfa, TX",
+        "visits_before": 63.21875,
+        "visits_after": 67.0,
+        "change_pct": 5.981216015818092,
+        "unique_before": 51.84375,
+        "unique_after": 52.78125,
+        "turned_away_before": 89.53125,
+        "turned_away_after": 14.1875
+      },
+      {
+        "town": "Ely, MN",
+        "visits_before": 65.8125,
+        "visits_after": 68.40625,
+        "change_pct": 3.941120607787285,
+        "unique_before": 48.0,
+        "unique_after": 48.90625,
+        "turned_away_before": 77.5625,
+        "turned_away_after": 8.3125
+      },
+      {
+        "town": "Hood River, OR",
+        "visits_before": 60.15625,
+        "visits_after": 61.8125,
+        "change_pct": 2.753246753246752,
+        "unique_before": 43.3125,
+        "unique_after": 43.9375,
+        "turned_away_before": 67.96875,
+        "turned_away_after": 4.21875
+      },
+      {
+        "town": "Springfield, IL",
+        "visits_before": 63.9375,
+        "visits_after": 66.4375,
+        "change_pct": 3.910068426197455,
+        "unique_before": 46.46875,
+        "unique_after": 46.90625,
+        "turned_away_before": 78.71875,
+        "turned_away_after": 7.125
+      },
+      {
+        "town": "Oslo",
+        "visits_before": 63.8125,
+        "visits_after": 66.53125,
+        "change_pct": 4.2605288932419105,
+        "unique_before": 48.6875,
+        "unique_after": 49.84375,
+        "turned_away_before": 80.40625,
+        "turned_away_after": 10.0
+      }
+    ],
+    "seeds": 32,
+    "mean_change_pct": 4.2,
+    "range_pct": [
+      2.8,
+      6.0
+    ]
+  },
+  "comparison": {
+    "sim_minus_real_pct_points": -47.7
+  },
+  "caveats": [
+    "Synthetic towns of 72 residents with model-default schedules; residents' interest caps weekly visits at 0-2.",
+    "The real figure includes effects the model lacks (new awareness, programmes, seasonality beyond the control).",
+    "Comparison is of relative change only; no calibration to Toronto was done."
+  ],
+  "generated_at": "2026-11-15T01:38:04Z"
+}

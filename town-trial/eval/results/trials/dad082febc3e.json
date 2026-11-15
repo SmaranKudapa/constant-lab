@@ -1,0 +1,1345 @@
+{
+ "trial_id": "dad082febc3e",
+ "city": "Evart, MI",
+ "mode": "perception",
+ "options": {},
+ "tag": "compare",
+ "version": "c4e3ddaf283c",
+ "wall_s": 195.2,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:39:20.369Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Evart, MI library",
+   "found": 3,
+   "note": "3 prior facts from earlier trials: Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed; A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows ",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:39:21.042Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:39:21.723Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows a public notice board or a bulletin to families.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:39:22.399Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:39:24.113Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "bulk_replace_identities",
+   "count": 72,
+   "note": "One identity per resident (evart-mi-r01 ...) with traits: town, cohort, channel, neighborhood.",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Setting up audiences"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:39:26.033Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "heard-dad082febc3e",
+   "kind": "rule",
+   "rule": "town = evart-mi AND heard_notice_dad082febc3e = true (this trial's notice)",
+   "members": 0,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:39:27.881Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "parents-evart-mi",
+   "kind": "rule",
+   "rule": "town = evart-mi AND cohort = families",
+   "members": 16,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:39:29.379Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "notice-dad082febc3e",
+   "kind": "notice",
+   "claim": "Library notice dad082febc3e: the Evart, MI public library is changing its opening hours. Residents who received notice dad082febc3e can find the new times on the library website.",
+   "source": "town-trial:notice",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:39:33.587Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "Current announcement channels: online",
+   "source": "https://evartlibrary.com/",
+   "effective": null,
+   "supersedes": "fact-notice-channels r16: A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows a public notice board or a bulletin to families.",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:39:34.260Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI library news how are hours changes announced",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/our_community/library.php",
+     "passage": "Evart Public Library Evart Public Library Along with their regular book selection The Evart Public Library has access to a variety of audio books and large print books. Additionally, the Evart Public Library has cemetery records for Evart, Osceola, Hartwick, Sylvan, Orient, Middle Branch and some Mecosta & Wexford Cemeteries. The Evart Public library also has documentation of the Evart Review from 1872 to present \u2013 microfilm, County Farm records, and some family histories. Website: Evart Public District Library P.O. Box 576 Evart, MI 49631 Phone: 231-734-5542 Hours of Operation: Monday 10:00am",
+     "published": null
+    },
+    {
+     "title": "Evart Public District Library",
+     "url": "https://evartlibrary.com/",
+     "passage": "Evart Public District Library MELCat offers more than just books! Check out their test prep tools for everything from AP exams to military exams. Job hunting? Create a resume, job letter or cover letter. Looking for a tutorial? Skip YouTube and find it at MELCat! That\u2019s just the start, there\u2019s so much more to discover. Looking for a specific book? Find out if we carry it here! Don\u2019t worry, there\u2019s no need to log in or create an account. Fun, educational and FREE e-books about the great state of Michigan. WiFi and Internet access available along with computer usage and a wide range of books: fr",
+     "published": null
+    },
+    {
+     "title": "Beyond Books: Check out these events at your local library",
+     "url": "https://www.bigrapidsnews.com/news/article/library-events-mecosta-osceola-counties-22516297.php",
+     "passage": "Libraries have more than just books. Here are some events happening at various libraries in Mecosta and Osceola counties. (Pioneer file photos) EDITOR\u2019S NOTE: For the latest information, including cancellations, please contact your local library. To report an inaccurate listing or to submit an event, please contact Julie Norwood at julie.norwood@pioneergroup.com. Storytime with Mr. Howard: 11 a.m. Wednesdays at the library unless otherwise noted. (No storytime on Nov. 25). A-Z Kit Club: Registration is open until Nov. 23 for the A-Z Kit Club, an early literacy program for ages 3-6. Registered ",
+     "published": "2026-11-10T10:26:00.000Z"
+    }
+   ],
+   "used_for": "Baseline channels: online",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: how this town gets news"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:39:36.761Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If the new library hours are posted only online, working parents in Evart, MI will hear about them within the notice period.",
+   "metric": "% of working parents who heard within 3 days",
+   "constraint": "no paid ads",
+   "horizon": "3 days, 16 matched seeds",
+   "prompt": "Will working parents hear about the new library hours if we only post the notice online?",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:39:37.444Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:39:38.157Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "The user's idea is current practice, so the baseline is also 'your idea'.",
+   "agent": "bo"
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:39:38.858Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:39:39.535Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:39:40.217Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning P0 out to Modal"
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:39:41.555Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 46.61458333333333,
+     "familiesAwarePct": 48.046875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 11.27162701730695,
+     "familiesAwarePct": 18.217258014952012
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:39:42.227Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P0",
+   "metric": "familiesAwarePct",
+   "value": "48.0% \u00b1 18.2",
+   "wall_s": 0.65,
+   "workers": 2,
+   "view": "P0",
+   "note": null,
+   "overall": "47%",
+   "agent": "dee"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:39:45.221Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P0",
+   "trace": "The biggest misses are day-workers (39%) and families (48%), while students (62%), remote workers (75%), and night-shift workers (68%) are much better reached. Word-of-mouth and online are the main routes so far, but they are not enough to cover the daytime-working and family cohorts within 3 days.",
+   "next_question": "Which public alert channels does Evart officially use now?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:39:47.385Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-dad082febc3e-1",
+   "kind": "failure",
+   "claim": "P0: The biggest misses are day-workers (39%) and families (48%), while students (62%), remote workers (75%), and night-shift workers (68%) are much better reached. Word-of-mouth and online are the main routes so far, but they are not enough to cover the daytime-working and family cohorts within 3 days. Next: Which public alert channels does Evart officially use now?",
+   "source": "trial:dad082febc3e",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:39:51.396Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI city council Evart MI public alert channels official notices",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+     "passage": "Welcome to Evart, MI City Council Meetings There will be a council meeting on Monday, October 19, 2026 at 6:30pm in the community room at the Depot, 200 S. Main Street. There is a work session before every regular city council meeting at 6:00pm. These meetings are open to the public. - Public Notice - Meeting Agenda (only) - Meeting Packet Evart City Hall 200 S. Main Street Evart, MI 49631 231.734.2181 Monday - Thursday 7:00AM-5:00PM",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/city_government/agendas_and_meetings.php",
+     "passage": "Welcome to Evart, MI Document Center The Document Center provides easy access to public documents. Click on one of the categories below to see related documents or use the search function. Please click on one of the categories below to see uploaded documents. 2026 City Council Meeting Agendas, Packets and Minutes 49 documents CAT:3267 01.05.2026 agenda and packet document Header 01.05.2026 agenda and packet file:3268 01.05.2026 council minutes document Header 01.05.2026 council minutes file:3279 01.05.2026 work session minutes document Header 01.05.2026 work session minutes file:3275 01.20.202",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/news_detail_T35_R42.php",
+     "passage": "Welcome to Evart, MI City Council Meeting: Monday, October 19, 2026 at 6:30PM The Evart City Council will meet on Monday, October 19, 2026 at 6:30pm at the Depot, 200 S. Main Street. There will be a works session at 7:00pm. This meeting is open to the public. - Public Notice - Agenda and Packet Evart City Hall 200 S. Main Street Evart, MI 49631 231.734.2181 Monday - Thursday 7:00AM-5:00PM",
+     "published": null
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"- Public Notice - Meeting Agenda (only) - Meeting Packet\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:39:53.591Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "The sources show Evart uses online public notices on its website to reach residents. They do not explicitly show a public notice board or a bulletin/newsletter in the provided sources.",
+   "source": "https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+   "effective": null,
+   "supersedes": "fact-notice-channels r17: Current announcement channels: online",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:40:21.123Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The sources show Evart uses online public notices on its website to reach residents. They do not explicitly show a public notice board or a bulletin/newsletter in the provided sources.",
+   "used_for": "round 1 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:40:22.376Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart, MI public library hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:40:23.067Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart school communications.",
+    "ada: Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board (statement)."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:40:23.744Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The sources show Evart uses online public notices on its website to reach residents. They do not explicitly show a public notice board or a bulletin/newsletter in the provided sources.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:40:28.236Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Bo's proposal 'Online only' repeats an earlier experiment; skipped.",
+   "agent": "bo"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:40:28.920Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online + school bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:40:29.595Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P1",
+   "parent": "P0",
+   "change": "online + bulletin",
+   "why": "Evart also has a school communication path to parents/guardians, so adding the family bulletin could extend notice to households that may miss the website update, especially working parents.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P1"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:40:33.213Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online + school bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:40:33.909Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P1",
+   "ok": false,
+   "reason": "The only locally supported part is that Evart has an online school communication path. The added claim that a family bulletin would specifically help households missed by the website, especially working parents, is a reach/behavior assumption that the simulation can test but the sources do not state.",
+   "ungrounded": [
+    "Working parents are a group that is more likely to miss the website update."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:40:36.278Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P0",
+   "trace": "The main misses are seniors (21% aware by day 3) and day-workers (39%); families are also only at 48%. Awareness is coming mostly from word-of-mouth (19.1) and online (14.4), so the current mix is not reaching those groups fast enough.",
+   "next_question": "Which official town channels can be used for notices?",
+   "entity": "Evart city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:40:38.285Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-dad082febc3e-2",
+   "kind": "failure",
+   "claim": "P0: The main misses are seniors (21% aware by day 3) and day-workers (39%); families are also only at 48%. Awareness is coming mostly from word-of-mouth (19.1) and online (14.4), so the current mix is not reaching those groups fast enough. Next: Which official town channels can be used for notices?",
+   "source": "trial:dad082febc3e",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:40:42.596Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI Evart city council Evart official notice channels newsletter utility bill insert website",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+     "passage": "Welcome to Evart, MI City Council Meetings There will be a council meeting on Monday, October 19, 2026 at 6:30pm in the community room at the Depot, 200 S. Main Street. There is a work session before every regular city council meeting at 6:00pm. These meetings are open to the public. - Public Notice - Meeting Agenda (only) - Meeting Packet Evart City Hall 200 S. Main Street Evart, MI 49631 231.734.2181 Monday - Thursday 7:00AM-5:00PM",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/city_services/utility_billing.php",
+     "passage": "Welcome to Evart, MI Utility Billing Information Utility bills are mailed on the first day, and due by the thirtieth day of each month. - Bill Pay Information or Pay Bill - Click Here - Water and Sewer Rates - Click Here Resolution regarding water and sewer rates and charges July 2023. Resolution regarding water and sewer rates and charges July 2024. Resolution regarding water and sewer rates and charges July 2025. Utility Service Request Forms - Property Owner/Landlord Request for Utility Services Form - Click Here - Tenant/Lessee Request for Utility Services Form can be found - Click Here Ev",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/city_government/city_clerk.php",
+     "passage": "Welcome to Evart, MI City Clerk The City Clerk\u2019s Office is the \u201ckeeper of all information\u201d for the City of Evart. The Clerk maintains all official city records, including deeds, contracts, and other legal documents; keeps a record of all ordinances, resolutions, and actions by the City Council and provides public notices for all meetings. Services to the Public include: - Register to Vote - Elections The City Clerk also serves as a Notary Public. There is no charge for this service. Hours and Location: The City Clerk's office is located at the Evart Depot, 200 S. Main Street. | Monday | 7:00 a",
+     "published": null
+    }
+   ],
+   "used_for": "No channel evidence (the model's quote was not found in any passage, so it was discarded). Gap logged; untested channels stay labelled as assumptions.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:40:53.622Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The sources show Evart uses online public notices on its website to reach residents. They do not explicitly show a public notice board or a bulletin/newsletter in the provided sources.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:40:54.859Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart, MI public library hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:40:55.550Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart school communications.",
+    "ada: Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board (statement)."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:40:56.253Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The sources show Evart uses online public notices on its website to reach residents. They do not explicitly show a public notice board or a bulletin/newsletter in the provided sources.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:41:01.337Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:41:02.028Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P2",
+   "parent": "P0",
+   "change": "online + board",
+   "why": "Keeps the already-used online notice and adds a paper board notice to reach the groups under-served by online-only in the trace (day-workers 39%, seniors 21%).",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P2"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:41:05.097Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P2",
+   "ok": true,
+   "reason": "The proposal relies on the trace showing low awareness for day-workers and seniors under online-only, then tests whether adding a board broadens reach. I\u2019m not rejecting the board channel itself because channel existence is handled in code.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:41:05.779Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:41:06.464Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P3",
+   "parent": "P0",
+   "change": "board + bulletin",
+   "why": "Uses the two non-online notice routes to test whether a paper notice plus a family-facing school bulletin improves awareness beyond the current online-heavy pattern, given the trace shows families at 48% and seniors at 21%.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P3"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:41:09.307Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P3",
+   "ok": true,
+   "reason": "The proposal is acceptable as a channel test: it relies on code-handled channel existence and on an effect the simulation can test, not on unsupported real-world demand or behavior claims.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:41:09.998Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:41:10.681Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:41:11.350Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P2",
+    "P3"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P2 + P3"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:41:13.414Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.evart.org/virtual_city_meetings/city_council_meetings.php",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 77.25694444444444,
+     "familiesAwarePct": 74.609375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.208711356458678,
+     "familiesAwarePct": 14.872505042863493
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:41:14.086Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 74.99999999999999,
+     "familiesAwarePct": 92.96875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.190560981646954,
+     "familiesAwarePct": 4.492470552676631
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:41:14.784Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P2",
+   "metric": "familiesAwarePct",
+   "value": "74.6% \u00b1 14.9",
+   "wall_s": 1.28,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "77%",
+   "agent": "dee"
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:41:15.472Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P3",
+   "metric": "familiesAwarePct",
+   "value": "93.0% \u00b1 4.5",
+   "wall_s": 1.28,
+   "workers": 4,
+   "view": "P3",
+   "note": "new best so far",
+   "overall": "75%",
+   "agent": "dee"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:41:19.900Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online + family bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:41:20.584Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:41:22.333Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:41:23.012Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 68.40277777777777,
+     "familiesAwarePct": 94.921875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.813581812772307,
+     "familiesAwarePct": 4.6875
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:41:23.686Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online + family bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 68.40277777777777,
+     "familiesAwarePct": 94.921875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.813581812772307,
+     "familiesAwarePct": 4.6875
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:41:24.394Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "familiesAwarePct",
+   "value": "94.9% \u00b1 4.7",
+   "note": "best of 6 sweep configs",
+   "wall_s": 1.07,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:41:25.076Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "familiesAwarePct",
+   "value": "94.9% \u00b1 4.7",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 1.07,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:41:25.760Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0",
+    "SW",
+    "OS",
+    "P3"
+   ],
+   "seeds": 8,
+   "workers": 12,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:41:27.557Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "P0",
+    "SW",
+    "OS",
+    "P3"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 1.12,
+   "workers": 12,
+   "agent": "cy"
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:41:28.248Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "% of working parents who heard within 3 days",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "P0": 46.42857142857143,
+     "SW": 90.17857142857142,
+     "OS": 90.17857142857142,
+     "P3": 96.42857142857143
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "P0": 40.0,
+     "SW": 92.5,
+     "OS": 92.5,
+     "P3": 96.66666666666667
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "P0": 57.03125,
+     "SW": 96.09375,
+     "OS": 96.09375,
+     "P3": 97.65625
+    }
+   ],
+   "finalists": [
+    {
+     "id": "P0",
+     "label": "Current practice (= your idea)",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Online + family bulletin",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "P3",
+     "label": "Board + bulletin",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:41:28.923Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online + family bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 68.40277777777777,
+     "familiesAwarePct": 94.921875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.813581812772307,
+     "familiesAwarePct": 4.6875
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:41:32.121Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "OS",
+   "label": "One-shot: Online + family bulletin",
+   "summary": "One-shot: Online + family bulletin: 94.9% \u00b1 4.7 vs 48.0% \u00b1 18.2 for current practice (% of working parents who heard within 3 days). OS one-shot: online + family bulletin wins on the measured outcome: 94.9% \u00b1 4.7 of working parents heard within 3 days versus 48.0% \u00b1 18.2 for current practice. It also holds up on held-out tests, staying at 90.2%\u201396.1% versus 46.4%\u201357.0% for current practice, so the gain is large and consistent.",
+   "assumptions": "This depends on the synthetic resident schedules, arrival patterns, and word-of-mouth rates used by the model. It also assumes the bulletin channel exists in practice, even though the local sources only explicitly confirm online channels.",
+   "pilot": "Run a 2-week pilot for one district notice: post online and send the family bulletin once, then measure the share of working parents reached within 3 days and compare it with the prior notice process.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:41:34.384Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r44",
+   "found": 0,
+   "note": "Before replay: Eli Park (families, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:41:35.609Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r51",
+   "found": 0,
+   "note": "Before replay: Eva Diaz (day-workers, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:41:36.836Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r01",
+   "found": 0,
+   "note": "Before replay: Vic Larsen (students, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:41:55.069Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 20,
+   "identity": "evart-mi-r62",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "online"
+   },
+   "slug": "heard-dad082febc3e",
+   "members": 20,
+   "note": "OS seed 0: 20/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Replaying the watched run into past.dev"
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T01:42:12.482Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 40,
+   "identity": "evart-mi-r08",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "bulletin"
+   },
+   "slug": "heard-dad082febc3e",
+   "members": 40,
+   "note": "OS seed 0: 40/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T01:42:26.707Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 55,
+   "identity": "evart-mi-r20",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-dad082febc3e",
+   "members": 55,
+   "note": "OS seed 0: 55/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 70,
+   "t": "2026-11-15T01:42:27.896Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r44",
+   "found": 1,
+   "note": "After replay: Eli Park (families, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 71,
+   "t": "2026-11-15T01:42:29.141Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r51",
+   "found": 1,
+   "note": "After replay: Eva Diaz (day-workers, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 72,
+   "t": "2026-11-15T01:42:30.319Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice dad082febc3e",
+   "identity": "evart-mi-r01",
+   "found": 0,
+   "note": "After replay: Vic Larsen (students, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  }
+ ]
+}

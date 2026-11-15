@@ -28,9 +28,10 @@ export function entryHTML(e, residentsById) {
     case "LEARN": body = `${esc(e.name)} heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
     case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited the library${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
     case "TURNED_AWAY": body = `${esc(e.name)} turned away: ${esc(e.reason)}`; break;
+    case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }
-  const cls = `entry t-${e.type}${e.type === "REVIEW" && !e.ok ? " reject" : ""}`;
+  const cls = `entry t-${e.type}${(e.type === "REVIEW" && !e.ok) || (e.type === "NOTE" && e.level === "error") ? " reject" : ""}`;
   return `<div class="${cls}"><div class="head"><span class="type">${e.type.replace("_", " ")}</span><span class="who">${esc(who)}</span><span class="when">${esc(e.clock || "")}</span></div>${body}</div>`;
 }
 

@@ -20,6 +20,17 @@ Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 
 | `CONSTRAINT` | `constraint, source, previous, changes[]` | A sourced fact changed what's allowed. |
 | `HELD_OUT` | `finalists[], scenarios, seeds, note` | Frozen picks tested on unseen scenarios. |
 | `BRIEF` | `recommend, label, summary, assumptions, pilot` | The decision brief. |
+| `EXPERIMENT` | `id, label, role` (`baseline`/`user`/`revision`/`sweep`/`oneshot`), `parent, policy, change, source, status` (`queued`/`running`/`done`/`infeasible`/`rejected`), `result: {n, mean, sd}`, `best` | Upsert: the latest event for an `id` wins. Rebuilds the Experiments tab; not shown as a log card. |
+| `HELD_OUT_TABLE` | `finalists[{id,label,role,feasible}], table[{scenario, <id>: value}], metric` | Feeds the held-out table. Not shown as a log card. |
+| `NOTE` | `level` (`info`/`warn`/`error`), `message` | A fallback, failure or stop, logged so nothing fails silently. |
+
+Optional fields on research events (backend):
+- `say`: the short line the researcher says while acting the event out.
+- `scripted: true`: the words come from the scripted loop (M1 port of `research.js`, or the fallback after invalid LLM output), not a live agent.
+- `fixture: true` on `EXA`: placeholder evidence (titles say FIXTURE, URLs are `fixture://`).
+- `store` on `MEMORY_*` / `AUDIENCE`: `past.dev`, `local-fallback`, or `scripted`.
+- `wall_s, workers` on `RUN_DONE` / `HELD_OUT`: wall time of the fan-out and the number of workers.
+- `view` on `RUN_DONE`: experiment id the viewer should replay now (`BRIEF` replays `recommend`).
 
 ## Town events (the run being watched)
 

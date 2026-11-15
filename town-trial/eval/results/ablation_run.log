@@ -1,0 +1,155 @@
+  ablation   service    Evart, MI        bb879a402c6e 52.5s done=True
+  ablation   service    Marfa, TX        f3b65f492156 62.3s done=True
+  ablation   service    Ely, MN          31a07fb0297e 90.3s done=True
+  ablation   service    Hood River, OR   a76949f45479 58.3s done=True
+  ablation   service    Evart, MI        724eb61f9897 93.2s done=True
+  ablation   service    Ely, MN          fc5fc94edf27 87.4s done=True
+  ablation   service    Marfa, TX        b697fbc6ca0e 125.8s done=True
+  ablation   service    Hood River, OR   0ee5313c9eda 92.7s done=True
+{
+ "service": {
+  "metric": "visits/week by residents who can't make current hours",
+  "trials": 4,
+  "towns": [
+   "Evart, MI",
+   "Ely, MN",
+   "Hood River, OR",
+   "Marfa, TX"
+  ],
+  "arms": {
+   "baseline": {
+    "trials": 4,
+    "held_out_mean": 2.614583333333333,
+    "gain_over_baseline": 0.0,
+    "infeasible": 0,
+    "best_on_held_out": 0
+   },
+   "user": {
+    "trials": 4,
+    "held_out_mean": 5.208333333333333,
+    "gain_over_baseline": 2.59375,
+    "infeasible": 1,
+    "best_on_held_out": 0
+   },
+   "sweep": {
+    "trials": 4,
+    "held_out_mean": 5.802083333333333,
+    "gain_over_baseline": 3.1875,
+    "infeasible": 0,
+    "best_on_held_out": 1
+   },
+   "oneshot": {
+    "trials": 4,
+    "held_out_mean": 5.53125,
+    "gain_over_baseline": 2.916666666666667,
+    "infeasible": 1,
+    "best_on_held_out": 1
+   },
+   "agent": {
+    "trials": 4,
+    "held_out_mean": 4.802083333333334,
+    "gain_over_baseline": 2.1875,
+    "infeasible": 0,
+    "best_on_held_out": 2
+   }
+  },
+  "agent_runs_mean": 2.5,
+  "agent_rejected_total": 6
+ },
+ "perception": {
+  "metric": "% of working parents who heard within 3 days",
+  "trials": 4,
+  "towns": [
+   "Ely, MN",
+   "Hood River, OR",
+   "Marfa, TX",
+   "Evart, MI"
+  ],
+  "arms": {
+   "baseline": {
+    "trials": 4,
+    "held_out_mean": 43.36495535714286,
+    "gain_over_baseline": 0.0,
+    "infeasible": 0,
+    "best_on_held_out": 0
+   },
+   "user": {
+    "trials": 4,
+    "held_out_mean": 43.36495535714286,
+    "gain_over_baseline": 0.0,
+    "infeasible": 0,
+    "best_on_held_out": 0
+   },
+   "sweep": {
+    "trials": 4,
+    "held_out_mean": 94.69618055555556,
+    "gain_over_baseline": 51.331225198412696,
+    "infeasible": 0,
+    "best_on_held_out": 3
+   },
+   "oneshot": {
+    "trials": 4,
+    "held_out_mean": 92.8484623015873,
+    "gain_over_baseline": 49.48350694444444,
+    "infeasible": 0,
+    "best_on_held_out": 0
+   },
+   "agent": {
+    "trials": 4,
+    "held_out_mean": 95.69444444444444,
+    "gain_over_baseline": 52.32948908730158,
+    "infeasible": 0,
+    "best_on_held_out": 1
+   }
+  },
+  "agent_runs_mean": 3.0,
+  "agent_rejected_total": 1
+ }
+}
+{
+ "failure": {
+  "trials": 4,
+  "towns": [
+   "Evart, MI",
+   "Ely, MN",
+   "Hood River, OR",
+   "Marfa, TX"
+  ],
+  "exa_calls_mean": 3.0,
+  "verified_facts_mean": 1.5,
+  "trials_with_constraint": 1,
+  "gaps_mean": 0.75,
+  "agent_held_out_mean": 4.802083333333334,
+  "agent_feasible": 4
+ },
+ "broad": {
+  "trials": 4,
+  "towns": [
+   "Hood River, OR",
+   "Evart, MI",
+   "Marfa, TX",
+   "Ely, MN"
+  ],
+  "exa_calls_mean": 3.0,
+  "verified_facts_mean": 1.0,
+  "trials_with_constraint": 0,
+  "gaps_mean": 1.0,
+  "agent_held_out_mean": 5.989583333333333,
+  "agent_feasible": 4
+ },
+ "none": {
+  "trials": 4,
+  "towns": [
+   "Ely, MN",
+   "Hood River, OR",
+   "Evart, MI",
+   "Marfa, TX"
+  ],
+  "exa_calls_mean": 0.0,
+  "verified_facts_mean": 0.0,
+  "trials_with_constraint": 0,
+  "gaps_mean": 2.0,
+  "agent_held_out_mean": 4.645833333333333,
+  "agent_feasible": 4
+ }
+}

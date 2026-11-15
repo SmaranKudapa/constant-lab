@@ -1,0 +1,1408 @@
+{
+ "trial_id": "b196baacda38",
+ "city": "Marfa, TX",
+ "mode": "perception",
+ "options": {},
+ "tag": "compare",
+ "version": "c4e3ddaf283c",
+ "wall_s": 157.3,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:39:40.213Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Marfa, TX library",
+   "found": 1,
+   "note": "1 prior facts from earlier trials: Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:39:40.556Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:39:41.579Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "bulk_replace_identities",
+   "count": 72,
+   "note": "One identity per resident (marfa-tx-r01 ...) with traits: town, cohort, channel, neighborhood.",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Setting up audiences"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:39:42.522Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "heard-b196baacda38",
+   "kind": "rule",
+   "rule": "town = marfa-tx AND heard_notice_b196baacda38 = true (this trial's notice)",
+   "members": 0,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:39:43.452Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "parents-marfa-tx",
+   "kind": "rule",
+   "rule": "town = marfa-tx AND cohort = families",
+   "members": 16,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:39:44.361Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "notice-b196baacda38",
+   "kind": "notice",
+   "claim": "Library notice b196baacda38: the Marfa, TX public library is changing its opening hours. Residents who received notice b196baacda38 can find the new times on the library website.",
+   "source": "town-trial:notice",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:39:48.253Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "Current announcement channels: online",
+   "source": "https://www.marfapubliclibrary.org/newsletter",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:39:48.586Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX library news how are hours changes announced",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Location & Hours \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/locationhours",
+     "passage": "Location & Hours \u2014 Marfa Public Library Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm Open till 6pm on Thursday Saturday 10am - 2pm Sunday Closed Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm",
+     "published": null
+    },
+    {
+     "title": "Newsletter \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/newsletter",
+     "passage": "Newsletter \u2014 Marfa Public Library Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm",
+     "published": null
+    },
+    {
+     "title": "Public Library | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/publiclibrary",
+     "passage": "The Marfa Public Library offers over 20,000 volumes of books, audiobooks, an award-winning Texana collection, and a large collection of children's books. Film classics, foreign, award-winning, en espa\u00f1ol, and more are available to check out on DVD and Blu-Ray. Other services include printing black & white and color copies, a copy machine, a fax machine, laminating, seven computers, local newspapers, more than 20 titles of magazines, and free wifi. The library director and staff manage all aspects of the Marfa Public Library's daily operations, in addition to supporting its ongoing programming,",
+     "published": null
+    }
+   ],
+   "used_for": "Baseline channels: online",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: how this town gets news"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:39:50.788Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "Post the new library hours only online for working parents and check whether they hear about the change within 1 week.",
+   "metric": "% of working parents who heard within 3 days",
+   "constraint": "no paid ads",
+   "horizon": "3 days, 16 matched seeds",
+   "prompt": "Will working parents hear about the new library hours if we only post the notice online?",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:39:51.120Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/newsletter",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:39:51.455Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "The user's idea is current practice, so the baseline is also 'your idea'.",
+   "agent": "bo"
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:39:51.790Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/newsletter",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:39:52.141Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/newsletter",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:39:52.491Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning P0 out to Modal"
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:39:53.331Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/newsletter",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 46.52777777777778,
+     "familiesAwarePct": 45.3125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 8.161815137421856,
+     "familiesAwarePct": 16.535945694153693
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:39:53.679Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P0",
+   "metric": "familiesAwarePct",
+   "value": "45.3% \u00b1 16.5",
+   "wall_s": 0.52,
+   "workers": 2,
+   "view": "P0",
+   "note": null,
+   "overall": "47%",
+   "agent": "dee"
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:39:55.297Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P0",
+   "trace": "The weakest groups are seniors (22%) and day-workers (42%), with families still only 45% after 3 days. Learning is mostly through word-of-mouth (16.9) and online (16.6), so the current approach is not reaching less-connected residents fast enough.",
+   "next_question": "Which local channels does Marfa actually use for town notices and alerts?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:39:56.296Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-b196baacda38-1",
+   "kind": "failure",
+   "claim": "P0: The weakest groups are seniors (22%) and day-workers (42%), with families still only 45% after 3 days. Learning is mostly through word-of-mouth (16.9) and online (16.6), so the current approach is not reaching less-connected residents fast enough. Next: Which local channels does Marfa actually use for town notices and alerts?",
+   "source": "trial:b196baacda38",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:40:00.663Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX city council Marfa TX public notices alerts website radio newsletter Facebook",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "City Council | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/citycouncil",
+     "passage": "City Council | Marfa, TX City Council Marfa's City Council creates policy for the town, serving as the local government's legislative branch. They approve the final budget and set the vision and course for the city\u2019s future through strategic planning. City Council also appoints local residents as members to Marfa's Boards and Commission and Advisory Committees. City Council is composed of five Marfa citizens who are elected to serve at large. Council Members serve two-year staggered terms with an election held each May. Manuel V. Baeza Mayor 432-729-4315 Email Travis Acreman Councilmember 432-",
+     "published": null
+    },
+    {
+     "title": "Recent Meetings | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/meetings/recent",
+     "passage": "Recent Meetings | Marfa, TX Recent Meetings | Date | Meeting | Agendas | Agenda Packets | Minutes | Video / Audio | View | | --- | --- | --- | --- | --- | --- | --- | | Oct 29, 2026 | 6pm - 7pm | Regular Meeting of the Marfa City Council | | | | | View Details | | Oct 26, 2026 | 6pm - 7pm | Special Meeting of the Board of Adjustments | | | | | View Details | | Oct 20, 2026 | 6pm - 7pm | A PUBLIC HEARING AND REGULAR MEETING OF THE PLANNING AND ZONING COMMISSION | | | | | View Details | | Oct 13, 2026 | 6pm - 7pm | A Regular Meeting of the Marfa City Council will be held on October 13, 2026 at 6",
+     "published": null
+    },
+    {
+     "title": "The Big Bend Sentinel \u2013 News from Marfa, TX, Since 1926",
+     "url": "https://bigbendsentinel.com/",
+     "passage": "The Big Bend Sentinel \u2013 News from Marfa, TX, Since 1926 Big Bend Sentinel SCOTUS gives wall construction green light Efforts to stop border barrier construction in the Big Bend suffered a blow on Monday as the Supreme Court lifted a preliminary injunction that had halted\u2026 November 10, 2026 November 10, 2026 Marfa ISD revises 2026-27 school calendar, gives students and staff Thanksgiving week off MARFA \u2014 Marfa ISD has applied for a professional development minutes waiver and amended the current school year calendar to reflect changes necessary to meet the\u2026 November 10, 2026 November 10, 2026 Ma",
+     "published": "2019-07-25T02:38:49.000Z"
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"Sep 17, 2026 | 6pm - 7pm | Notice is hereby given of a regular meeting of the City of Marfa Planning & Zoning Commission | | | | | View Details | | Sep 15, 2026\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:40:01.423Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "source": "https://www.cityofmarfa.com/meetings/recent",
+   "effective": null,
+   "supersedes": "fact-notice-channels r1: Current announcement channels: online",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:40:28.390Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "round 1 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:40:29.116Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa Public Library Sunday opening hours: Sun closed.",
+    "ada: Marfa Public Library Monday opening hours: Mon 09:00-17:00.",
+    "ada: Marfa Public Library Friday opening hours: Fri 09:00-17:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:40:29.461Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:40:34.099Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Bo's proposal 'Online only' repeats an earlier experiment; skipped.",
+   "agent": "bo"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:40:34.435Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus all channels",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.cityofmarfa.com/meetings/recent",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:40:34.790Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P1",
+   "parent": "P0",
+   "change": "online + board + bulletin",
+   "why": "Use the evidenced online channel as the anchor, while adding the other notice channels as a broader reach test since the current trace shows awareness is still uneven across cohorts.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P1"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:40:37.488Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P1",
+   "ok": true,
+   "reason": "The trace shows uneven awareness across cohorts, so a broader-reach test is a valid next step. The only unsupported pieces are the extra channel labels, which are allowed here because channel existence is handled in code.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:40:37.900Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus all channels",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.cityofmarfa.com/meetings/recent",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:40:38.232Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P1"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P1"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:40:38.991Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus all channels",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.cityofmarfa.com/meetings/recent",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 80.64236111111111,
+     "familiesAwarePct": 96.484375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 4.63338967680459,
+     "familiesAwarePct": 4.546490175582332
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:40:39.333Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P1",
+   "metric": "familiesAwarePct",
+   "value": "96.5% \u00b1 4.5",
+   "wall_s": 0.42,
+   "workers": 2,
+   "view": "P1",
+   "note": "new best so far",
+   "overall": "81%",
+   "agent": "dee"
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:40:42.101Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P1",
+   "trace": "After 3 days, day-workers are still the least reached at 64%, versus families at 96%, seniors 86%, night-shift 85%, remote 83%, and students 81%. Awareness is mostly coming from word-of-mouth (22.4), then board (14.9), online (10.8), and bulletin (9.9), so the gap looks like channel fit for daytime working adults rather than total reach.",
+   "next_question": "Which official outreach channels does Marfa actually maintain for public notices?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:40:43.132Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-b196baacda38-2",
+   "kind": "failure",
+   "claim": "P1: After 3 days, day-workers are still the least reached at 64%, versus families at 96%, seniors 86%, night-shift 85%, remote 83%, and students 81%. Awareness is mostly coming from word-of-mouth (22.4), then board (14.9), online (10.8), and bulletin (9.9), so the gap looks like channel fit for daytime working adults rather than total reach. Next: Which official outreach channels does Marfa actually maintain for public notices?",
+   "source": "trial:b196baacda38",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:40:47.484Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX city council official public notices channels city council bulletin board website email social media",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Contact Us | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/contact-us",
+     "passage": "Contact Us | Marfa, TX Contact Us Address 113 S Highland Avenue, Marfa, Texas 79843, USA Office Hours Monday-Friday: 8 AM-4 PM Closed: Noon-1 PM Office Number (432) 729-4315 Administration | Name | Position | Phone | Email | | --- | --- | --- | --- | | Gracie Conners | Bookkeeper | 432-729-4315 | Email | | Lori Flores | Utility Clerk | 432-729-4315 | Email | | Cherry Torres | Municipal Court Clerk / H.R. & Payroll | 432-729-3890 | Email | City Council | Name | Position | Phone | Email | | --- | --- | --- | --- | | Manuel V. Baeza | Mayor | 432-729-4315 | Email | | Travis Acreman | Councilmembe",
+     "published": null
+    },
+    {
+     "title": "City Council",
+     "url": "https://www.cityofmarfa.com/citycouncil",
+     "passage": "City Council | Marfa, TX City Council Marfa's City Council creates policy for the town, serving as the local government's legislative branch. They approve the final budget and set the vision and course for the city\u2019s future through strategic planning. City Council also appoints local residents as members to Marfa's Boards and Commission and Advisory Committees. City Council is composed of five Marfa citizens who are elected to serve at large. Council Members serve two-year staggered terms with an election held each May. Manuel V. Baeza Mayor 432-729-4315 Email Travis Acreman Councilmember 432-",
+     "published": null
+    },
+    {
+     "title": "-September 24,2026 -October 7 ,2026",
+     "url": "https://www.cityofmarfa.com/media/7596",
+     "passage": "NOTICE OF A REGULAR MEETING OF THE CITYCOUNCIL OF THE CITYOF MARFA Notice is hereby given that a Regular Meeting of the Marfa City Council will be held on October 29,2026 at 6:00 p.m. in person at the Casner Room in Marfa City Hall, located at 113 S. Highland Ave., Marfa, Texas. The meeting shall be open to the public at all times during which subjects are discussed, considered, or formally acted upon as required by the Texas Open Meetings Act, Chapter55l of the Texas Government Code. This Notice of Meeting and Agenda in detail was posted at least three (3) business days before the scheduled d",
+     "published": null
+    }
+   ],
+   "used_for": "Local evidence for channels: online, board (quote: \"This Notice of Meeting and Agenda in detail was posted at least three (3) business days before the scheduled date of said meeting in a location at City Hall rea\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:40:48.223Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "kind": "fact",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:41:15.241Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:41:16.186Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:41:16.912Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa Public Library Sunday opening hours: Sun closed.",
+    "ada: Marfa Public Library Monday opening hours: Mon 09:00-17:00.",
+    "ada: Marfa Public Library Friday opening hours: Fri 09:00-17:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:41:17.256Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:41:17.646Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "Marfa public meeting notice channel: an online city website channel."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:41:21.046Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Official channels only",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:41:21.376Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P2",
+   "parent": "P1",
+   "change": "online + board",
+   "why": "Marfa\u2019s local evidence shows official public-notice channels on the city website and a City Hall notice location, so this removes the unverified school bulletin while keeping the maintained channels.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P2"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:41:23.820Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P2",
+   "ok": true,
+   "reason": "The proposal only uses channels supported by local sources: the city website and the City Hall notice location. It removes the unsupported school bulletin channel, which is fine under the channel-existence handling in code.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:41:24.144Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board with online backup",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "board + online",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:41:24.490Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P3",
+   "parent": "P1",
+   "change": "board + online",
+   "why": "The trace shows board and online together reached more working parents than online alone, and the source confirms both are maintained for public notices.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P3"
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:41:27.601Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P3",
+   "ok": true,
+   "reason": "The proposal only relies on channels already supported by local sources, and its performance claim is grounded in the simulation trace. No unsupported real-world demand or behavior inputs are introduced.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:41:27.928Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Official channels only",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:41:28.302Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board with online backup",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "board + online",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:41:28.637Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P2",
+    "P3"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P2 + P3"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:41:29.471Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Official channels only",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 73.09027777777779,
+     "familiesAwarePct": 66.796875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.1671462943275355,
+     "familiesAwarePct": 14.916215658917423
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:41:29.802Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board with online backup",
+   "role": "revision",
+   "parent": "P1",
+   "policy": {
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "board + online",
+   "source": "https://www.cityofmarfa.com/media/7596",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 73.09027777777779,
+     "familiesAwarePct": 66.796875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.1671462943275355,
+     "familiesAwarePct": 14.916215658917423
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:41:30.134Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P2",
+   "metric": "familiesAwarePct",
+   "value": "66.8% \u00b1 14.9",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "73%",
+   "agent": "dee"
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:41:30.473Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P3",
+   "metric": "familiesAwarePct",
+   "value": "66.8% \u00b1 14.9",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "73%",
+   "agent": "dee"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:41:33.066Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online + school bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:41:33.467Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:41:34.611Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:41:34.956Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 80.64236111111111,
+     "familiesAwarePct": 96.484375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 4.63338967680459,
+     "familiesAwarePct": 4.546490175582332
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:41:35.302Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online + school bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 63.88888888888888,
+     "familiesAwarePct": 94.921875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.415002990995841,
+     "familiesAwarePct": 5.691161824853222
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:41:35.669Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "familiesAwarePct",
+   "value": "96.5% \u00b1 4.5",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.79,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:41:35.999Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "familiesAwarePct",
+   "value": "94.9% \u00b1 5.7",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.79,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:41:36.328Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0",
+    "SW",
+    "OS",
+    "P1"
+   ],
+   "seeds": 8,
+   "workers": 12,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:41:37.501Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "P0",
+    "SW",
+    "OS",
+    "P1"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.81,
+   "workers": 12,
+   "agent": "cy"
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:41:37.841Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "% of working parents who heard within 3 days",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "P0": 43.75000000000001,
+     "SW": 95.53571428571428,
+     "OS": 91.96428571428572,
+     "P1": 95.53571428571428
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "P0": 45.83333333333333,
+     "SW": 98.33333333333333,
+     "OS": 93.33333333333334,
+     "P1": 98.33333333333333
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "P0": 43.75,
+     "SW": 92.1875,
+     "OS": 88.28125,
+     "P1": 92.1875
+    }
+   ],
+   "finalists": [
+    {
+     "id": "P0",
+     "label": "Current practice (= your idea)",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Online + school bulletin",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "P1",
+     "label": "Online plus all channels",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:41:38.182Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus all channels",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.cityofmarfa.com/meetings/recent",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 80.64236111111111,
+     "familiesAwarePct": 96.484375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 4.63338967680459,
+     "familiesAwarePct": 4.546490175582332
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:41:40.888Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "P1",
+   "label": "Online plus all channels",
+   "summary": "Online plus all channels: 96.5% \u00b1 4.5 vs 45.3% \u00b1 16.5 for current practice (% of working parents who heard within 3 days). P1 wins because it raises the share of working parents who heard within 3 days from 45.3% \u00b1 16.5 to 96.5% \u00b1 4.5, a gain of 51.2 points. It also beats the other tested options: OS is 94.9% \u00b1 5.7, and P2/P3 are only 66.8% \u00b1 14.9.",
+   "assumptions": "The result depends on synthetic resident schedules, arrival patterns, and word-of-mouth rates, plus the model\u2019s assumption that the bulletin channel exists even though no local source explicitly confirms it. It also assumes the online, board, and bulletin channels can all be operated as specified.",
+   "pilot": "Run one upcoming notice using online + board + bulletin for a single week, then measure the % of working parents who report hearing within 3 days, plus simple counts of notices posted and any missed postings by channel.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:41:42.299Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r38",
+   "found": 0,
+   "note": "Before replay: Kip Haddad (families, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:41:43.099Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r24",
+   "found": 0,
+   "note": "Before replay: Quin Moreau (students, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T01:41:43.971Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r02",
+   "found": 0,
+   "note": "Before replay: Ivo Moreau (day-workers, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T01:41:53.546Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 20,
+   "identity": "marfa-tx-r68",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "board"
+   },
+   "slug": "heard-b196baacda38",
+   "members": 20,
+   "note": "P1 seed 0: 20/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Replaying the watched run into past.dev"
+  },
+  {
+   "seq": 70,
+   "t": "2026-11-15T01:42:01.918Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 40,
+   "identity": "marfa-tx-r49",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-b196baacda38",
+   "members": 40,
+   "note": "P1 seed 0: 40/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 71,
+   "t": "2026-11-15T01:42:08.971Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 55,
+   "identity": "marfa-tx-r65",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-b196baacda38",
+   "members": 55,
+   "note": "P1 seed 0: 55/55 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 72,
+   "t": "2026-11-15T01:42:09.769Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r38",
+   "found": 1,
+   "note": "After replay: Kip Haddad (families, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 73,
+   "t": "2026-11-15T01:42:10.558Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r24",
+   "found": 1,
+   "note": "After replay: Quin Moreau (students, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 74,
+   "t": "2026-11-15T01:42:11.326Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice b196baacda38",
+   "identity": "marfa-tx-r02",
+   "found": 0,
+   "note": "After replay: Ivo Moreau (day-workers, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  }
+ ]
+}

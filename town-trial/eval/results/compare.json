@@ -1,0 +1,1214 @@
+{
+  "suite": "4-way comparison with matched budgets; picks frozen, then held-out scenarios A/B/C x seeds 100-107",
+  "summary": {
+    "service": {
+      "metric": "visits/week by residents who can't make current hours",
+      "trials": 4,
+      "towns": [
+        "Evart, MI",
+        "Ely, MN",
+        "Hood River, OR",
+        "Marfa, TX"
+      ],
+      "arms": {
+        "baseline": {
+          "trials": 4,
+          "held_out_mean": 2.614583333333333,
+          "gain_over_baseline": 0.0,
+          "infeasible": 0,
+          "best_on_held_out": 0
+        },
+        "user": {
+          "trials": 4,
+          "held_out_mean": 5.208333333333333,
+          "gain_over_baseline": 2.59375,
+          "infeasible": 1,
+          "best_on_held_out": 0
+        },
+        "sweep": {
+          "trials": 4,
+          "held_out_mean": 5.802083333333333,
+          "gain_over_baseline": 3.1875,
+          "infeasible": 0,
+          "best_on_held_out": 1
+        },
+        "oneshot": {
+          "trials": 4,
+          "held_out_mean": 5.53125,
+          "gain_over_baseline": 2.916666666666667,
+          "infeasible": 1,
+          "best_on_held_out": 1
+        },
+        "agent": {
+          "trials": 4,
+          "held_out_mean": 4.802083333333334,
+          "gain_over_baseline": 2.1875,
+          "infeasible": 0,
+          "best_on_held_out": 2
+        }
+      },
+      "agent_runs_mean": 2.5,
+      "agent_rejected_total": 6
+    },
+    "perception": {
+      "metric": "% of working parents who heard within 3 days",
+      "trials": 4,
+      "towns": [
+        "Ely, MN",
+        "Hood River, OR",
+        "Marfa, TX",
+        "Evart, MI"
+      ],
+      "arms": {
+        "baseline": {
+          "trials": 4,
+          "held_out_mean": 43.36495535714286,
+          "gain_over_baseline": 0.0,
+          "infeasible": 0,
+          "best_on_held_out": 0
+        },
+        "user": {
+          "trials": 4,
+          "held_out_mean": 43.36495535714286,
+          "gain_over_baseline": 0.0,
+          "infeasible": 0,
+          "best_on_held_out": 0
+        },
+        "sweep": {
+          "trials": 4,
+          "held_out_mean": 94.69618055555556,
+          "gain_over_baseline": 51.331225198412696,
+          "infeasible": 0,
+          "best_on_held_out": 3
+        },
+        "oneshot": {
+          "trials": 4,
+          "held_out_mean": 92.8484623015873,
+          "gain_over_baseline": 49.48350694444444,
+          "infeasible": 0,
+          "best_on_held_out": 0
+        },
+        "agent": {
+          "trials": 4,
+          "held_out_mean": 95.69444444444444,
+          "gain_over_baseline": 52.32948908730158,
+          "infeasible": 0,
+          "best_on_held_out": 1
+        }
+      },
+      "agent_runs_mean": 3.0,
+      "agent_rejected_total": 1
+    }
+  },
+  "trials": [
+    {
+      "trial_id": "0b0fe5d073c3",
+      "city": "Ely, MN",
+      "mode": "perception",
+      "options": {},
+      "metric": "% of working parents who heard within 3 days",
+      "arms": {
+        "baseline": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 41.979166666666664,
+          "held_out": [
+            50.0,
+            40.0,
+            35.9375
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.18055555555556,
+            "familiesAwarePct": 39.453125
+          },
+          "source": "https://www.elylibrary.org/",
+          "staff_hours": null
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 95.20833333333333,
+          "held_out": [
+            93.75,
+            95.0,
+            96.875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 81.85763888888889,
+            "familiesAwarePct": 94.53125
+          },
+          "source": "assumes board, bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Multi-channel hours notice",
+          "feasible": true,
+          "held_out_mean": 95.20833333333333,
+          "held_out": [
+            93.75,
+            95.0,
+            96.875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 81.85763888888889,
+            "familiesAwarePct": 94.53125
+          },
+          "source": "assumes board, bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "agent": {
+          "id": "P4",
+          "label": "All three channels",
+          "feasible": true,
+          "held_out_mean": 95.20833333333333,
+          "held_out": [
+            93.75,
+            95.0,
+            96.875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 81.85763888888889,
+            "familiesAwarePct": 94.53125
+          },
+          "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+          "staff_hours": null
+        },
+        "user": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 41.979166666666664,
+          "held_out": [
+            50.0,
+            40.0,
+            35.9375
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.18055555555556,
+            "familiesAwarePct": 39.453125
+          },
+          "source": "https://www.elylibrary.org/",
+          "staff_hours": null
+        }
+      },
+      "runs": {
+        "agent": 4,
+        "agent_proposed": 4,
+        "agent_rejected": 0,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "sweep",
+      "recommended": "P4",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 3,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 0,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "6c47a7c78603",
+      "city": "Evart, MI",
+      "mode": "service",
+      "options": {},
+      "metric": "visits/week by residents who can't make current hours",
+      "arms": {
+        "baseline": {
+          "id": "E0",
+          "label": "Current practice",
+          "feasible": true,
+          "held_out_mean": 0.0,
+          "held_out": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "search_mean": {
+            "visits": 45.125,
+            "restrictedVisits": 0.0,
+            "turnedAway": 133.375,
+            "uniqueVisitors": 32.25,
+            "staffHours": 75.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://evartlibrary.com/",
+          "staff_hours": 75.0
+        },
+        "user": {
+          "id": "E1",
+          "label": "Your idea: Two evening extensions",
+          "feasible": true,
+          "held_out_mean": 3.875,
+          "held_out": [
+            1.875,
+            4.125,
+            5.625
+          ],
+          "search_mean": {
+            "visits": 56.0625,
+            "restrictedVisits": 2.875,
+            "turnedAway": 88.0,
+            "uniqueVisitors": 42.0,
+            "staffHours": 85.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 85.0
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 5.625,
+          "held_out": [
+            3.375,
+            6.5,
+            7.0
+          ],
+          "search_mean": {
+            "visits": 58.3125,
+            "restrictedVisits": 3.9375,
+            "turnedAway": 90.9375,
+            "uniqueVisitors": 44.625,
+            "staffHours": 76.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 76.0
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Tue-Thu evening hours",
+          "feasible": true,
+          "held_out_mean": 3.875,
+          "held_out": [
+            1.875,
+            4.125,
+            5.625
+          ],
+          "search_mean": {
+            "visits": 56.0625,
+            "restrictedVisits": 2.875,
+            "turnedAway": 88.0,
+            "uniqueVisitors": 42.0,
+            "staffHours": 85.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 85.0
+        },
+        "agent": {
+          "id": "E5",
+          "label": "Monday late-evening only",
+          "feasible": true,
+          "held_out_mean": 2.0833333333333335,
+          "held_out": [
+            0.5,
+            2.25,
+            3.5
+          ],
+          "search_mean": {
+            "visits": 48.6875,
+            "restrictedVisits": 1.3125,
+            "turnedAway": 116.0,
+            "uniqueVisitors": 35.75,
+            "staffHours": 74.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://evartlibrary.com/",
+          "staff_hours": 74.0
+        }
+      },
+      "runs": {
+        "agent": 3,
+        "agent_proposed": 4,
+        "agent_rejected": 1,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "sweep",
+      "recommended": "SW",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 1,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 1,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "6ca98ef352e7",
+      "city": "Ely, MN",
+      "mode": "service",
+      "options": {},
+      "metric": "visits/week by residents who can't make current hours",
+      "arms": {
+        "baseline": {
+          "id": "E0",
+          "label": "Current practice",
+          "feasible": true,
+          "held_out_mean": 6.333333333333333,
+          "held_out": [
+            6.75,
+            9.625,
+            2.625
+          ],
+          "search_mean": {
+            "visits": 64.0,
+            "restrictedVisits": 5.1875,
+            "turnedAway": 45.3125,
+            "uniqueVisitors": 46.375,
+            "staffHours": 95.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.elylibrary.org/",
+          "staff_hours": 95.0
+        },
+        "user": {
+          "id": "E1",
+          "label": "Your idea: Two evening extensions",
+          "feasible": false,
+          "held_out_mean": 8.416666666666666,
+          "held_out": [
+            9.25,
+            12.625,
+            3.375
+          ],
+          "search_mean": {
+            "visits": 67.0625,
+            "restrictedVisits": 7.125,
+            "turnedAway": 25.125,
+            "uniqueVisitors": 48.125,
+            "staffHours": 103.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 103.0
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 8.0,
+          "held_out": [
+            8.25,
+            12.25,
+            3.5
+          ],
+          "search_mean": {
+            "visits": 66.0,
+            "restrictedVisits": 6.375,
+            "turnedAway": 32.1875,
+            "uniqueVisitors": 47.6875,
+            "staffHours": 92.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 92.0
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Tue-Thu evening access",
+          "feasible": false,
+          "held_out_mean": 7.791666666666667,
+          "held_out": [
+            8.25,
+            11.5,
+            3.625
+          ],
+          "search_mean": {
+            "visits": 66.0,
+            "restrictedVisits": 6.25,
+            "turnedAway": 30.3125,
+            "uniqueVisitors": 47.625,
+            "staffHours": 101.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 101.0
+        },
+        "agent": {
+          "id": "E2",
+          "label": "Tue/Thu later, Fri shorter",
+          "feasible": true,
+          "held_out_mean": 8.208333333333334,
+          "held_out": [
+            9.0,
+            12.25,
+            3.375
+          ],
+          "search_mean": {
+            "visits": 66.0,
+            "restrictedVisits": 6.875,
+            "turnedAway": 28.0625,
+            "uniqueVisitors": 47.75,
+            "staffHours": 95.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.elylibrary.org/",
+          "staff_hours": 95.0
+        }
+      },
+      "runs": {
+        "agent": 4,
+        "agent_proposed": 4,
+        "agent_rejected": 0,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "agent",
+      "recommended": "E2",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 3,
+      "constraints": [
+        "staff hours <= 95/week",
+        "staff hours <= 95/week"
+      ],
+      "constraint_sources": [
+        "https://www.elyecho.com/article/3605,check-it-out-at-your-library"
+      ],
+      "gaps": 0,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "94e89225ac78",
+      "city": "Hood River, OR",
+      "mode": "service",
+      "options": {},
+      "metric": "visits/week by residents who can't make current hours",
+      "arms": {
+        "baseline": {
+          "id": "E0",
+          "label": "Current practice",
+          "feasible": true,
+          "held_out_mean": 4.125,
+          "held_out": [
+            3.25,
+            4.25,
+            4.875
+          ],
+          "search_mean": {
+            "visits": 58.875,
+            "restrictedVisits": 2.5625,
+            "turnedAway": 69.8125,
+            "uniqueVisitors": 42.5,
+            "staffHours": 86.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+          "staff_hours": 86.0
+        },
+        "user": {
+          "id": "E1",
+          "label": "Your idea: Two evening extensions",
+          "feasible": true,
+          "held_out_mean": 5.458333333333333,
+          "held_out": [
+            5.5,
+            6.0,
+            4.875
+          ],
+          "search_mean": {
+            "visits": 60.3125,
+            "restrictedVisits": 3.375,
+            "turnedAway": 56.875,
+            "uniqueVisitors": 43.3125,
+            "staffHours": 90.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 90.0
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 5.791666666666667,
+          "held_out": [
+            5.625,
+            6.375,
+            5.375
+          ],
+          "search_mean": {
+            "visits": 56.5625,
+            "restrictedVisits": 3.6875,
+            "turnedAway": 74.25,
+            "uniqueVisitors": 41.75,
+            "staffHours": 86.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 86.0
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Tue/Thu evening extension",
+          "feasible": true,
+          "held_out_mean": 5.458333333333333,
+          "held_out": [
+            5.5,
+            6.0,
+            4.875
+          ],
+          "search_mean": {
+            "visits": 60.3125,
+            "restrictedVisits": 3.375,
+            "turnedAway": 56.875,
+            "uniqueVisitors": 43.3125,
+            "staffHours": 90.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 90.0
+        },
+        "agent": {
+          "id": "E5",
+          "label": "Single-late-night swap",
+          "feasible": true,
+          "held_out_mean": 5.833333333333333,
+          "held_out": [
+            6.125,
+            6.25,
+            5.125
+          ],
+          "search_mean": {
+            "visits": 61.0625,
+            "restrictedVisits": 3.5625,
+            "turnedAway": 61.1875,
+            "uniqueVisitors": 43.5625,
+            "staffHours": 94.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+          "staff_hours": 94.0
+        }
+      },
+      "runs": {
+        "agent": 2,
+        "agent_proposed": 4,
+        "agent_rejected": 2,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "agent",
+      "recommended": "SW",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 1,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 1,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "a9d4e339668f",
+      "city": "Hood River, OR",
+      "mode": "perception",
+      "options": {},
+      "metric": "% of working parents who heard within 3 days",
+      "arms": {
+        "baseline": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 39.21626984126984,
+          "held_out": [
+            36.607142857142854,
+            34.166666666666664,
+            46.875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 38.020833333333336,
+            "familiesAwarePct": 26.953125
+          },
+          "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+          "staff_hours": null
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 95.30009920634922,
+          "held_out": [
+            95.5357142857143,
+            95.83333333333333,
+            94.53125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 82.37847222222221,
+            "familiesAwarePct": 96.09375
+          },
+          "source": "assumes board, bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Online plus school bulletin",
+          "feasible": true,
+          "held_out_mean": 92.0684523809524,
+          "held_out": [
+            88.39285714285715,
+            92.5,
+            95.3125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 58.940972222222214,
+            "familiesAwarePct": 89.84375
+          },
+          "source": "assumes bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "agent": {
+          "id": "P3",
+          "label": "All channels",
+          "feasible": true,
+          "held_out_mean": 95.30009920634922,
+          "held_out": [
+            95.5357142857143,
+            95.83333333333333,
+            94.53125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 82.37847222222221,
+            "familiesAwarePct": 96.09375
+          },
+          "source": "assumes board, bulletin exists (no local source); https://cityofhoodriver.gov/connect/",
+          "staff_hours": null
+        },
+        "user": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 39.21626984126984,
+          "held_out": [
+            36.607142857142854,
+            34.166666666666664,
+            46.875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 38.020833333333336,
+            "familiesAwarePct": 26.953125
+          },
+          "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+          "staff_hours": null
+        }
+      },
+      "runs": {
+        "agent": 3,
+        "agent_proposed": 3,
+        "agent_rejected": 0,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "sweep",
+      "recommended": "P3",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 3,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 0,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "b196baacda38",
+      "city": "Marfa, TX",
+      "mode": "perception",
+      "options": {},
+      "metric": "% of working parents who heard within 3 days",
+      "arms": {
+        "baseline": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 44.44444444444445,
+          "held_out": [
+            43.75000000000001,
+            45.83333333333333,
+            43.75
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.52777777777778,
+            "familiesAwarePct": 45.3125
+          },
+          "source": "https://www.marfapubliclibrary.org/newsletter",
+          "staff_hours": null
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 95.35218253968253,
+          "held_out": [
+            95.53571428571428,
+            98.33333333333333,
+            92.1875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 80.64236111111111,
+            "familiesAwarePct": 96.484375
+          },
+          "source": "assumes bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Online + school bulletin",
+          "feasible": true,
+          "held_out_mean": 91.19295634920634,
+          "held_out": [
+            91.96428571428572,
+            93.33333333333334,
+            88.28125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 63.88888888888888,
+            "familiesAwarePct": 94.921875
+          },
+          "source": "assumes bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "agent": {
+          "id": "P1",
+          "label": "Online plus all channels",
+          "feasible": true,
+          "held_out_mean": 95.35218253968253,
+          "held_out": [
+            95.53571428571428,
+            98.33333333333333,
+            92.1875
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 80.64236111111111,
+            "familiesAwarePct": 96.484375
+          },
+          "source": "assumes board, bulletin exists (no local source); https://www.cityofmarfa.com/meetings/recent",
+          "staff_hours": null
+        },
+        "user": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 44.44444444444445,
+          "held_out": [
+            43.75000000000001,
+            45.83333333333333,
+            43.75
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.52777777777778,
+            "familiesAwarePct": 45.3125
+          },
+          "source": "https://www.marfapubliclibrary.org/newsletter",
+          "staff_hours": null
+        }
+      },
+      "runs": {
+        "agent": 3,
+        "agent_proposed": 3,
+        "agent_rejected": 0,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "sweep",
+      "recommended": "P1",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 3,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 0,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "dad082febc3e",
+      "city": "Evart, MI",
+      "mode": "perception",
+      "options": {},
+      "metric": "% of working parents who heard within 3 days",
+      "arms": {
+        "baseline": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 47.81994047619048,
+          "held_out": [
+            46.42857142857143,
+            40.0,
+            57.03125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.61458333333333,
+            "familiesAwarePct": 48.046875
+          },
+          "source": "https://evartlibrary.com/",
+          "staff_hours": null
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 92.92410714285715,
+          "held_out": [
+            90.17857142857142,
+            92.5,
+            96.09375
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 68.40277777777777,
+            "familiesAwarePct": 94.921875
+          },
+          "source": "assumes bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Online + family bulletin",
+          "feasible": true,
+          "held_out_mean": 92.92410714285715,
+          "held_out": [
+            90.17857142857142,
+            92.5,
+            96.09375
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 68.40277777777777,
+            "familiesAwarePct": 94.921875
+          },
+          "source": "assumes bulletin exists (no local source)",
+          "staff_hours": null
+        },
+        "agent": {
+          "id": "P3",
+          "label": "Board + bulletin",
+          "feasible": true,
+          "held_out_mean": 96.9171626984127,
+          "held_out": [
+            96.42857142857143,
+            96.66666666666667,
+            97.65625
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 74.99999999999999,
+            "familiesAwarePct": 92.96875
+          },
+          "source": "assumes board, bulletin exists (no local source); https://evartps-cdn.fxbrt.com/downloads/central_office/superintendents_communication.pdf",
+          "staff_hours": null
+        },
+        "user": {
+          "id": "P0",
+          "label": "Current practice (= your idea)",
+          "feasible": true,
+          "held_out_mean": 47.81994047619048,
+          "held_out": [
+            46.42857142857143,
+            40.0,
+            57.03125
+          ],
+          "search_mean": {
+            "visits": 0.0,
+            "restrictedVisits": 0.0,
+            "turnedAway": 0.0,
+            "uniqueVisitors": 0.0,
+            "staffHours": 96.0,
+            "awarePct": 46.61458333333333,
+            "familiesAwarePct": 48.046875
+          },
+          "source": "https://evartlibrary.com/",
+          "staff_hours": null
+        }
+      },
+      "runs": {
+        "agent": 2,
+        "agent_proposed": 3,
+        "agent_rejected": 1,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "agent",
+      "recommended": "OS",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 2,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 0,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    },
+    {
+      "trial_id": "e2e1665eba65",
+      "city": "Marfa, TX",
+      "mode": "service",
+      "options": {},
+      "metric": "visits/week by residents who can't make current hours",
+      "arms": {
+        "baseline": {
+          "id": "E0",
+          "label": "Current practice",
+          "feasible": true,
+          "held_out_mean": 0.0,
+          "held_out": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "search_mean": {
+            "visits": 50.5625,
+            "restrictedVisits": 0.0,
+            "turnedAway": 115.1875,
+            "uniqueVisitors": 42.375,
+            "staffHours": 88.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+          "staff_hours": 88.0
+        },
+        "user": {
+          "id": "E1",
+          "label": "Your idea: Two evening openings",
+          "feasible": true,
+          "held_out_mean": 3.0833333333333335,
+          "held_out": [
+            4.75,
+            2.625,
+            1.875
+          ],
+          "search_mean": {
+            "visits": 56.8125,
+            "restrictedVisits": 2.9375,
+            "turnedAway": 83.8125,
+            "uniqueVisitors": 47.1875,
+            "staffHours": 96.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 96.0
+        },
+        "sweep": {
+          "id": "SW",
+          "label": "Sweep best of 6",
+          "feasible": true,
+          "held_out_mean": 3.7916666666666665,
+          "held_out": [
+            5.375,
+            3.5,
+            2.5
+          ],
+          "search_mean": {
+            "visits": 59.9375,
+            "restrictedVisits": 4.0625,
+            "turnedAway": 84.5,
+            "uniqueVisitors": 49.4375,
+            "staffHours": 88.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 88.0
+        },
+        "oneshot": {
+          "id": "OS",
+          "label": "One-shot: Tue-Thu evening hours",
+          "feasible": true,
+          "held_out_mean": 5.0,
+          "held_out": [
+            7.75,
+            4.25,
+            3.0
+          ],
+          "search_mean": {
+            "visits": 61.5,
+            "restrictedVisits": 5.8125,
+            "turnedAway": 62.4375,
+            "uniqueVisitors": 50.5,
+            "staffHours": 100.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": null,
+          "staff_hours": 100.0
+        },
+        "agent": {
+          "id": "E5",
+          "label": "Modest evening expansion",
+          "feasible": true,
+          "held_out_mean": 3.0833333333333335,
+          "held_out": [
+            4.75,
+            2.625,
+            1.875
+          ],
+          "search_mean": {
+            "visits": 57.0625,
+            "restrictedVisits": 2.9375,
+            "turnedAway": 82.875,
+            "uniqueVisitors": 47.375,
+            "staffHours": 98.0,
+            "awarePct": 0.0,
+            "familiesAwarePct": 0.0
+          },
+          "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+          "staff_hours": 98.0
+        }
+      },
+      "runs": {
+        "agent": 1,
+        "agent_proposed": 4,
+        "agent_rejected": 3,
+        "sweep": 6,
+        "oneshot": 1
+      },
+      "best_held_out_arm": "oneshot",
+      "recommended": "OS",
+      "exa_calls": 3,
+      "exa_live": 3,
+      "verified_facts": 1,
+      "constraints": [],
+      "constraint_sources": [],
+      "gaps": 1,
+      "scripted_fallbacks": 0,
+      "memory_fallbacks": 0,
+      "llm_errors": []
+    }
+  ],
+  "budgets": {
+    "sweep": "6 fixed configurations x 16 seeds",
+    "oneshot": "1 LLM proposal (same model, same baseline evidence) x 16 seeds",
+    "agent": "<= 4 approved revisions over 2 rounds x 16 seeds (actual count per trial in trials[].runs)",
+    "exa": "<= 6 calls per trial (agent arm uses 3)",
+    "llm": "<= 20 calls per trial, same model for every arm"
+  },
+  "generated_at": "2026-11-15T01:49:12Z"
+}
