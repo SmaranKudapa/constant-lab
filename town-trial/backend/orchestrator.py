@@ -311,14 +311,14 @@ class Trial:
         }
 
 
-def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner, memory=None) -> None:
+def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner, memory=None, options: dict | None = None) -> None:
     """Live loop when an OpenAI key is available (and TOWN_TRIAL_SCRIPTED is not set); otherwise the labelled scripted loop."""
     live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
     try:
         if live:
             from memory import LocalMemory
             from research_loop import LiveTrial
-            trial = LiveTrial(store, trial_id, city, prompt, mode, runner, memory=memory or LocalMemory({}))
+            trial = LiveTrial(store, trial_id, city, prompt, mode, runner, memory=memory or LocalMemory({}), options=options)
         else:
             trial = Trial(store, trial_id, city, prompt, mode, runner)
             store.append(trial_id, "NOTE", {"level": "info", "message": "No LLM key configured: running the scripted research loop. "

@@ -80,7 +80,7 @@ class Runner:
     failure is reported to the caller (so it can be logged).
     """
 
-    def __init__(self, mapper: Mapper, where: str, chunk: int = 4, fallback: Mapper | None = None, fallback_where: str = "orchestrator (local Node)"):
+    def __init__(self, mapper: Mapper, where: str, chunk: int = 8, fallback: Mapper | None = None, fallback_where: str = "orchestrator (local Node)"):
         self.mapper, self.where, self.chunk = mapper, where, chunk
         self.fallback, self.fallback_where = fallback, fallback_where
 

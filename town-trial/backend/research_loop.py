@@ -32,8 +32,11 @@ def _action(mode: str, p: dict) -> dict:
 
 
 class LiveTrial(Trial):
-    def __init__(self, *a, memory: LocalMemory, budget: Budget | None = None, **kw):
+    def __init__(self, *a, memory: LocalMemory, budget: Budget | None = None, options: dict | None = None, **kw):
         super().__init__(*a, **kw)
+        # exa_mode (evaluation): "failure" = baseline + failure-guided searches (default); "broad" = the same number of
+        # searches, but generic town/library queries; "none" = no Exa calls (gaps logged, model defaults used).
+        self.exa_mode = (options or {}).get("exa_mode", "failure")
         self.budget = budget or Budget()
         self.llm = LLM(self.budget)
         self.ada, self.bo, self.cy = Ada(self.budget, self.llm), Bo(self.llm), Cy(self.llm)
@@ -94,6 +97,8 @@ class LiveTrial(Trial):
 
     def search(self, agent: str, query: str, kind: str, fixture_fn, say: str) -> tuple[list[dict], bool]:
         """One Exa call; on failure, labelled fixture evidence. Returns (results, live)."""
+        if self.exa_mode == "none":
+            return [], True
         try:
             return self.ada.search(query), True
         except Exception as ex:
@@ -108,12 +113,16 @@ class LiveTrial(Trial):
         return None
 
     def log_exa(self, agent: str, query: str, kind: str, results: list[dict], live: bool, used_for: str, say: str | None = None) -> None:
+        if self.exa_mode == "none":
+            return  # ablation arm: no Exa call happened, so no EXA event
         self.emit("EXA", agent=agent, say=say, query=query, search=kind, results=Ada.public(results), used_for=used_for, fixture=not live)
 
     def extract(self, kind: str, results: list[dict], live: bool, question: str = "") -> tuple[dict | None, str]:
         """Grounded extraction. Returns (value or None, note on how it was obtained)."""
         if not live:
             return fixtures.FIXTURE_EXTRACT.get(results[0]["url"]), "fixture"
+        if not results:
+            return None, "no search results" + (" (Exa disabled: ablation arm)" if self.exa_mode == "none" else "")
         fn = {"hours": lambda e: self.ada.extract_hours(self.city, results),
               "constraint": lambda e: self.ada.extract_constraint(self.city, question, results),
               "channels": lambda e: self.ada.extract_channels(self.city, question, results)}[kind]
@@ -202,6 +211,9 @@ class LiveTrial(Trial):
     def start(self) -> None:
         self.base_hours = [list(h) if h else None for h in BASELINE_HOURS]
         self.memory.ensure_agents()
+        if self.exa_mode != "failure":
+            self.note(f"Evaluation arm: exa_mode={self.exa_mode} " + ("(no Exa calls)." if self.exa_mode == "none" else
+                      "(same number of searches, generic queries not built from the failure)."), level="info", agent="ada")
         self.recall_town()
         self.baseline_search()
         idea = self.translate()
@@ -455,6 +467,8 @@ class LiveTrial(Trial):
         source = None
         if self.budget.left("exa") > 0:
             q = " ".join(f"{city} {fail['entity']} {fail.get('search_topic') or fail['next_question']}".split()[:16])
+            if self.exa_mode == "broad":  # ablation: same number of searches, not guided by the failure
+                q = [f"{city} public library", f"{city} library news"][rnd % 2]
             fx = fixtures.board_minutes if mode == "service" else fixtures.school_bulletin
             res, live = self.search("ada", q, "failure-guided", fx, "Failure-guided search")
             if mode == "service":

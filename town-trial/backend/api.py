@@ -23,9 +23,13 @@ VERCEL_REGEX = r"https://.*\.vercel\.app"
 MAX_ACTIVE = int(os.environ.get("MAX_ACTIVE_TRIALS", "3"))
 
 
+ALLOWED_OPTIONS = {"exa_mode": {"failure", "broad", "none"}}  # evaluation switches (Exa ablation)
+
+
 class TrialRequest(BaseModel):
     city: str = Field(min_length=1, max_length=60)
     prompt: str = Field(min_length=1, max_length=500)
+    options: dict | None = None
 
 
 def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
@@ -43,13 +47,14 @@ def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
     def create_trial(req: TrialRequest):
         city, prompt = req.city.strip(), req.prompt.strip()
         mode = classify(prompt)
+        options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
         trial_id = uuid.uuid4().hex[:12]
-        store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "version": os.environ.get("CODE_VERSION", "local")})
+        store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "options": options, "version": os.environ.get("CODE_VERSION", "local")})
         if not store.register_active(trial_id, MAX_ACTIVE):
             store.finish(trial_id, rejected="too many concurrent trials")
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")
-        start(trial_id=trial_id, city=city, prompt=prompt, mode=mode)
-        return {"trial_id": trial_id, "mode": mode, "primary": primary(mode), "version": os.environ.get("CODE_VERSION", "local")}
+        start(trial_id=trial_id, city=city, prompt=prompt, mode=mode, options=options)
+        return {"trial_id": trial_id, "mode": mode, "primary": primary(mode), "options": options, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/trials/{trial_id}/events")
     def events(trial_id: str, since: int = 0):

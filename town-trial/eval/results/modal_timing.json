@@ -1,0 +1,112 @@
+{
+  "workloads": [
+    {
+      "seed_runs": 768,
+      "seeds_per_policy": 32,
+      "seeds_per_call": 4,
+      "calls": 192,
+      "serial": {
+        "wall_s": 4.96,
+        "exec_s": 2.24,
+        "containers": 1,
+        "cost_usd_lower": 3.2e-05,
+        "cost_usd_upper": 0.000923
+      },
+      "fanout": {
+        "wall_s": 4.86,
+        "exec_s_sum": 21.67,
+        "containers": 19,
+        "cost_usd_lower": 0.000308,
+        "cost_usd_upper": 0.01782
+      },
+      "speedup_wall": 1.02,
+      "results_identical": true
+    },
+    {
+      "seed_runs": 768,
+      "seeds_per_policy": 32,
+      "seeds_per_call": 32,
+      "calls": 24,
+      "serial": {
+        "wall_s": 2.19,
+        "exec_s": 2.15,
+        "containers": 1,
+        "cost_usd_lower": 3.1e-05,
+        "cost_usd_upper": 0.000884
+      },
+      "fanout": {
+        "wall_s": 0.46,
+        "exec_s_sum": 5.96,
+        "containers": 24,
+        "cost_usd_lower": 8.5e-05,
+        "cost_usd_upper": 0.020705
+      },
+      "speedup_wall": 4.74,
+      "results_identical": true
+    },
+    {
+      "seed_runs": 6144,
+      "seeds_per_policy": 256,
+      "seeds_per_call": 64,
+      "calls": 96,
+      "serial": {
+        "wall_s": 15.66,
+        "exec_s": 15.58,
+        "containers": 1,
+        "cost_usd_lower": 0.000221,
+        "cost_usd_upper": 0.001075
+      },
+      "fanout": {
+        "wall_s": 1.38,
+        "exec_s_sum": 29.92,
+        "containers": 34,
+        "cost_usd_lower": 0.000425,
+        "cost_usd_upper": 0.030082
+      },
+      "speedup_wall": 11.33,
+      "results_identical": true
+    },
+    {
+      "seed_runs": 24576,
+      "seeds_per_policy": 1024,
+      "seeds_per_call": 256,
+      "calls": 96,
+      "serial": {
+        "wall_s": 63.62,
+        "exec_s": 63.33,
+        "containers": 1,
+        "cost_usd_lower": 0.0009,
+        "cost_usd_upper": 0.001757
+      },
+      "fanout": {
+        "wall_s": 2.99,
+        "exec_s_sum": 75.94,
+        "containers": 34,
+        "cost_usd_lower": 0.001079,
+        "cost_usd_upper": 0.03151
+      },
+      "speedup_wall": 21.3,
+      "results_identical": true
+    }
+  ],
+  "towns": [
+    "Evart, MI",
+    "Marfa, TX",
+    "Springfield, IL",
+    "Oslo"
+  ],
+  "policies": 6,
+  "days": 7,
+  "prices": {
+    "core_second_usd": 1.31e-05,
+    "gib_second_usd": 2.22e-06,
+    "source": "modal.com/pricing (checked 2026-11-15)",
+    "requested": {
+      "cpu_cores": 1.0,
+      "memory_gib": 0.5
+    },
+    "scaledown_window_s": 60
+  },
+  "note": "Wall times measured inside Modal; each row starts after the previous one, so later rows may reuse warm containers. Cost lower bound = execution time only; upper bound adds start-up and the idle scale-down window per container. One seed-run takes ~3.5 ms, so small batches are dominated by container start-up and per-call Node start: fan-out pays off for evaluation-size sweeps, not for one 16-seed experiment.",
+  "measured_at": "2026-11-15T01:35:04Z"
+}
