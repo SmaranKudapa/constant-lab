@@ -71,13 +71,12 @@ def _get(url: str, params: dict | None = None, data: dict | None = None, timeout
 
 
 def geocode(city: str) -> dict:
-    res = _get("https://nominatim.openstreetmap.org/search",
-               {"q": city, "format": "json", "limit": 1, "addressdetails": 1, "extratags": 1, "featuretype": "settlement"})
-    if not res:
-        res = _get("https://nominatim.openstreetmap.org/search", {"q": city, "format": "json", "limit": 1, "addressdetails": 1, "extratags": 1})
+    res = _get("https://nominatim.openstreetmap.org/search", {"q": city, "format": "json", "limit": 8, "addressdetails": 1, "extratags": 1})
     if not res:
         raise LookupError(f"OpenStreetMap has no place called {city!r}")
-    g = res[0]
+    # Prefer the town itself over a county or region with the same name (e.g. Hood River city, not Hood River County).
+    SETTLEMENT = ("city", "town", "village", "hamlet", "municipality", "suburb", "borough")
+    g = next((r for r in res if r.get("addresstype") in SETTLEMENT or (r.get("class") == "place" and r.get("type") in SETTLEMENT)), res[0])
     s, n, w, e = map(float, g["boundingbox"])
     lat, lon = float(g["lat"]), float(g["lon"])
     half_diag = 0.5 * math.hypot((n - s) * 110540, (e - w) * 111320 * math.cos(math.radians(lat)))
@@ -98,7 +97,11 @@ def fetch_places(lat: float, lon: float, radius: int) -> list[dict]:
     last = None
     for url in OVERPASS:
         try:
-            return _get(url, data={"data": q}, timeout=170).get("elements", [])
+            res = _get(url, data={"data": q}, timeout=170)
+            remark = str(res.get("remark") or "")
+            if "error" in remark.lower() or "timed out" in remark.lower():  # Overpass reports query timeouts as HTTP 200 + remark
+                raise RuntimeError(f"Overpass remark: {remark[:160]}")
+            return res.get("elements", [])
         except Exception as ex:  # try the mirror
             last = ex
     raise RuntimeError(f"Overpass failed: {last}")
@@ -234,6 +237,8 @@ def build_spec(city: str) -> dict:
         per[p["kind"]] = n + 1
         p["id"] = CANONICAL[p["kind"]] if n == 0 and p["kind"] in CANONICAL else f"{p['kind']}-{n + 1}"
         places.append(p)
+    if not counts:
+        raise LookupError("OpenStreetMap returned no places for this town (or Overpass timed out); not caching an all-synthetic town")
     synthetic = []
     if not any(p["kind"] == "school" for p in places):
         places.append({"id": "school", "kind": "school", "name": "School (synthetic: none mapped nearby)", "named": False, "lat": g["lat"] + 0.004,

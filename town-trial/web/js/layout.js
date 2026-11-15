@@ -170,9 +170,10 @@ export function layoutTown(cityName, spec = null) {
   const works = buildings.filter((b) => b.kind === "work");
 
   const { pathBetween, pathFromPoint } = grid;
-  for (const x of buildings) x.employs = x.kind === "work";
+  for (const x of buildings) { x.employs = x.kind === "work"; x.public = x.kind === "library" || x.kind === "park"; }
+  const facilities = buildings.filter((x) => x.public);
 
-  return { name: cityName, buildings, byId, homes, works, blocks, trees, pathBetween, pathFromPoint, size: GRID * PITCH };
+  return { name: cityName, buildings, byId, homes, works, facilities, blocks, trees, pathBetween, pathFromPoint, size: GRID * PITCH };
 }
 
 // ---------- real towns (2A) ----------

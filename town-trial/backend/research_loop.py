@@ -321,6 +321,9 @@ class LiveTrial(Trial):
             self.base_policy = {"channels": chans}
             self.base_source = ext["url"] if ext else "assumption (no local source)"
 
+    def is_awareness(self) -> bool:
+        return self.mode == "perception"
+
     def eli_audiences(self) -> None:
         """One past.dev identity per resident, rule audiences for this town, and the notice scoped to the 'heard' audience."""
         info = self.runner.info(self.city, spec=self.spec)
@@ -354,7 +357,7 @@ class LiveTrial(Trial):
 
     def after_brief(self, best: dict) -> None:
         """Perception: replay the watched run (seed 0 of the recommended policy) into past.dev, and spot-check recall."""
-        if self.mode != "perception" or not getattr(self, "resident_ids", None):
+        if not self.is_awareness() or not getattr(self, "resident_ids", None):
             return
         from sim import run_jobs_local
         learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True,

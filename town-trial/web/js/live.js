@@ -61,11 +61,18 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
     const st = STATION[e.type];
     if (st) r.moveTo(heaven.stations[st].stand);
     r.say(e.say || `${e.type.replace("_", " ")}${e.exp ? " " + e.exp : ""}`, STEP_SEC + 1.5);
-    if (e.type === "EXA") heaven.drop(heaven.stations.lookout, town.byId.library, 3, 0x59c2ff);
-    if (e.type === "RUN_START") heaven.drop(heaven.stations.portal, town.byId.library, 12, 0x5be37d);
+    const focus = (primary.target && town.byId[primary.target]) || town.byId.library || town.byId.plaza;
+    if (e.type === "EXA") heaven.drop(heaven.stations.lookout, focus, 3, 0x59c2ff);
+    if (e.type === "RUN_START") heaven.drop(heaven.stations.portal, focus, 12, 0x5be37d);
   }
 
   function apply(e) {
+    if (e.type === "FRAME") {  // Bo framed the question: the metric the Experiments tab ranks by
+      Object.assign(primary, { key: e.key, label: e.label, unit: e.unit || "", target: e.target, direction: e.direction });
+      live.days = e.days || live.days;
+      live.awareness = e.metric === "awareness";
+      onChange();
+    }
     if (e.type === "EXPERIMENT") { upsert(e); onChange(); return false; }
     if (e.type === "HELD_OUT_TABLE") { exps.heldOut = { finalists: e.finalists, table: e.table, metric: e.metric }; onChange(); return false; }
     const { seq, t, clock, type, ...fields } = e;
@@ -85,10 +92,11 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
     }
   }
 
-  return {
-    exps, update, primary, mode, id,
-    days: mode === "service" ? 7 : 3,
+  const live = {
+    exps, update, primary, mode, id, awareness: mode === "perception",
+    days: mode === "perception" ? 3 : 7,
     done: () => serverDone && !queue.length,
     stop: () => { stopped = true; clearTimeout(pollT); return request(`${base}/api/trials/${id}/stop`, { method: "POST" }).catch(() => {}); },
   };
+  return live;
 }

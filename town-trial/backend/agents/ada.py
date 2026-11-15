@@ -133,3 +133,31 @@ class Ada:
         out["url"] = src["url"]  # trust the verified source, not the model's URL
         out["title"] = src["title"]
         return out
+
+
+def extract_place_hours(ada, place: str, city: str, results: list) -> dict | None:
+    """Weekly opening hours of one named place, only if a source states them (quote checked)."""
+    schema = strict({
+        "found": {"type": "boolean"},
+        "days": {"type": "array", "items": strict({"day": {"type": "integer", "description": "0=Mon .. 6=Sun"},
+                                                   "open": {"type": ["string", "null"]}, "close": {"type": ["string", "null"]}})},
+        "quote": {"type": "string"}, "url": {"type": "string"},
+    })
+    out = ada.llm.json("place_hours", schema, ada.SYSTEM,
+                       f"What are the current weekly opening hours of {place} in {city}? Give all 7 days.\n\n{ada._sources(results)}")
+    return ada._checked(out, results)
+
+
+def extract_budget(ada, city: str, topic: str, results: list) -> dict | None:
+    """Budget facts for the town or the place (annual budget, wage per staff hour, a cut or freeze), only if stated."""
+    schema = strict({
+        "found": {"type": "boolean"},
+        "kind": {"type": "string", "enum": ["annual_budget", "hourly_wage", "budget_cut", "no_additional_staff_hours", "staff_hours_cap", "other", "none"]},
+        "amount": {"type": ["number", "null"], "description": "dollars (annual budget or cut) or $/hour (wage) or hours/week (cap)"},
+        "applies_to": {"type": "string", "description": "what the figure is for, e.g. library operating budget FY2025"},
+        "statement": {"type": "string"}, "quote": {"type": "string"}, "url": {"type": "string"},
+    })
+    out = ada.llm.json("budget_fact", schema, ada.SYSTEM,
+                       f"Question: {topic}\nDoes any source state a budget figure, staff wage, budget cut or staffing limit relevant to this "
+                       f"in {city}?\n\n{ada._sources(results)}")
+    return ada._checked(out, results)

@@ -19,7 +19,7 @@ SEEDS = 16        # matched seeds per experiment
 SWEEP_BUDGET = 6  # runs the parameter sweep may spend
 HELD_OUT_SEEDS = list(range(100, 108))
 ROLE_NAME = {"baseline": "current practice", "user": "your idea", "sweep": "parameter sweep", "oneshot": "one-shot", "revision": "iterative agent"}
-EXP_FIELDS = ["id", "label", "role", "parent", "policy", "change", "source", "status", "result", "best"]
+EXP_FIELDS = ["id", "label", "role", "parent", "policy", "change", "source", "status", "result", "best", "budget"]
 
 
 class Stopped(Exception):
@@ -341,8 +341,11 @@ def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: st
         if live:
             from memory import LocalMemory
             from research_loop import LiveTrial
-            trial = LiveTrial(store, trial_id, city, prompt, mode, runner, memory=memory or LocalMemory({}), options=options)
+            from town_loop import TownTrial
+            cls = TownTrial if mode == "town" else LiveTrial
+            trial = cls(store, trial_id, city, prompt, mode, runner, memory=memory or LocalMemory({}), options=options)
         else:
+            mode = mode if mode != "town" else "service"
             trial = Trial(store, trial_id, city, prompt, mode, runner)
             store.append(trial_id, "NOTE", {"level": "info", "message": "No LLM key configured: running the scripted research loop. "
                                             "Agents' words are scripted and evidence is FIXTURE; every number is a real simulator run."})

@@ -131,9 +131,11 @@ async function makeTown(name, real = false) {
 function startReplay(exp) {
   viewExp = exp;
   const m = mode || "service";
-  const policy = exp ? exp.policy : m === "perception" ? { channels: ["online"] } : { hours: BASELINE_HOURS };
+  const policy = exp ? exp.policy : m === "perception" ? { channels: ["online"] } : m === "town" ? { target: research && research.primary && research.primary.target } : { hours: BASELINE_HOURS };
   const live = !!mode;
-  model = createModel({ town, residents, mode: m, policy, seed: 0, days: m === "perception" ? 3 : 7, emit: live ? emit : null });
+  const days = research && research.days ? research.days : m === "perception" ? 3 : 7;
+  const incomeFactor = townSpec && townSpec.census && townSpec.census.median_income ? townSpec.census.median_income / 70000 : 1;
+  model = createModel({ town, residents, mode: m, policy, seed: 0, days, emit: live ? emit : null, incomeFactor });
   for (let k = 0; k < START_TICK; k++) model.step();
   // Teleport everyone to where the model says they are
   for (const s of model.S) {
@@ -167,8 +169,8 @@ function refreshIcons() {
   for (const s of model.S) {
     const v = views[s.r.id];
     let icon = null;
-    if (mode === "perception") icon = s.aware ? "aware" : "unaware";
-    else if (mode === "service") {
+    if (mode === "perception" || (mode === "town" && research && research.awareness)) icon = s.aware ? "aware" : "unaware";
+    else if (mode === "service" || mode === "town") {
       if (v.turnedT > 0) icon = "turned";
       else if (s.libState === "going") icon = "going";
       else if (s.libState === "queue") icon = "waiting";
@@ -450,7 +452,7 @@ function beginTrial(m) {
   const badge = $("mode-badge");
   badge.classList.remove("hidden");
   badge.classList.toggle("perception", mode === "perception");
-  badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : "SERVICE TRIAL";
+  badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : mode === "town" ? "TOWN TRIAL" : "SERVICE TRIAL";
   startReplay(null);
 }
 function afterTrialStart() {
@@ -458,6 +460,7 @@ function afterTrialStart() {
   updateRunbar();
   toast(mode === "perception"
     ? "Perception trial: each resident is a past.dev identity. Watch ? turn into ! as the notice spreads. Researchers work in HEAVEN."
+    : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). Researchers work in HEAVEN."
     : "Service trial: watch residents visit the library. Researchers work in HEAVEN.", 5200);
   renderPanels(true);
 }

@@ -3,6 +3,7 @@
 // runs behind the experiment table (many seeds, no rendering), so every number
 // on screen comes from the run you can watch.
 import { makeRng } from "./rng.js";
+import { createTownModel } from "./townsim.js";
 
 export const TICK_MIN = 10;
 export const TICKS_PER_DAY = (24 * 60) / TICK_MIN;
@@ -123,7 +124,8 @@ export function canUseHours(r, hours) {
 
 // ---------- the model ----------
 // mode: "service" (library visits) or "perception" (who hears a notice)
-export function createModel({ town, residents, mode, policy, seed, emit = null, days = 7 }) {
+export function createModel({ town, residents, mode, policy, seed, emit = null, days = 7, incomeFactor = 1 }) {
+  if (mode === "town") return createTownModel({ town, residents, policy, seed, emit, days, incomeFactor });
   const rng = makeRng("run:" + seed);
   const lib = town.byId.library, plaza = town.byId.plaza, school = town.byId.school;
   const freeSpots = [plaza, town.byId.park, town.byId.cafe].filter(Boolean);
@@ -258,14 +260,17 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
 }
 
 // Run many seeds with no rendering and average the results.
-export function runBatch({ town, residents, mode, policy, seeds, days }) {
+export function runBatch({ town, residents, mode, policy, seeds, days, incomeFactor = 1 }) {
   const runs = seeds.map((seed) => {
-    const model = createModel({ town, residents, mode, policy, seed, days });
+    const model = createModel({ town, residents, mode, policy, seed, days, incomeFactor });
     while (!model.done()) model.step();
     return model.summary();
   });
   const mean = (k) => runs.reduce((a, r) => a + r[k], 0) / runs.length;
   const sd = (k) => { const mu = mean(k); return Math.sqrt(runs.reduce((a, r) => a + (r[k] - mu) ** 2, 0) / Math.max(1, runs.length - 1)); };
-  const keys = ["visits", "restrictedVisits", "turnedAway", "uniqueVisitors", "staffHours", "awarePct", "familiesAwarePct"];
+  const keys = mode === "town"  // town mode: every numeric metric any run reported (missing = 0), in a stable order
+    ? [...new Set(runs.flatMap((r) => Object.keys(r).filter((k) => typeof r[k] === "number")))].sort()
+    : ["visits", "restrictedVisits", "turnedAway", "uniqueVisitors", "staffHours", "awarePct", "familiesAwarePct"];
+  if (mode === "town") for (const r of runs) for (const k of keys) if (r[k] === undefined) r[k] = 0;
   return { n: runs.length, mean: Object.fromEntries(keys.map((k) => [k, mean(k)])), sd: Object.fromEntries(keys.map((k) => [k, sd(k)])), runs };
 }

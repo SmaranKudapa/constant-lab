@@ -64,8 +64,9 @@ export function entryHTML(e, residentsById) {
     case "HELD_OUT": body = `${e.finalists.join(", ")} frozen and tested on ${e.scenarios} held-out scenarios × ${e.seeds} seeds. ${esc(e.note)}`; break;
     case "BRIEF": body = `Recommend <b>${esc(e.recommend)}: ${esc(e.label)}</b><br>${esc(e.summary)}<br><i>Assumes:</i> ${esc(e.assumptions)}<br><i>Pilot:</i> ${esc(e.pilot)}`; break;
     case "LEARN": body = `${esc(e.name)} heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
-    case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited the library${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
-    case "TURNED_AWAY": body = `${esc(e.name)} turned away: ${esc(e.reason)}`; break;
+    case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
+    case "TURNED_AWAY": body = `${esc(e.name)} turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
+    case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }
@@ -73,24 +74,31 @@ export function entryHTML(e, residentsById) {
   return `<div class="${cls}"><div class="head"><span class="type">${e.type.replace("_", " ")}</span><span class="who">${esc(who)}</span><span class="when">${esc(e.clock || "")}</span></div>${body}</div>`;
 }
 
+const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${s}$${(a / 1e3).toFixed(1)}k` : `${s}$${a.toFixed(0)}`; };
+// Primary metric of an experiment: a simulator mean, or the net annual budget for budget questions.
+const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
+const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
+
 export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new Set()) {
   if (!exps.length) return `<p class="note">Run a trial to see experiments. Each one records its parent, the change, the source that caused it, and results over matched seeds.</p>`;
-  const max = Math.max(1, ...exps.filter((x) => x.result).map((x) => x.result.mean[P.key]));
+  const max = Math.max(1, ...exps.filter((x) => x.result).map((x) => Math.abs(metricOf(x, P))));
+  const base = exps.find((x) => x.role === "baseline" && x.budget);
   let html = `<p class="note">Primary metric: ${esc(P.label)}. Click a run to replay it in town (same seed, same residents).</p>`;
   for (const x of exps) {
     const tag = x.best ? `<span class="tagx best">BEST</span>` : x.status === "infeasible" ? `<span class="tagx infeasible">INFEASIBLE</span>` : x.status === "rejected" ? `<span class="tagx rejected">REJECTED</span>` : `<span class="tagx">${esc(x.status.toUpperCase())}</span>`;
-    const v = x.result ? x.result.mean[P.key] : 0;
+    const v = x.result ? metricOf(x, P) : 0;
+    const bud = x.budget ? ` · budget ${usd(x.budget.net)}/yr${base && x !== base ? ` (${x.budget.net >= base.budget.net ? "+" : ""}${usd(x.budget.net - base.budget.net)})` : ""}` : "";
     html += `<div class="exp${x.id === viewingId ? " viewing" : ""}" data-exp="${x.id}"><div class="exp-row">
       <button type="button" class="why${openWhy.has(x.id) ? " open" : ""}" data-why="${x.id}" title="Why? Show the reasoning behind ${esc(x.id)}">?</button><div class="exp-body">
       <h4><span>${esc(x.id)} · ${esc(x.label)}</span>${tag}</h4>
       <div class="meta">${esc(x.role)}${x.parent ? ` · from ${esc(x.parent)}` : ""} · ${esc(x.change)}${x.source ? ` · source ${esc(x.source)}` : ""}</div>
-      ${x.result ? `<div class="metrics">${v.toFixed(1)}${P.unit} ± ${x.result.sd[P.key].toFixed(1)} <span class="meta">(n=${x.result.n})</span>${x.policy.hours ? ` · staff ${staffHours(x.policy.hours)} h/wk` : ""}</div><div class="bar"><i style="width:${(100 * v) / max}%"></i></div>` : ""}
+      ${x.result ? `<div class="metrics">${fmtMetric(v, P)}${P.key === "budget.net" ? "" : `${P.unit} ± ${(x.result.sd[P.key] ?? 0).toFixed(1)}`} <span class="meta">(n=${x.result.n})</span>${x.policy.hours ? ` · staff ${staffHours(x.policy.hours)} h/wk` : ""}${bud}</div><div class="bar"><i style="width:${(100 * Math.abs(v)) / max}%"></i></div>` : ""}
     </div></div>${openWhy.has(x.id) ? reasoningHTML(x, events) : ""}</div>`;
   }
   if (exps.heldOut) {
     const H = exps.heldOut;
     html += `<h5>HELD-OUT TEST (frozen picks)</h5><table class="cmp"><tr><th>Scenario</th>${H.finalists.map((f) => `<th>${esc(f.id)}<br>${esc(f.role)}${f.feasible ? "" : " ✗"}</th>`).join("")}</tr>`;
-    for (const row of H.table) html += `<tr><td>${esc(row.scenario)}</td>${H.finalists.map((f) => `<td>${row[f.id].toFixed(1)}</td>`).join("")}</tr>`;
+    for (const row of H.table) html += `<tr><td>${esc(row.scenario)}</td>${H.finalists.map((f) => `<td>${fmtMetric(row[f.id], P)}</td>`).join("")}</tr>`;
     html += `</table><p class="note">✗ = breaks a discovered constraint. Same search budget for sweep, one-shot and agent. Demo inputs are synthetic.</p>`;
   }
   return html;
@@ -99,6 +107,18 @@ export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new S
 export function audiencesHTML(mode, model, residents, flashSlug) {
   if (!model) return `<p class="note">Run a trial to see live state.</p>`;
   const st = model.state;
+  if (mode === "town" && model.facilities) {
+    const C = st.metrics.counts;
+    let html = `<p class="note">Live counts for the run you're watching (seed 0), at the town's public places.</p>`;
+    for (const f of model.facilities) {
+      const fs = st.fac[f.id] || { inside: [], queue: [] };
+      html += `<div class="aud"><div class="slug">${esc(f.name.toUpperCase())}${f.closed ? " · CLOSED BY POLICY" : ""}</div>` +
+        `<div class="rule">${esc(f.kind.replace("_", " "))} · hours ${esc(hoursText(f.hours))} (${esc(f.hoursSource)})${f.fee ? ` · fee $${f.fee}` : ""}</div>` +
+        `<div>Inside: ${fs.inside.length} · Queue: ${fs.queue.length} · Visits: ${C[`visits.f.${f.id}`] || 0} · Turned away: ${C[`turnedAway.f.${f.id}`] || 0}</div></div>`;
+    }
+    if (C.aware) html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).filter(([, v]) => v).map(([k, v]) => `<div>${k}: ${v}</div>`).join("");
+    return html + legendHTML();
+  }
   if (mode === "perception") {
     const aware = model.S.filter((s) => s.aware).length;
     const fam = residents.filter((r) => r.cohort === "families");

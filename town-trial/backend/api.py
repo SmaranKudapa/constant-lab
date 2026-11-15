@@ -57,7 +57,9 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):
         city, prompt = req.city.strip(), req.prompt.strip()
-        mode = classify(prompt)
+        # Live agents: the general town model (Bo frames the question). Without an LLM key: the scripted demo loop.
+        live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
+        mode = "town" if live else classify(prompt)
         options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
         trial_id = uuid.uuid4().hex[:12]
         store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "options": options, "version": os.environ.get("CODE_VERSION", "local")})
@@ -65,7 +67,8 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
             store.finish(trial_id, rejected="too many concurrent trials")
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")
         start(trial_id=trial_id, city=city, prompt=prompt, mode=mode, options=options)
-        return {"trial_id": trial_id, "mode": mode, "primary": primary(mode), "options": options, "version": os.environ.get("CODE_VERSION", "local")}
+        P = {"key": "visits", "label": "(Bo is framing the question...)", "unit": ""} if mode == "town" else primary(mode)
+        return {"trial_id": trial_id, "mode": mode, "primary": P, "options": options, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/trials/{trial_id}/events")
     def events(trial_id: str, since: int = 0):

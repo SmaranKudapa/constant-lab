@@ -124,3 +124,103 @@ def validate_action(mode: str, action: dict) -> str | None:
 
 def describe_hours(hours: list) -> str:
     return ", ".join(f"{DAYS[d]} " + (f"{_fmt(x[0])}-{_fmt(x[1])}" if x else "closed") for d, x in enumerate(hours))
+
+
+# ---------- town mode (general model): actions on any public place, new places, outreach ----------
+TOWN_CHANNELS = ["online", "board", "bulletin", "newspaper", "mailer"]
+
+
+def validate_town_action(action: dict, facilities: dict, kinds: list[str], places: set[str]) -> str | None:
+    """Error message if Bo's town action is outside the supported schema, else None. Checked in code, never by the LLM."""
+    changes = action.get("facility_changes") or []
+    adds = action.get("new_facilities") or []
+    chans = action.get("channels") or []
+    if not (changes or adds or chans):
+        return "the action changes nothing"
+    seen = set()
+    for c in changes:
+        fid = c.get("facility")
+        if fid not in facilities:
+            return f"unknown facility {fid!r}; choose one of {sorted(facilities)}"
+        if fid in seen:
+            return f"facility {fid} appears twice"
+        seen.add(fid)
+        if c.get("hours_changes"):
+            e = validate_action("service", {"hours_changes": c["hours_changes"]})
+            if e:
+                return f"{fid}: {e}"
+        cap, fee = c.get("capacity"), c.get("fee")
+        if cap is not None and not (isinstance(cap, int) and 1 <= cap <= 500):
+            return f"{fid}: capacity must be 1..500"
+        if fee is not None and not (0 <= float(fee) <= 100):
+            return f"{fid}: fee must be $0..$100"
+        if not (c.get("hours_changes") or cap is not None or fee is not None or c.get("close")):
+            return f"{fid}: no change given"
+    for a in adds:
+        if a.get("kind") not in kinds:
+            return f"new facility kind must be one of {kinds}"
+        if a.get("near") not in places:
+            return f"new facility 'near' must be an existing place id (e.g. {sorted(places)[:6]})"
+        if a.get("hours_changes"):
+            e = validate_action("service", {"hours_changes": a["hours_changes"]})
+            if e:
+                return f"new {a['kind']}: {e}"
+    bad = [c for c in chans if c not in TOWN_CHANNELS]
+    if bad:
+        return f"unsupported channels {bad}; allowed {TOWN_CHANNELS}"
+    return None
+
+
+def town_policy(action: dict, facilities: dict, defaults: dict, target: str | None) -> dict:
+    """Bo's town action -> simulator policy (web/js/townsim.js)."""
+    pol: dict = {"target": target, "facilities": {}, "add": [], "channels": sorted(set(action.get("channels") or []))}
+    for c in action.get("facility_changes") or []:
+        f = facilities[c["facility"]]
+        o = {}
+        if c.get("hours_changes"):
+            o["hours"] = apply_changes(f["hours"], c["hours_changes"])
+        if c.get("capacity") is not None:
+            o["capacity"] = int(c["capacity"])
+        if c.get("fee") is not None:
+            o["fee"] = round(float(c["fee"]), 2)
+        if c.get("close"):
+            o["closed"] = True
+        pol["facilities"][c["facility"]] = o
+    for i, a in enumerate(action.get("new_facilities") or []):
+        d = defaults[a["kind"]]
+        n = {"id": f"new-{a['kind']}-{i + 1}", "kind": a["kind"], "near": a["near"], "opCost": d.get("opCost", 20)}
+        n["hours"] = apply_changes(d["hours"], a["hours_changes"]) if a.get("hours_changes") else d["hours"]
+        if a.get("capacity") is not None:
+            n["capacity"] = int(a["capacity"])
+        if a.get("fee") is not None:
+            n["fee"] = round(float(a["fee"]), 2)
+        pol["add"].append(n)
+    if not pol["facilities"]:
+        del pol["facilities"]
+    if not pol["add"]:
+        del pol["add"]
+    if not pol["channels"]:
+        del pol["channels"]
+    return pol
+
+
+def describe_town(policy: dict, facilities: dict, places: dict) -> str:
+    parts = []
+    for fid, o in (policy.get("facilities") or {}).items():
+        f = facilities.get(fid, {"name": fid, "hours": None})
+        bits = []
+        if o.get("closed"):
+            bits.append("closed")
+        if "hours" in o:
+            ch = [f"{DAYS[d]} " + (f"{_fmt(x[0])}-{_fmt(x[1])}" if x else "closed") for d, x in enumerate(o["hours"]) if not f.get("hours") or x != f["hours"][d]]
+            bits.append(", ".join(ch) or "same hours")
+        if "capacity" in o:
+            bits.append(f"capacity {o['capacity']}")
+        if "fee" in o:
+            bits.append(f"fee ${o['fee']:g}")
+        parts.append(f"{f['name']}: {'; '.join(bits)}")
+    for a in policy.get("add") or []:
+        parts.append(f"new {a['kind'].replace('_', ' ')} near {places.get(a['near'], a['near'])}")
+    if policy.get("channels"):
+        parts.append("notice via " + " + ".join(policy["channels"]))
+    return " | ".join(parts) or "current practice"
