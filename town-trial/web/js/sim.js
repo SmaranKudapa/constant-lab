@@ -146,7 +146,8 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
   const log = (type, f) => emit && emit(type, f);
 
   const isOpen = (day, m) => { const h = hours[day]; return !!h && m >= h[0] && m < h[1]; };
-  const move = (s, b, extra = {}) => { if (s.at !== b) { s.at = b; changes.push({ s, b, ...extra }); } };
+  // A place the town doesn't have (no library, no park...) is never a destination: the resident stays where they are
+  const move = (s, b, extra = {}) => { if (b && s.at !== b) { s.at = b; changes.push({ s, b, ...extra }); } };
 
   function learn(s, via, from = null) {
     if (s.aware) return;
@@ -185,7 +186,7 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
         const hourStart = m % 60 === 0 || s.lastFreeDecision < 0 || s.plan !== "free";
         if (hourStart) {
           s.lastFreeDecision = st.tick;
-          const wantsLib = mode === "service" && s.visitsWeek < s.r.interest && !s.visitedToday && !s.triedToday && rng.chance(0.3);
+          const wantsLib = mode === "service" && !!lib && s.visitsWeek < s.r.interest && !s.visitedToday && !s.triedToday && rng.chance(0.3);
           if (wantsLib) {
             s.libState = "going"; s.arriveAt = st.tick + 1;
             move(s, lib);

@@ -135,6 +135,25 @@ _ch = [e for e in evs if e["type"] == "CHAIN"]
 check("town fallback: each research round records failure -> question -> source -> changed idea -> new result",
       len(_ch) >= 1 and all(k in _ch[0] for k in ("failure", "question", "source", "changed_idea", "new_result")), f"{len(_ch)} rounds")
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
+check("town fallback: Bo saves what won and Cy saves its failure notes for later trials",
+      any(e["type"] == "MEMORY_WRITE" and e["source_id"] == "lesson-t3" and e["agent"] == "bo" for e in evs)
+      and any(e["type"] == "MEMORY_WRITE" and e["source_id"] == "cy-notes-t3" and e["agent"] == "cy" for e in evs))
+
+# A later trial in the same browser session lists t3: Bo and Cy read its lessons from shared memory and use them
+_bo_ctx.clear()
+store.create("t4", {})
+t4 = TownTrial(store, "t4", "Evart, MI", "Open the library on Sundays", "town", runner, memory=tt.memory, options={"prior": [{"trial": "t3", "city": "Evart, MI"}]})
+t4.spec = _spec
+try:
+    t4.start(); store.finish("t4"); err4 = None
+except Exception as ex:
+    err4 = f"{type(ex).__name__}: {ex}"
+evs4, _ = store.read("t4")
+_lr = [e for e in evs4 if e["type"] == "MEMORY_READ" and e.get("source_id") in ("lesson-t3", "cy-notes-t3")]
+_win = next((e["claim"] for e in _lr if e["source_id"] == "lesson-t3"), "")
+check("session learning: Bo reads what won and Cy reads its notes from the earlier trial (written by Bo / Cy)",
+      not err4 and {(e["agent"], e["author"]) for e in _lr} == {("bo", "bo"), ("cy", "cy")}, err4 or str(len(_lr)))
+check("session learning: Bo's revision prompt contains the earlier trial's lesson", bool(_win) and any(_win in c for c in _bo_ctx), f"{len(_bo_ctx)} prompts")
 # the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
 e0 = exps["E0"]
 est = tt.budget_of(tt.est_mean(e0["policy"]), e0["policy"])

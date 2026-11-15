@@ -37,6 +37,9 @@ class LiveTrial(Trial):
         # exa_mode (evaluation): "failure" = baseline + failure-guided searches (default); "broad" = the same number of
         # searches, but generic town/library queries; "none" = no Exa calls (gaps logged, model defaults used).
         self.exa_mode = (options or {}).get("exa_mode", "failure")
+        self.prior = list((options or {}).get("prior") or [])  # earlier trials in this browser session: [{trial, city}]
+        self.session_lessons: list[dict] = []                  # what Bo and Cy read back about them (from shared memory)
+        self.fail_notes: list[str] = []                        # Cy's failure notes in this trial (saved at the end for later trials)
         self.budget = budget or Budget()
         self.llm = LLM(self.budget)
         self.ada, self.bo, self.cy = Ada(self.budget, self.llm), Bo(self.llm), Cy(self.llm)
@@ -168,8 +171,8 @@ class LiveTrial(Trial):
         self.emit("MEMORY_WRITE", agent=agent, say=say, source_id=source_id, kind=kind, claim=claim, source=source,
                   effective=meta.get("effective"), supersedes=w["supersedes"], store=self.memory.last_store)
 
-    def read(self, agent: str, source_id: str, used_for: str, say: str | None = None) -> dict | None:
-        f = self.memory.get(self.city, source_id, reader=agent)
+    def read(self, agent: str, source_id: str, used_for: str, say: str | None = None, city: str | None = None) -> dict | None:
+        f = self.memory.get(city or self.city, source_id, reader=agent)
         if f:
             self.emit("MEMORY_READ", agent=agent, say=say, source_id=source_id, author=f["author"], claim=f["claim"], used_for=used_for,
                       store=self.memory.last_store)

@@ -141,7 +141,8 @@ export function createTownModel({ town, residents, policy = {}, seed, emit = nul
   const inc = (k, v = 1) => { C[k] = (C[k] || 0) + v; };
   const changes = [];
   const isOpenF = (f, day, m) => { const h = f.hours[day]; return !f.closed && !!h && m >= h[0] && m < h[1]; };
-  const move = (s, b, extra = {}) => { if (s.at !== b) { s.at = b; changes.push({ s, b, ...extra }); } };
+  // A place the town doesn't have (no library, no park...) is never a destination: the resident stays where they are
+  const move = (s, b, extra = {}) => { if (b && s.at !== b) { s.at = b; changes.push({ s, b, ...extra }); } };
   const wtp = (c) => (WTP[c] || 8) * incomeFactor;
 
   function enter(s, f) {

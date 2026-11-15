@@ -212,7 +212,8 @@ function layoutFromSpec(cityName, spec) {
   const place = (b, bi, bj) => add(grid.placeAt(b, bi, bj));
   const tree = (x, z, s = 1) => { trees.push({ x, z, s, color: rng.pick(TREE_COLORS) }); };
   const P = Object.fromEntries((spec.places || []).map((p) => [p.id, p]));
-  const meta = (p) => ({ name: p.name, realName: p.named ? p.name : null, osm: p.osm, synthetic: !!p.synthetic, employs: !!p.employs,
+  // Stand-in places keep short labels ("School"); that they are stand-ins is explained in the building's panel
+  const meta = (p) => ({ name: p.synthetic ? String(p.name).replace(/\s*\(synthetic[^)]*\)/i, "") : p.name, realName: p.named ? p.name : null, osm: p.osm, synthetic: !!p.synthetic, employs: !!p.employs,
     public: PUBLIC_KINDS.includes(p.kind), hoursOsm: p.hours_osm || null });
 
   let homeN = 0;

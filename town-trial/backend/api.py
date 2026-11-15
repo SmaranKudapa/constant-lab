@@ -8,6 +8,7 @@ POST /api/trials/{id}/stop            -> {ok}
 from __future__ import annotations
 
 import os
+import re
 import uuid
 from typing import Callable
 
@@ -73,6 +74,11 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
         live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
         mode = "town" if live else ("perception" if classify(prompt) == "perception" else "service")
         options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
+        # Earlier trials in this browser session (the page forgets them on reload): their lessons are read from shared memory
+        prior = [p for p in ((req.options or {}).get("prior") or []) if isinstance(p, dict) and re.fullmatch(r"[0-9a-f]{12}", str(p.get("trial", "")))
+                 and isinstance(p.get("city"), str) and 0 < len(p["city"]) <= 80][-3:]
+        if prior:
+            options["prior"] = [{"trial": p["trial"], "city": p["city"].strip()} for p in prior]
         trial_id = uuid.uuid4().hex[:12]
         store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "options": options, "version": os.environ.get("CODE_VERSION", "local")})
         if not store.register_active(trial_id, MAX_ACTIVE):

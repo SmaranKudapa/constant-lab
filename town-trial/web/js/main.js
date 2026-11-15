@@ -139,6 +139,7 @@ function emit(type, fields) {
   if (type === "TOWN_PROFILE") { townProfile = fields; updateStats(); }
   if (type === "RUN_START") policyRitual(fields.agent || "dee");
   if (fields.agent && STATUS[type]) setStatus(fields.say || STATUS[type], true);
+  if (type === "BRIEF" && research && research.id && !sessionTrials.some((p) => p.trial === research.id)) sessionTrials.push({ trial: research.id, city: town.name });
   if (type === "BRIEF") setStatus(fields.recommend && fields.recommend !== "none" ? "Best policy found" : "Can't be simulated", false, !(fields.recommend && fields.recommend !== "none"));
   if (type === "VOICES") voicesFor = { exp: fields.exp, byCohort: Object.fromEntries((fields.voices || []).map((v) => [v.cohort, v])) };
   if (fields.resident && (type === "VISIT" || type === "TURNED_AWAY" || type === "LEARN")) residentSay(fields.resident, type === "TURNED_AWAY" ? "turned" : type === "LEARN" ? "heard" : fields.restricted ? "restricted" : "visit");
@@ -248,7 +249,7 @@ function stepModel() {
     const v = views[c.s.r.id];
     if (c.turned) { v.turnedT = 3; continue; }
     if (c.served) { v.servedT = 2.5; if (v.at === c.b && !v.path) { v.queueIdx = -1; v.mesh.visible = false; } continue; }
-    if (c.queue) continue;
+    if (c.queue || !c.b || !v) continue;
     v.goTo(c.b, arrive);
   }
   model.state.queue.forEach((s, i) => views[s.r.id].setQueue(i));
@@ -718,6 +719,8 @@ function startTrial(prompt) {
   });
   afterTrialStart();
 }
+// Live trials finished in this page session (not saved anywhere in the browser): the next trial's gods learn from them.
+const sessionTrials = [];
 async function startLiveTrial(prompt) {
   if (research && research.stop) research.stop();
   setStatus("Starting the trial on the backend", true);
@@ -727,6 +730,7 @@ async function startLiveTrial(prompt) {
       onChange: () => renderPanels(true),
       onView: (x) => { startReplay(x); renderPanels(true); },
       onError: (err) => offerDemo(err, prompt),
+      prior: sessionTrials.slice(-3),
     });
     research = live;
     trialType = live.trialType || "town";
@@ -847,7 +851,17 @@ function wheelZoom(dt) {
 
 // ---------- main loop ----------
 const clock = new THREE.Clock();
+// The loop always schedules its next frame first, so one bad frame (a bug, odd map data) can't stop the town for good.
+let frameErrors = 0;
 function frame() {
+  requestAnimationFrame(frame);
+  try { frameBody(); }
+  catch (err) {
+    if (frameErrors++ < 5) console.error("frame error (the town keeps running):", err);
+    if (frameErrors === 20 && model) { console.warn("restarting the town's model after repeated frame errors"); try { startReplay(viewExp); } catch (e) { /* keep going */ } }
+  }
+}
+function frameBody() {
   const dt = Math.min(0.05, clock.getDelta());
   const t = clock.elapsedTime;
   if (model && speed > 0 && inTown) {
@@ -902,7 +916,6 @@ function frame() {
   renderer.render(scene, camera);
   camera.position.x -= shx; camera.position.y -= shy;
   placeLabels();
-  requestAnimationFrame(frame);
 }
 
 // Debug handle for tests and the console
