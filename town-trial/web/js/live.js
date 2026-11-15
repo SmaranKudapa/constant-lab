@@ -12,6 +12,7 @@ const STATION = {
   CLAIM: "drafting", PROPOSE: "drafting", BRIEF: "drafting",
   REVIEW: "court", FAILURE: "court", HELD_OUT: "court",
   RUN_START: "portal", RUN_DONE: "portal",
+  BUDGET_CHECK: "treasury", COMPARABLE: "lookout", TOWN_PROFILE: "lookout", PILOT: "drafting", CHAIN: "court",
 };
 const STATE_EVENTS = new Set(["EXPERIMENT", "HELD_OUT_TABLE"]); // rebuild panels, not log cards
 const POLL_MS = 1000;
@@ -56,7 +57,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   }
 
   function animate(e) {
-    const r = e.agent && researchers[e.agent];
+    const r = e.agent && researchers[e.agent === "ada" ? "exa" : e.agent]; // older logs and memory use "ada"
     if (!r) return;
     const st = STATION[e.type];
     if (st) r.moveTo(heaven.stations[st].stand);

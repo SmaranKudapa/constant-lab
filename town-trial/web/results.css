@@ -121,3 +121,28 @@
 .rp-why .rp-h { color: var(--green); }
 .rp-lead { margin: 0; font-size: 15px; line-height: 1.5; }
 .mode.town { background: var(--blue); }
+
+.rp-fund .rp-who { margin-left: 8px; }
+.rp-chainrow { display: flex; gap: 10px; background: var(--ink); border: 2px solid var(--edge); padding: 8px 10px; margin-bottom: 6px; font-size: 12px; line-height: 1.5; }
+.rp-chainrow .rp-num { flex: 0 0 30px; }
+
+/* ---------- audience graphs ---------- */
+.aud-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.graph-btn { width: 22px; height: 22px; font-size: 10px; line-height: 1; }
+#aud-graph { position: fixed; inset: 0; z-index: 48; display: grid; place-items: center; padding: 16px; }
+.ag-backdrop { position: absolute; inset: 0; background: rgba(13, 10, 24, .7); animation: rpfade .3s ease both; }
+.ag-win { position: relative; width: min(720px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 16px 18px; animation: rptile .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.ag-head h3 { font-family: var(--px); font-size: 13px; color: var(--hi); margin: 6px 40px 4px 0; line-height: 1.5; }
+.ag-ctl { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; font-size: 12px; }
+.ag-ctl select { font-family: var(--sk); font-size: 12px; background: var(--ink); color: var(--text); border: 2px solid var(--edge); padding: 4px; max-width: 260px; }
+.ag-svg { width: 100%; height: auto; background: var(--ink); border: 2px solid var(--edge); display: block; }
+.ag-grid { stroke: #3a3060; stroke-width: 1; }
+.ag-ax { fill: var(--dim); font-family: var(--sk); font-size: 10px; }
+.ag-key, .ag-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; margin: 6px 0; }
+.ag-key b, .ag-legend b, .ag-tab b { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; border: 1px solid var(--edge); }
+.ag-stats { font-size: 12px; margin: 6px 0; }
+.ag-bar { display: flex; height: 16px; border: 2px solid var(--edge); background: var(--ink); }
+.ag-bar i { display: block; min-width: 2px; }
+.ag-tab { border-collapse: collapse; font-size: 12px; width: 100%; }
+.ag-tab th, .ag-tab td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--panel-2); }
+.ag-tab th { color: var(--dim); font-weight: normal; }

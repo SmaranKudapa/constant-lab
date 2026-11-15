@@ -15,8 +15,36 @@ function policyHTML(s) {
   const why = s.reasoning || (s.brief ? s.brief.summary : "");
   let h = `<section class="rp-sec"><h4 class="rp-h">WHAT THE POLICY DOES</h4><p class="rp-lead">${esc(what)}</p></section>`;
   if (why) h += `<section class="rp-sec rp-why"><h4 class="rp-h">WHY IT WINS</h4><p class="rp-lead">${esc(why)}</p></section>`;
+  if (s.funding) {
+    const F = s.funding, col = { funded: "#5be37d", gap: "#ff5d6c", unverified: "#ffd34d" }[F.status] || "#a99cc8";
+    h += `<section class="rp-sec rp-fund" style="border-left-color:${col}"><h4 class="rp-h" style="color:${col}">FUNDING · ${F.status === "unverified" ? "BUDGET UNVERIFIED" : esc(String(F.status).toUpperCase())} <span class="rp-who">TREASURER</span></h4>
+      <p class="rp-lead">${esc(F.summary || "")}${F.source && F.source !== "none identified" ? ` · from ${esc(F.source)}` : ""}${F.gap ? ` · gap ${esc(fmtUsd(F.gap))}/yr` : ""}</p>
+      <p class="rp-dim">${esc(F.reason || "")}${F.url ? ` ${link(F.url)}` : ""}</p>
+      ${F.confirm.length ? `<p class="rp-dim"><b>The town must confirm:</b> ${esc(F.confirm.join("; "))}</p>` : ""}
+      ${s.townBudget ? `<p class="rp-dim"><b>Town budget:</b> ${esc(s.townBudget.year || "current year")} ${esc(s.townBudget.kind)}${typeof s.townBudget.total === "number" ? ` ${esc(fmtUsd(s.townBudget.total))}` : ""} · ${link(s.townBudget.url)}${s.townBudget.published ? ` (${esc(s.townBudget.published)})` : ""}</p>` : ""}</section>`;
+  }
   if (s.sources && s.sources.length) h += `<div class="rp-src rp-small">Sources: ${s.sources.map((u) => link(u)).join(" · ")}</div>`;
   return h;
+}
+const fmtUsd = (x) => { const a = Math.abs(x); return a >= 1e6 ? `$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `$${(a / 1e3).toFixed(1)}k` : `$${Math.round(a)}`; };
+
+function townsHTML(s) {
+  const cases = s.cases || [], pilots = s.pilots || [];
+  if (!cases.length && !pilots.length) return `<p class="rp-dim">No similar towns were found for this question.</p>`;
+  const W = { yes: ["#5be37d", "IT WORKED"], no: ["#ff5d6c", "IT FAILED"], mixed: ["#ffd34d", "MIXED"], unknown: ["#a99cc8", "OUTCOME UNCLEAR"] };
+  let h = cases.map((c) => { const [col, t] = W[c.worked] || W.unknown; return `<div class="rp-card" style="border-left-color:${col}"><div class="rp-who" style="color:${col}">${esc(c.town)} · ${t}</div>
+    <div><b>What they did:</b> ${esc(c.intervention)}</div><div><b>What happened:</b> ${esc(c.outcome)}</div>
+    <div class="rp-dim"><b>Cost:</b> ${esc(c.cost)} · <b>Similar because:</b> ${esc(c.similarity)}</div><div class="rp-dim"><b>May not transfer:</b> ${esc(c.caveat)}</div>
+    <div class="rp-src">${link(c.source)}${c.published ? ` · ${esc(c.published)}` : ""}</div></div>`; }).join("");
+  if (pilots.length) h += `<h4 class="rp-h">PILOT PROPOSALS (NOT SIMULATED)</h4>` + pilots.map((p) => `<div class="rp-card" style="border-left-color:#59c2ff"><div><b>From ${esc(p.town)}:</b> ${esc(p.idea)}</div><div class="rp-src">${link(p.source)}</div></div>`).join("");
+  return h;
+}
+
+function chainHTML(s) {
+  if (!s.chain2 || !s.chain2.length) return "";
+  return `<h4 class="rp-h">RESEARCH CHAIN</h4>` + s.chain2.map((c) => `<div class="rp-chainrow"><span class="rp-num" style="--c:#ff9f43">R${c.round}</span><div>
+    <div><b>Failure:</b> ${esc(c.failure)}</div><div><b>Question:</b> ${esc(c.question)}</div><div><b>Source:</b> ${c.source ? link(c.source) : "none found"}</div>
+    <div><b>Changed idea:</b> ${esc(c.idea)}</div><div><b>New result:</b> ${esc(c.result)}${c.improved ? ` <span style="color:#5be37d">▲ better</span>` : ""}</div></div></div>`).join("") + `<h4 class="rp-h">EVERY STEP</h4>`;
 }
 
 function residentsHTML(s) {
@@ -73,8 +101,8 @@ export function openSummary(s, origin = null, onClose = null) {
       <div class="rp-tiles">${tiles}</div>
       <div class="rp-metric rp-dim">Ranked by ${esc(s.metricLabel)}.</div>
     </div>
-    <div class="rp-tabs"><button class="rp-tab active" data-rt="policy">POLICY</button><button class="rp-tab" data-rt="residents">RESIDENTS</button><button class="rp-tab" data-rt="steps">STEPS (${s.steps.length})</button><button class="rp-tab" data-rt="others">OTHER EXPERIMENTS (${s.others.length})</button><i class="rp-ink"></i></div>
-    <div class="rp-body"><div data-rb="policy">${policyHTML(s)}</div><div data-rb="residents" hidden>${residentsHTML(s)}</div><div data-rb="steps" hidden>${stepsHTML(s)}</div><div data-rb="others" hidden>${othersHTML(s)}</div></div>
+    <div class="rp-tabs"><button class="rp-tab active" data-rt="policy">POLICY</button><button class="rp-tab" data-rt="residents">RESIDENTS</button><button class="rp-tab" data-rt="towns">SIMILAR TOWNS (${(s.cases || []).length})</button><button class="rp-tab" data-rt="steps">STEPS (${s.steps.length})</button><button class="rp-tab" data-rt="others">OTHER EXPERIMENTS (${s.others.length})</button><i class="rp-ink"></i></div>
+    <div class="rp-body"><div data-rb="policy">${policyHTML(s)}</div><div data-rb="residents" hidden>${residentsHTML(s)}</div><div data-rb="towns" hidden>${townsHTML(s)}</div><div data-rb="steps" hidden>${chainHTML(s)}${stepsHTML(s)}</div><div data-rb="others" hidden>${othersHTML(s)}</div></div>
   </div>`;
   const win = root.querySelector(".rp-win");
   if (origin) { // fly out of the winning building's spot on screen

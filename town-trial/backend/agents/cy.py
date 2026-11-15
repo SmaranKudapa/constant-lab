@@ -47,6 +47,8 @@ class Cy:
             "trace": {"type": "string", "description": "what the failure trace shows, 1-2 sentences, citing its numbers"},
             "next_question": {"type": "string", "description": "one short factual question (under 20 words) about the real town that the simulation "
                               "cannot know and whose answer would change what is allowed or what to try: staffing or budget limits, policies, which channels exist"},
+            "fact_type": {"type": "string", "enum": ["local_fact", "budget_detail", "comparable_result"],
+                          "description": "the missing fact that matters most: a fact about this town, a budget detail, or how a similar town's attempt turned out"},
             "entity": {"type": "string", "description": "the specific local body that would answer it (e.g. library board, school district, city council)"},
             "search_topic": {"type": "string", "description": "3-8 keywords for a web search, no town name, e.g. 'library board staffing budget evening hours'"},
         })

@@ -4,7 +4,7 @@ import { reasoningFor, metricOf, fmtMetric, usd, AGENTS } from "./ui.js";
 import { staffHours } from "./sim.js";
 
 const RESEARCH = new Set(["CLAIM", "FRAME", "EXA", "MEMORY_WRITE", "MEMORY_READ", "PROPOSE", "REVIEW", "RUN_START", "RUN_DONE", "FAILURE",
-  "CONSTRAINT", "HELD_OUT", "BRIEF", "VOICES", "NOTE"]);
+  "CONSTRAINT", "HELD_OUT", "BRIEF", "VOICES", "NOTE", "COMPARABLE", "PILOT", "CHAIN", "BUDGET_CHECK"]);
 const ROLE = { baseline: "current practice", user: "your idea", sweep: "parameter sweep", oneshot: "one-shot LLM", revision: "agent revision" };
 
 export function stepText(e) {
@@ -21,6 +21,10 @@ export function stepText(e) {
     case "FAILURE": return `Read ${e.exp}'s failure trace. Next question: ${e.next_question}`;
     case "CONSTRAINT": return `Found a constraint: ${e.constraint}.`;
     case "HELD_OUT": return `Froze ${(e.finalists || []).join(", ")} and tested them on ${e.scenarios} unseen towns.`;
+    case "COMPARABLE": return `Found a similar town: ${e.town} (${e.worked}): ${e.intervention}.`;
+    case "PILOT": return `Turned ${e.from_town}'s idea into a pilot proposal (the simulator can't score it): ${e.idea}`;
+    case "CHAIN": return `Round ${e.round}: ${e.question} → ${e.source ? "found a source" : "no source"} → ${e.new_result}`;
+    case "BUDGET_CHECK": return e.final ? `Checked funding for ${e.exp}: ${String(e.status).toUpperCase()}. ${e.reason}` : `Costed ${e.exp}: ${e.summary}.`;
     case "VOICES": return `Asked how each group of residents would react to ${e.exp}${e.scripted ? " (scripted)" : " (LLM-written)"}.`;
     case "BRIEF": return `Wrote the decision brief: recommend ${e.recommend === "none" ? "nothing" : `${e.recommend}, ${e.label}`}.`;
     case "NOTE": return e.message;
@@ -82,12 +86,21 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
     seen.add(s.seq);
     (byAgent[s.agent || "system"] ||= []).push(s);
   }
-  out.why = ["ada", "bo", "cy", "dee", "eli", "system"].filter((a) => byAgent[a]).map((a) => ({ agent: a, steps: byAgent[a].sort((p, q) => p.seq - q.seq) }));
+  out.why = ["exa", "ada", "treasurer", "bo", "cy", "dee", "eli", "system"].filter((a) => byAgent[a]).map((a) => ({ agent: a, steps: byAgent[a].sort((p, q) => p.seq - q.seq) }));
   out.sources = [...new Set(out.why.flatMap((g) => g.steps.flatMap((s) => s.sources)).filter((u) => /^https?:\/\//.test(u || "")))].slice(0, 4);
   out.chain = chain.map((x) => ({ id: x.id, label: x.label }));
   if (voicesEv && voicesEv.exp === best.id) out.voices = { scripted: !!voicesEv.scripted, note: voicesEv.note, list: voicesEv.voices };
 
   // Everything else, briefly
+  out.cases = events.filter((e) => e.type === "COMPARABLE").map((e) => ({ town: e.town, intervention: e.intervention, outcome: e.outcome, worked: e.worked,
+    cost: e.cost_funding, similarity: e.similarity, caveat: e.may_not_transfer, source: e.source, published: e.published, fixture: !!e.fixture }));
+  out.pilots = events.filter((e) => e.type === "PILOT").map((e) => ({ town: e.from_town, idea: e.idea, source: e.source }));
+  out.chain2 = events.filter((e) => e.type === "CHAIN").map((e) => ({ round: e.round, failure: e.failure, question: e.question, source: e.source, idea: e.changed_idea, result: e.new_result, improved: !!e.improved }));
+  const fund = [...events].reverse().find((e) => e.type === "BUDGET_CHECK" && e.final && e.exp === best.id);
+  out.funding = fund ? { status: fund.status, source: fund.funding_source, gap: fund.gap_usd, kind: fund.appropriation_or_unspent, restricted: fund.restricted,
+    confirm: fund.confirm || [], reason: fund.reason, url: fund.source, summary: fund.summary, items: fund.items || [] } : null;
+  const prof = [...events].reverse().find((e) => e.type === "TOWN_PROFILE");
+  out.townBudget = prof && prof.budget ? { year: prof.budget.fiscal_year, total: prof.budget.total_budget_usd, kind: prof.budget.total_kind, url: prof.budget.url, published: prof.budget.published } : null;
   out.others = exps.filter((x) => x !== best).map((x) => ({ id: x.id, label: x.label, role: ROLE[x.role] || x.role, status: x.status,
     text: x.result ? fmtMetric(metricOf(x, P), P) + (P.key === "budget.net" ? "" : P.unit || "") : "-", why: whyNot(x, best, P, events) }));
   return out;

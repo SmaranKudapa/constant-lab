@@ -8,7 +8,7 @@ fallbacks) and changes what is being decided:
 - Policies can change any public place (hours, capacity, fee, closing), open a new place next to an existing
   one, and send a notice through outreach channels. Actions are validated in code.
 - Every experiment gets an annual budget (backend/budget.py): staff, running costs, fee revenue, campaign.
-  Budget limits from the user's question or from sources Ada finds are constraints checked in code.
+  Budget limits from the user's question or from sources Exa Dude finds are constraints checked in code.
 """
 from __future__ import annotations
 
@@ -20,6 +20,9 @@ from agents.ada import extract_budget, extract_place_hours
 from orchestrator import HELD_OUT_SEEDS, ROLE_NAME, SEEDS, SWEEP_BUDGET
 from policy import DAYS, H, apply_changes, describe_town, fixed, town_policy, validate_town_action
 from research_loop import LiveTrial
+from agents import comparables as CMP
+from agents import treasurer as TR
+import town_profile as TP
 
 KIND_LABEL = {"library": "library", "clinic": "clinic", "pharmacy": "pharmacy", "community": "community centre", "sports": "sports ground",
               "park": "park", "post_office": "post office", "townhall": "town hall"}
@@ -47,6 +50,9 @@ class TownTrial(LiveTrial):
         self.wage, self.wage_source = B.DEFAULT_WAGE, "model default ($25/staff hour incl. benefits)"
         self.base_budget = None
         self.awareness = False
+        self.cases: list[dict] = []        # verified similar-town cases (Exa Dude)
+        self.budget_docs: list[dict] = []  # verified budget statements for Treasurer
+        self.max_rounds = 3                # research rounds, capped so a live trial stays short
 
     # ---------- the town ----------
     def town_text(self) -> str:
@@ -155,7 +161,7 @@ class TownTrial(LiveTrial):
         self.constraint = (f"{text} [{why}]", lambda x, cap=cap: (x.get("budget") or self.budget_of(self.est_mean(x["policy"]), x["policy"]))["net"] <= cap)
         before = [x for x in self.exps if x.get("result") and x["status"] == "done"]
         broken = [x for x in before if not self.feasible(x)]
-        self.emit("CONSTRAINT", agent="ada" if source.startswith("http") else "bo", constraint=self.constraint[0], source=source, previous="none",
+        self.emit("CONSTRAINT", agent="exa" if source.startswith("http") else "bo", constraint=self.constraint[0], source=source, previous="none",
                   changes=[f"{x['id']} is now infeasible" for x in broken] or ["no existing experiment breaks it"])
         for x in broken:
             self.set(x, status="infeasible")
@@ -254,18 +260,20 @@ class TownTrial(LiveTrial):
     def start(self) -> None:
         self.memory.ensure_agents()
         if self.exa_mode != "failure":
-            self.note(f"Evaluation arm: exa_mode={self.exa_mode}.", level="info", agent="ada")
+            self.note(f"Evaluation arm: exa_mode={self.exa_mode}.", level="info", agent="exa")
         self.recall_town()
         self.load_info()
         if not self.fac:
             self.note("This town has no mapped public places the model supports (library, clinic, pharmacy, community centre, sports, park, "
                       "post office, town hall); only outreach and new places can be tested.", agent="eli")
         self.base_policy = {"target": None}
+        self.town_profile()
         fr = self.frame()
         if fr is None:
             return
         self.base_policy = {"target": self.target}
         self.sourced_inputs()
+        self.similar_towns(CMP.query_for(self.prompt, self.city), "broad", "Searching: similar towns")
         idea = fr["user_idea"]
         E0 = self.exp(id="E0", label="Current practice", role="baseline", policy=self.base_policy, change="none (current practice)", source=self.base_source)
         first = [E0]
@@ -274,6 +282,7 @@ class TownTrial(LiveTrial):
             E1 = self.exp(id=self.next_id(), label=f"Your idea: {idea['label']}"[:60], role="user", parent="E0", policy=upol, change=self.change_of(upol))
             self.emit("PROPOSE", agent="bo", exp=E1["id"], parent="E0", change=E1["change"], why=idea["why"], scripted=bool(idea.get("scripted")))
             self.cy_check_user(E1, idea["why"])
+            self.treasurer_check(E1)
             first.append(E1)
         else:
             self.note("The user's idea could not be turned into a different policy from current practice; the agents start from the baseline.", agent="bo")
@@ -284,8 +293,14 @@ class TownTrial(LiveTrial):
         if self.pending_limit:
             self.set_budget_constraint(*self.pending_limit)
         best = first[-1]
-        for rnd in range(2):
+        for rnd in range(self.max_rounds):
+            if self.budget.left("llm") < 9:
+                self.note(f"Research budget nearly spent after {rnd} round(s); moving on to baselines and the brief.", level="info", agent="cy")
+                break
+            before = len(self.exps)
             best = self.round(rnd, best)
+            if len(self.exps) == before and rnd >= 1:
+                break
         self.baselines()
         picks = [x for x in self.exps if x["role"] == "revision" and x.get("result") and x["status"] == "done"]
         finalists = [E0] + ([first[1]] if len(first) > 1 else []) + [self.get("SW"), self.get("OS")]
@@ -347,7 +362,7 @@ class TownTrial(LiveTrial):
         return out
 
     def hours_from_memory(self, f: dict) -> dict | None:
-        """Hours for this place verified by Ada in an earlier trial of this town (past.dev / local memory), if any."""
+        """Hours for this place verified by Exa Dude in an earlier trial of this town (past.dev / local memory), if any."""
         import re
         ids = [f"fact-hours-{f['id']}"] + (["fact-library-hours"] if f["kind"] == "library" else [])
         for sid in ids:
@@ -364,25 +379,25 @@ class TownTrial(LiveTrial):
                 elif re.search(rf"{name} closed", rec["claim"]):
                     found += 1
             if found == 7 and any(hours):
-                return {"hours": hours, "source": rec["source"], "claim": rec["claim"], "author": rec.get("author") or "ada", "source_id": sid}
+                return {"hours": hours, "source": rec["source"], "claim": rec["claim"], "author": rec.get("author") or "exa", "source_id": sid}
         return None
 
     def sourced_inputs(self) -> None:
-        """Ada: the target place's real hours, and budget figures (wage, budget, cuts) for the town or place."""
+        """Exa Dude: the target place's real hours, and budget figures (wage, budget, cuts) for the town or place."""
         self.base_source = "OpenStreetMap" if self.spec else "model default"
         if self.awareness:
             self.eli_audiences()
             q = f"{self.city} library news how are hours changes announced"
-            res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_news, "Searching: how this town gets news")
+            res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_news, "Searching: how this town gets news")
             self.apply_channels(q, res, live, "How does the town announce changes?") if res else None
         if self.target:
             f = self.fac[self.target]
             q = f"{f['name']} {self.city} opening hours"
-            res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_hours, f"Searching: {f['name']} hours")
+            res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_hours, f"Searching: {f['name']} hours")
             ext, how = (None, "fixture")
             if live and res:
-                ext, err = self.attempt("ada", "place hours", lambda e: extract_place_hours(self.ada, f["name"], self.city, res))
-                how = err or ("no source states it" if ext is None else "unverified quote" if ext.get("unverified") else "verified quote")
+                ext, err = self.attempt("exa", "place hours", lambda e: extract_place_hours(self.ada, f["name"], self.city, res))
+                how = err or ("no source states it" if ext is None else (ext.get("check") or "unverified quote") if ext.get("unverified") else "verified quote")
                 if ext and ext.get("unverified"):
                     ext = None
             hours = None
@@ -402,32 +417,126 @@ class TownTrial(LiveTrial):
                 self.base_source = ext["url"]
                 hs = ", ".join(f"{DAYS[d]} {_hm(x[0])}-{_hm(x[1])}" if x else f"{DAYS[d]} closed" for d, x in enumerate(hours))
                 if mem:
-                    self.log_exa("ada", q, "broad", res, live, f"This search did not state {f['name']}'s hours ({how}); using the hours verified in an "
+                    self.log_exa("exa", q, "broad", res, live, f"This search did not state {f['name']}'s hours ({how}); using the hours verified in an "
                                  f"earlier trial and recalled from shared memory: {hs}", say=f"Searching: {f['name']} hours")
                     self.emit("MEMORY_READ", agent="bo", source_id=mem["source_id"], author=mem["author"], claim=mem["claim"],
                               used_for="baseline policy E0 (hours from an earlier trial)", store=self.memory.last_store)
                 else:
-                    self.log_exa("ada", q, "broad", res, live, f"Current hours of {f['name']}: {hs} (quote: \"{ext['quote'][:140]}\")", say=f"Searching: {f['name']} hours")
-                    self.remember("ada", f"fact-hours-{self.target}", f"{f['name']} hours: {hs}", "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
-                    self.read("bo", f"fact-hours-{self.target}", "baseline policy E0", say="Reading Ada's fact, building runs")
-                self.evidence.append({"claim": f"{f['name']} hours: {hs}", "url": ext["url"], "author": "ada"})
+                    self.log_exa("exa", q, "broad", res, live, f"Current hours of {f['name']}: {hs} (quote: \"{ext['quote'][:140]}\")", say=f"Searching: {f['name']} hours")
+                    self.remember("exa", f"fact-hours-{self.target}", f"{f['name']} hours: {hs}", "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
+                    self.read("bo", f"fact-hours-{self.target}", "baseline policy E0", say="Reading Exa Dude's fact, building runs")
+                self.evidence.append({"claim": f"{f['name']} hours: {hs}", "url": ext["url"], "author": "exa"})
             else:
-                self.log_exa("ada", q, "broad", res, live, f"No usable hours for {f['name']} ({how}); keeping {f['hoursSource']} hours.", say=f"Searching: {f['name']} hours")
+                self.log_exa("exa", q, "broad", res, live, f"No usable hours for {f['name']} ({how}); keeping {f['hoursSource']} hours.", say=f"Searching: {f['name']} hours")
                 if live:
-                    self.note(f"Gap: no source states {f['name']}'s hours ({how}). Using {f['hoursSource']} hours, labelled.", agent="ada")
+                    self.note(f"Gap: no source states {f['name']}'s hours ({how}). Using {f['hoursSource']} hours, labelled.", agent="exa")
         # budget figures (wage / budget / cuts)
         topic = KIND_LABEL.get(self.fac[self.target]["kind"], "city") if self.target else "city"
         q = f"{self.city} {topic} budget staff wages"
-        res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).board_minutes, "Searching: the town budget")
+        res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).board_minutes, "Searching: the town budget")
         if live and res:
-            ext, err = self.attempt("ada", "budget", lambda e: extract_budget(self.ada, self.city, f"{topic} budget, staffing and wages", res))
+            ext, err = self.attempt("exa", "budget", lambda e: extract_budget(self.ada, self.city, f"{topic} budget, staffing and wages", res))
             if ext and not ext.get("unverified"):
                 self.use_budget_fact(ext, q, res, "broad")
             else:
-                self.log_exa("ada", q, "broad", res, live, f"No budget figure stated ({err or ('unverified quote' if ext else 'no source states it')}); "
+                self.log_exa("exa", q, "broad", res, live, f"No budget figure stated ({err or ((ext.get('check') or 'unverified quote') if ext else 'no source states it')}); "
                              f"using the labelled default wage ${self.wage:g}/staff hour.", say="Searching: the town budget")
         else:
-            self.log_exa("ada", q, "broad", res, live, "Budget search unavailable; using labelled defaults.", say="Searching: the town budget")
+            self.log_exa("exa", q, "broad", res, live, "Budget search unavailable; using labelled defaults.", say="Searching: the town budget")
+
+    # ---------- town profile (Exa Dude) ----------
+    def town_profile(self) -> None:
+        """Budget documents, channels and place roles for this town: cached per town, built on the first live visit
+        with its own small search budget (3 Exa calls) so the research loop keeps its budget."""
+        cache = getattr(self, "towns", None)
+        prof = TP.cached(self.city, cache) if cache is not None else None
+        fresh = False
+        if not prof and self.ada.available and self.exa_mode == "failure":
+            from agents.ada import Ada
+            from agents.llm import LLM, Budget
+            pb = Budget(exa=3, llm=3)
+            pada = Ada(pb, LLM(pb))
+            pada.place_terms = list(self.ada.place_terms)
+            prof, fresh = TP.build(self.city, pada, self.spec), True
+            if cache is not None:
+                try:
+                    cache[TP._key(self.city)] = prof
+                except Exception as ex:
+                    self.note(f"Couldn't cache the town profile ({type(ex).__name__}).", level="info", agent="eli")
+        if not prof:
+            self.note("No town profile: Exa search is unavailable, so the town's budget documents and channels are unknown (labelled defaults).", agent="exa")
+            return
+        self.profile = prof
+        if fresh:
+            for s in prof["searches"]:
+                self.emit("EXA", agent="exa", say="Researching the town", query=s["query"], search="town profile", results=s.get("results", []),
+                          used_for="Town profile: budget documents, local channels, roles and addresses of places" + (f" (error: {s['error']})" if s.get("error") else ""))
+        docs = TP.budget_docs(prof)
+        self.budget_docs += docs
+        for d in docs[:3]:
+            self.evidence.append({"claim": d["statement"], "url": d["url"], "author": "exa"})
+        for c in prof["channels"][:4]:
+            self.evidence.append({"claim": f"Local channel: {c['name']} ({c['kind']})", "url": c["url"], "author": "exa"})
+        b = prof.get("budget") or {}
+        self.emit("TOWN_PROFILE", agent="exa", say="Town profile ready", cached=not fresh, built=prof["built"], budget=b or None,
+                  channels=prof["channels"], places=prof["places"], exa_only_places=prof["exa_only_places"], sources=prof["sources"], missing=prof["missing"])
+        if b:
+            self.remember("exa", "fact-town-budget", f"{b.get('fiscal_year') or 'Current'} budget: {b.get('total_kind')} "
+                          + (f"${b['total_budget_usd']:,.0f}" if b.get("total_budget_usd") else "(total not stated)"), "fact", b["url"], effective=b.get("published"))
+
+    # ---------- similar towns (Exa Dude) ----------
+    def similar_towns(self, q: str, kind: str, say: str) -> list[dict]:
+        """Search for other towns that tried something for this goal; keep quote-checked cases; unmodellable ideas become pilots."""
+        if self.budget.left("exa") <= 0 or self.exa_mode == "none":
+            return []
+        from agents import fixtures
+        res, live = self.search("exa", q, kind, fixtures.library_news, say)
+        if not (live and res):
+            self.log_exa("exa", q, kind, res, live, "Similar-town search unavailable; no comparable cases used.", say=say)
+            return []
+        got, err = self.attempt("exa", "similar towns", lambda e: CMP.find(self.ada, self.city, self.P["label"] if getattr(self, "P", None) else self.prompt, res))
+        got = [c for c in (got or []) if c["town"].lower() not in {c2["town"].lower() for c2 in self.cases}]
+        self.log_exa("exa", q, kind, res, live, f"{len(got)} similar-town case(s) verified against their sources" + (f" ({err})" if err else "") +
+                     (": " + "; ".join(f"{c['town']} ({c['worked']})" for c in got) if got else ""), say=say)
+        for c in got:
+            self.cases.append(c)
+            self.emit("COMPARABLE", agent="exa", say=f"Found: {c['town']}", town=c["town"], intervention=c["intervention"], outcome=c["outcome"],
+                      worked=c["worked"], cost_funding=c["cost_funding"], similarity=c["similarity"], may_not_transfer=c["may_not_transfer"],
+                      modellable=c["modellable"], source=c["url"], published=c.get("published"), quote=c["quote"][:300], check=c.get("check"))
+            self.remember("exa", f"case-{len(self.cases)}-{self.id}", f"{c['town']}: {c['intervention']} -> {c['outcome']}", "fact", c["url"],
+                          query=q, effective=c.get("published"))
+            if not c["modellable"]:
+                self.emit("PILOT", agent="bo", say="That one needs a pilot, not a simulation", from_town=c["town"], idea=c["intervention"],
+                          why_not_simulated="The simulator's actions (hours, capacity, fees, opening/closing places, outreach) can't express it, "
+                                            "so no score is given.", source=c["url"])
+        return got
+
+    # ---------- Treasurer ----------
+    def treasurer_check(self, x: dict) -> None:
+        """Line-item cost of a proposal before it runs (pre-run estimate; fee revenue needs the run, so it is excluded here)."""
+        base = self.base_budget or self.budget_of(self.est_mean(self.base_policy), self.base_policy)
+        bud = self.budget_of(self.est_mean(x["policy"]), x["policy"])
+        li = TR.line_items(bud, base, x["policy"], self.scope_label)
+        verdict = "within the limit" if not self.constraint or self.constraint[1](x) else "over the budget limit"
+        self.emit("BUDGET_CHECK", agent="treasurer", say=f"Costing {x['id']}", exp=x["id"], items=li["items"], ongoing_delta=li["ongoing_delta"],
+                  one_time=li["one_time"], summary=li["summary"], scope=li["scope"], limit=verdict, final=False,
+                  status="pending" if self.budget_docs else "unverified",
+                  note="Pre-run estimate from the policy (staff and open hours); funding is checked for the recommendation."
+                       if self.budget_docs else "No budget document found yet, so funding is unverified.")
+
+    def treasurer_final(self, best: dict, base: dict) -> dict:
+        li = TR.line_items(best["budget"], base["budget"], best["policy"], self.scope_label)
+        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]:  # Treasurer reads Exa Dude's budget facts from shared memory
+            self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records")
+        fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, self.budget_docs))
+        if err:
+            self.fallback_note("treasurer", "Funding check", err)
+            fund = TR.funding(None, self.city, "", li, [])
+        self.emit("BUDGET_CHECK", agent="treasurer", say="Can the town pay for it?", exp=best["id"], items=li["items"], ongoing_delta=li["ongoing_delta"],
+                  one_time=li["one_time"], summary=li["summary"], scope=li["scope"], final=True, status=fund["status"],
+                  funding_source=fund["funding_source"], gap_usd=fund.get("gap_usd"), appropriation_or_unspent=fund["appropriation_or_unspent"],
+                  restricted=fund["restricted"], confirm=fund["confirm"], reason=fund["reason"], source=fund.get("source_url"), by=fund.get("by"))
+        return fund
 
     def applies_here(self, text: str) -> bool:
         """Does a sourced budget statement concern the budget this trial is about (the target place, its kind, or the town's general budget)?"""
@@ -456,9 +565,10 @@ class TownTrial(LiveTrial):
                 self.pending_limit = None
         else:
             used = "Context for the brief (not a model input)"
-        self.log_exa("ada", q, kind, res, True, f"{used} (quote: \"{ext['quote'][:140]}\")", say="Searching: the town budget")
-        self.evidence.append({"claim": what, "url": ext["url"], "author": "ada"})
-        self.remember("ada", f"fact-budget-{k}", what, "constraint" if k in ("budget_cut", "no_additional_staff_hours", "staff_hours_cap") else "fact",
+        self.log_exa("exa", q, kind, res, True, f"{used} (quote: \"{ext['quote'][:140]}\"; {ext.get('check', 'quote checked')}{', published ' + ext['published'] if ext.get('published') else ''})", say="Searching: the town budget")
+        self.evidence.append({"claim": what, "url": ext["url"], "author": "exa"})
+        self.budget_docs.append({"statement": what, "kind": k, "amount": amt, "url": ext["url"], "published": ext.get("published")})
+        self.remember("exa", f"fact-budget-{k}", what, "constraint" if k in ("budget_cut", "no_additional_staff_hours", "staff_hours_cap") else "fact",
                       ext["url"], query=q, effective=self.published(res, ext["url"]))
 
     def round(self, rnd: int, best: dict) -> dict:
@@ -472,26 +582,30 @@ class TownTrial(LiveTrial):
                   entity=fail["entity"], scripted=bool(fail.get("scripted")))
         self.remember("cy", f"failure-{self.id}-{rnd + 1}", f"{best['id']}: {fail['trace']} Next: {fail['next_question']}", "failure", f"trial:{self.id}")
         source = None
-        if self.budget.left("exa") > 0:
+        ftype = fail.get("fact_type") or "local_fact"
+        if self.budget.left("exa") > 0 and ftype == "comparable_result" and self.exa_mode == "failure":
+            got = self.similar_towns(CMP.query_for(f"{fail.get('search_topic') or ''} {fail['next_question']}", city), "failure-guided", "Failure-guided search: similar towns")
+            source = got[0]["url"] if got else None
+        elif self.budget.left("exa") > 0:
             q = " ".join(f"{city} {fail['entity']} {fail.get('search_topic') or fail['next_question']}".split()[:16])
             if self.exa_mode == "broad":
                 q = [f"{city} news", f"{city} city services"][rnd % 2]
             from agents import fixtures
-            res, live = self.search("ada", q, "failure-guided", fixtures.school_bulletin if self.awareness else fixtures.board_minutes, "Failure-guided search")
+            res, live = self.search("exa", q, "failure-guided", fixtures.school_bulletin if self.awareness else fixtures.board_minutes, "Failure-guided search")
             if self.awareness:
                 source = self.apply_channels(q, res, live, fail["next_question"]) if res else None
             elif live and res:
-                ext, e2 = self.attempt("ada", "budget", lambda e: extract_budget(self.ada, city, fail["next_question"], res))
+                ext, e2 = self.attempt("exa", "budget", lambda e: extract_budget(self.ada, city, fail["next_question"], res))
                 if ext and not ext.get("unverified"):
                     self.use_budget_fact(ext, q, res, "failure-guided")
                     source = ext["url"]
                 else:
-                    self.log_exa("ada", q, "failure-guided", res, live, f"Nothing stated that changes the inputs or limits ({e2 or 'no source states it'}). Gap logged.")
+                    self.log_exa("exa", q, "failure-guided", res, live, f"Nothing stated that changes the inputs or limits ({e2 or 'no source states it'}). Gap logged.")
             elif res:
                 fx = __import__("agents.fixtures", fromlist=["x"]).FIXTURE_EXTRACT.get(res[0]["url"]) or {}
-                self.log_exa("ada", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
+                self.log_exa("exa", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
         for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]:
-            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Ada's finds")
+            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
         self.cy_recall()
         focus = (f"Target place: {self.target} ({self.fac[self.target]['name']}). Every proposal must change this place (or open/close a place "
                  f"of its kind, or add outreach about it); changes elsewhere do not answer the question.\n" if self.target else "")
@@ -500,7 +614,8 @@ class TownTrial(LiveTrial):
                    f"Constraints (enforced in code): {self.constraints_text()}\nWage used: ${self.wage:g}/staff hour ({self.wage_source})\n"
                    + (f"Budget covers: {self.scope_label}. To stay within a budget limit you may offset new costs inside it (trim hours at "
                       f"another place in it, or add a modest fee).\n" if self.constraint else "")
-                   + f"Local sources: {self.evidence_text()}\nAlready tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
+                   + f"Local sources: {self.evidence_text()}\nSimilar towns (verified cases; adapt a promising one and name it in adapted_from): {CMP.text(self.cases)}\n"
+                   + "Already tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
 
         def validate(props):
             for p in props:
@@ -522,16 +637,24 @@ class TownTrial(LiveTrial):
                 continue
             x = self.exp(id=self.next_id(), label=p["label"][:60], role="revision", parent=best["id"], policy=pol, change=self.change_of(pol),
                          source=p.get("evidence_url") or source)
-            self.emit("PROPOSE", agent="bo", say=f"Proposing {x['id']}", exp=x["id"], parent=best["id"], change=x["change"], why=p["why"], scripted=bool(p.get("scripted")))
+            self.emit("PROPOSE", agent="bo", say=f"Proposing {x['id']}", exp=x["id"], parent=best["id"], change=x["change"], why=p["why"],
+                      adapted_from=p.get("adapted_from"), scripted=bool(p.get("scripted")))
             if self.review(x, p["why"], self.trace_text(best)):
+                self.treasurer_check(x)
                 new.append(x)
+        chain = {"round": rnd + 1, "failure": fail["trace"], "question": fail["next_question"], "fact_type": ftype, "source": source,
+                 "changed_idea": "; ".join(f"{x['id']}: {x['change']}" for x in new) or "no new idea passed review"}
         if not new:
+            self.emit("CHAIN", agent="cy", say="Recording the research chain", **chain, new_result="nothing run", improved=False)
             return best
         out = self.run(new, say=f"Running {' + '.join(x['id'] for x in new)}", trace=True)
         cands = [x for x in self.exps if x.get("result") and x["status"] == "done" and x["role"] in ("revision", "user")]
         top = max(cands, key=self.value) if cands else best
         for x in new:
             self.run_done(x, out, view=x is top)
+        nb = max(new, key=lambda x: self.value(x) if x.get("result") else float("-inf"))
+        self.emit("CHAIN", agent="cy", say="Recording the research chain", **chain,
+                  new_result=f"{nb['id']}: {self.fmt(nb)} (was {best['id']}: {self.fmt(best)})", improved=top is not best)
         return top
 
     def scripted_town_revisions(self, rnd: int) -> list[dict]:
@@ -647,13 +770,14 @@ class TownTrial(LiveTrial):
         best = max(feasible, key=self.value)
         self.set(best, best=True)
         self.emit_voices(best, base)
+        fund = self.treasurer_final(best, base)
         b = self.write_brief(best, base)
         d = best["budget"]["net"] - base["budget"]["net"]
         b["summary"] += (f" Budget ({self.scope_label}): {B.fmt_usd(best['budget']['net'])}/yr ({'+' if d >= 0 else ''}{B.fmt_usd(d)} vs current; "
                          f"wage ${self.wage:g}/h from {self.wage_source}).")
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], what=b["what"], reasoning=b["reasoning"],
-                  budget=best["budget"], budget_delta=d)
+                  budget=best["budget"], budget_delta=d, funding=fund["status"])
         self.after_brief(best)
 
     def is_awareness(self) -> bool:

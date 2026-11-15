@@ -3,8 +3,8 @@ import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 import { roleOf } from "./voices.js";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-export const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
-export const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
+export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Treasurer (Budget god)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+export const AGENT_COLOR = { exa: "#59c2ff", ada: "#59c2ff", treasurer: "#e8c24a", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
 export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
 // The reasoning behind one experiment, rebuilt from the event log: every step that names it, in order,
@@ -19,7 +19,8 @@ export function reasoningFor(x, events) {
       add(e, `Read ${AGENTS[e.author] || e.author}'s fact from shared memory: ${e.claim}`, [e.source_id]);
     else if (e.type === "EXA" && !evidenceShown && x.source && (e.results || []).some((r) => r.url === x.source) && (evidenceShown = true))
       add(e, `Found the evidence this rests on (${e.search} search "${e.query}"): ${e.used_for}`, [x.source]);
-    else if (e.type === "PROPOSE" && e.exp === id) add(e, `Proposed ${id} (from ${e.parent}): ${e.change}. Why: ${e.why}`);
+    else if (e.type === "PROPOSE" && e.exp === id) add(e, `Proposed ${id} (from ${e.parent}${e.adapted_from ? `, adapted from ${e.adapted_from}` : ""}): ${e.change}. Why: ${e.why}`);
+    else if (e.type === "BUDGET_CHECK" && e.exp === id) add(e, e.final ? `Funding ${e.status}: ${e.reason}` : `Costed ${id}: ${e.summary}.`, e.source ? [e.source] : []);
     else if (e.type === "REVIEW" && e.exp === id) {
       const as = (e.assumptions || []).map((a) => `${a.assumption} [${a.basis.replace(/_/g, " ")}]`).join("; ");
       add(e, `${e.ok ? "Approved" : "Rejected"}${e.by === "code" ? " (rule checked in code)" : ""}: ${e.reason}${as ? ` Assumptions: ${as}.` : ""}`);
@@ -69,6 +70,25 @@ export function entryHTML(e, residentsById) {
     case "TURNED_AWAY": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
     case "VOICES": body = `How residents would react to <b>${esc(e.exp)}</b> (${e.scripted ? "scripted" : "LLM-written"}, not real people):` + (e.voices || []).map((v) => `<div class="src"><b>${esc(v.role)}</b> (${esc(v.label)}, ${esc(v.stance)}: ${v.before} → ${v.after} ${esc(v.unit)}): "${esc(v.quote)}"</div>`).join(""); break;
+    case "TOWN_PROFILE": {
+      const b = e.budget, $$ = (x) => (typeof x === "number" ? usd(x) : "not stated");
+      body = `Town profile${e.cached ? ` (cached ${esc(e.built)})` : ""}: ` +
+        (b ? `<b>${esc(b.fiscal_year || "current year")}</b> ${esc(b.total_kind)}: <b>${$$(b.total_budget_usd)}</b>` +
+          ((b.departments || []).length ? `<br><i>Departments:</i> ${esc(b.departments.slice(0, 5).map((d) => `${d.name} ${typeof d.amount_usd === "number" ? usd(d.amount_usd) : ""}`).join("; "))}` : "") +
+          ((b.restricted_funds || []).length ? `<br><i>Restricted:</i> ${esc(b.restricted_funds.map((r) => r.name).join("; "))}` : "") +
+          ((b.balances || []).length ? `<br><i>Balances:</i> ${esc(b.balances.map((x) => `${x.fund} (${x.kind})`).join("; "))}` : "") +
+          `<br><i>${link(b.url)}${b.published ? ` · ${esc(b.published)}` : ""}</i>` : "no verified budget document") +
+        ((e.channels || []).length ? `<br><i>Local channels:</i> ${esc(e.channels.map((c) => `${c.name} (${c.kind})`).join("; "))}` : "") +
+        ((e.places || []).length ? `<br><i>Places verified:</i> ${esc(e.places.map((p) => p.name).join("; "))}` : "") +
+        ((e.exa_only_places || []).length ? `<br><i>Found by Exa Dude, not on the map:</i> ${esc(e.exa_only_places.map((p) => p.name).join("; "))}` : "") +
+        ((e.missing || []).length ? `<br><i>Missing (labelled defaults used):</i> ${esc(e.missing.join("; "))}` : "");
+      break;
+    }
+    case "COMPARABLE": body = `Similar town <b>${esc(e.town)}</b> (${esc(e.worked === "yes" ? "it worked" : e.worked === "no" ? "it failed" : e.worked)}): ${esc(e.intervention)} → ${esc(e.outcome)}<br><i>Cost:</i> ${esc(e.cost_funding)} · <i>Similar because:</i> ${esc(e.similarity)} · <i>May not transfer:</i> ${esc(e.may_not_transfer)}<br><i>${link(e.source)}${e.published ? ` · ${esc(e.published)}` : ""}</i>`; break;
+    case "PILOT": body = `Pilot proposal (no simulated score), from <b>${esc(e.from_town)}</b>: ${esc(e.idea)}<br><i>${esc(e.why_not_simulated)}</i>`; break;
+    case "CHAIN": body = `Round ${e.round}: <b>failure</b> ${esc(e.failure)} → <b>question</b> ${esc(e.question)} → <b>source</b> ${e.source ? link(e.source) : "none found"} → <b>changed idea</b> ${esc(e.changed_idea)} → <b>new result</b> ${esc(e.new_result)}${e.improved ? " (better)" : ""}`; break;
+    case "BUDGET_CHECK": body = `<b>${esc(e.exp)}</b>: ${esc(e.summary)} (${esc(e.scope)})` + (e.items || []).map((i) => `<div>${esc(i.item)} · ${esc(i.kind)} · ${i.amount === null ? "not costed" : usd(i.amount)}</div>`).join("") +
+      (e.final ? `<div><b>Funding: ${esc(String(e.status).toUpperCase())}</b>${e.funding_source && e.funding_source !== "none identified" ? ` · ${esc(e.funding_source)}` : ""}${e.gap_usd ? ` · gap ${usd(e.gap_usd)}/yr` : ""}. ${esc(e.reason || "")}${(e.confirm || []).length ? `<br><i>Town must confirm:</i> ${esc(e.confirm.join("; "))}` : ""}</div>` : `<div class="note">${esc(e.note || "")}${e.limit ? ` · ${esc(e.limit)}` : ""}</div>`); break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }
@@ -106,12 +126,35 @@ export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new S
   return html;
 }
 
-export function audiencesHTML(mode, model, residents, flashSlug) {
+// One past.dev audience card; graph = true adds the button that opens its membership-over-time graph.
+const GRAPH_BTN = (slug) => `<button type="button" class="why graph-btn" data-graph="${esc(slug)}" title="Graph: membership of ${esc(slug)} over time, by resident type">▲</button>`;
+function audCard(slug, rule, n, total, flashSlug, graph, color = "#ff7ad9") {
+  return `<div class="aud${flashSlug === slug ? " flash" : ""}"><div class="slug aud-top"><span>${esc(slug)}</span>${graph ? GRAPH_BTN(slug) : ""}</div><div class="rule">rule: ${esc(rule)}</div>` +
+    `<div>${n} / ${total} members</div><div class="bar"><i style="width:${(100 * n) / Math.max(1, total)}%;background:${color}"></i></div></div>`;
+}
+// The audiences a perception-style trial keeps in past.dev (slug, rule, cohort); used by the cards and the graph button.
+export function noticeAudiences(mode, residents) {
+  if (mode === "perception") return [{ slug: "heard-library-notice", rule: "heard_library_notice = true", cohort: null, title: "Heard the library notice" },
+    { slug: "parents-who-heard", rule: "cohort = families AND heard_library_notice = true", cohort: "families", title: "Working parents who heard" }];
+  const cs = [...new Set(residents.map((r) => r.cohort))];
+  return [{ slug: "heard-notice", rule: "heard_notice = true", cohort: null, title: "Heard the notice" },
+    ...cs.map((c) => ({ slug: `${c}-who-heard`, rule: `cohort = ${c} AND heard_notice = true`, cohort: c, title: `${COHORTS[c].label} who heard` }))];
+}
+
+export function audiencesHTML(mode, model, residents, flashSlug, awareness = false) {
   if (!model) return `<p class="note">Run a trial to see live state.</p>`;
   const st = model.state;
   if (mode === "town" && model.facilities) {
     const C = st.metrics.counts;
-    let html = `<p class="note">Live counts for the run you're watching (seed 0), at the town's public places.</p>`;
+    let html = "";
+    if (awareness) {
+      html += `<p class="note">Each resident is a past.dev identity. Hearing the notice updates their traits and adds them to these audiences. ▲ opens a graph of membership over time.</p>`;
+      for (const a of noticeAudiences("town", residents)) {
+        const n = model.S.filter((s) => s.aware && (!a.cohort || s.r.cohort === a.cohort)).length, tot = a.cohort ? residents.filter((r) => r.cohort === a.cohort).length : residents.length;
+        html += audCard(a.slug, a.rule, n, tot, flashSlug, true, a.cohort ? `#${COHORTS[a.cohort].shirt.toString(16).padStart(6, "0")}` : "#ff7ad9");
+      }
+    }
+    html += `<p class="note">Live counts for the run you're watching (seed 0), at the town's public places.</p>`;
     for (const f of model.facilities) {
       const fs = st.fac[f.id] || { inside: [], queue: [] };
       html += `<div class="aud"><div class="slug">${esc(f.name.toUpperCase())}${f.closed ? " · CLOSED BY POLICY" : ""}</div>` +
@@ -125,7 +168,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
     const aware = model.S.filter((s) => s.aware).length;
     const fam = residents.filter((r) => r.cohort === "families");
     const famAware = model.S.filter((s) => s.aware && s.r.cohort === "families").length;
-    const aud = (slug, rule, n, total) => `<div class="aud${flashSlug === slug ? " flash" : ""}"><div class="slug">${slug}</div><div class="rule">rule: ${rule}</div><div>${n} / ${total} members</div><div class="bar"><i style="width:${(100 * n) / total}%;background:#ff7ad9"></i></div></div>`;
+    const aud = (slug, rule, n, total) => audCard(slug, rule, n, total, flashSlug, slug !== "working-parents");
     let html = `<p class="note">Each resident is a past.dev identity. When they hear the notice, their traits update and they join the <b>heard-library-notice</b> audience, which is what lets them recall it.</p>`;
     html += aud("heard-library-notice", "heard_library_notice = true", aware, residents.length);
     html += aud("working-parents", "cohort = families", fam.length, residents.length);
@@ -172,8 +215,10 @@ export function stationHTML(id, label, events) {
   return `<h3><span>${esc(label)}</span><span class="close" data-close>CLOSE ✕</span></h3>${mine.length ? mine.map((e) => entryHTML(e)).join("") : `<p class="note">Nothing here yet.</p>`}`;
 }
 
-export function buildingHTML(b, model, events) {
+export function buildingHTML(b, model, events, profile = null) {
   let extra = "";
+  const pp = profile && [...(profile.places || [])].find((p) => p.name && b.name && (p.name.toLowerCase().includes(b.name.toLowerCase()) || b.name.toLowerCase().includes(p.name.toLowerCase())));
+  if (pp) extra += `<div class="kv"><b>Role</b><span>${esc(pp.role)}</span>${pp.address ? `<b>Address</b><span>${esc(pp.address)}</span>` : ""}<b>Verified by</b><span>Exa Dude · ${link(pp.url)}</span></div>`;
   if (b.id === "library" && model) extra = `<div class="kv"><b>Hours</b><span>${esc(hoursText(model.hours))}</span><b>Inside</b><span>${model.state.inside.length}</span><b>Queue</b><span>${model.state.queue.length}</span></div>`;
   const here = model ? model.S.filter((s) => s.at === b).map((s) => s.r.name) : [];
   if (b.osm || b.synthetic) extra += `<div class="kv"><b>Kind</b><span>${esc(b.kind.replace("_", " "))}${b.public ? " (public)" : ""}</span>` +

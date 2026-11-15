@@ -1,4 +1,4 @@
-"""Ada, the researcher: Exa search in the main loop, then grounded extraction.
+"""Exa Dude, the researcher: Exa search in the main loop, then grounded extraction.
 
 - search(): one Exa call (counts against the trial's Exa budget), keeps each
   result's URL, title and the passage (highlights) it found.
@@ -124,14 +124,30 @@ class Ada:
                 return None
         return out
 
-    def _checked(self, out: dict, results: list[dict]) -> dict | None:
+    # Place terms for this trial's town (town name, county, state), set by the trial. A local fact must come from a page
+    # that names one of them; comparable-town cases are checked with place_check=False (they are about other towns).
+    place_terms: list[str] = []
+
+    def place_ok(self, src: dict) -> bool:
+        if not self.place_terms:
+            return True
+        hay = _norm(f"{src.get('title', '')} {src.get('url', '')} {src.get('passage', '')} {src.get('_text', '')}")
+        return any(t in hay for t in self.place_terms)
+
+    def _checked(self, out: dict, results: list[dict], place_check: bool = True) -> dict | None:
+        """Exa Dude's claim check: the quote must appear in the returned page (passage), the page must be about this
+        town (place), and its published date is kept (date). A failed check returns unverified, which is never used."""
         if not out.get("found"):
             return None
         src = self._verify(out.get("quote", ""), out.get("url", ""), results)
         if not src:
-            return {"unverified": True, **out}
+            return {"unverified": True, "check": "quote not found in the source", **out}
+        if place_check and not self.place_ok(src):
+            return {"unverified": True, "check": f"source does not mention {self.place_terms[0] if self.place_terms else 'the town'}", **out}
         out["url"] = src["url"]  # trust the verified source, not the model's URL
         out["title"] = src["title"]
+        out["published"] = str(src.get("published") or "")[:10] or None
+        out["check"] = "quote, place and date checked" if out["published"] else "quote and place checked (no published date)"
         return out
 
 

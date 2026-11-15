@@ -101,6 +101,7 @@ TOWN_ACTION = {
 }
 TOWN_PROPOSAL = strict({"label": {"type": "string", "description": "short name, under 40 characters"}, **TOWN_ACTION,
                         "why": {"type": "string", "description": "one sentence: the mechanism, citing the trace or a source"},
+                        "adapted_from": {"type": ["string", "null"], "description": "the similar town this adapts, if any (from the similar-town cases); else null"},
                         "evidence_url": {"type": ["string", "null"]}})
 METRICS = ["visits", "unique_visitors", "visits_restricted", "turned_away", "awareness", "net_cost"]
 COHORT_ENUM = ["day-workers", "families", "seniors", "students", "night-shift", "remote"]

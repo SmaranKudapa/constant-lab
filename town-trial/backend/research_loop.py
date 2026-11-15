@@ -1,7 +1,7 @@
 """The live research loop (M2): Exa evidence, LLM proposals and reviews, real runs.
 
 Same event log as the scripted port (orchestrator.Trial), with these rules:
-- Ada's Exa calls run on every trial: a broad baseline search, then failure-guided
+- Exa Dude's Exa calls run on every trial: a broad baseline search, then failure-guided
   searches built from Cy's next_question + town + the entity that would know.
 - Extracted values must be quoted from a returned passage (checked in code).
   Nothing found -> the gap is logged and the input is labelled as an assumption.
@@ -134,7 +134,7 @@ class LiveTrial(Trial):
         fn = {"hours": lambda e: self.ada.extract_hours(self.city, results),
               "constraint": lambda e: self.ada.extract_constraint(self.city, question, results),
               "channels": lambda e: self.ada.extract_channels(self.city, question, results)}[kind]
-        out, err = self.attempt("ada", f"extract {kind}", fn)
+        out, err = self.attempt("exa", f"extract {kind}", fn)
         if err:
             return None, f"extraction failed ({err})"
         if out is None:
@@ -222,7 +222,7 @@ class LiveTrial(Trial):
         self.memory.ensure_agents()
         if self.exa_mode != "failure":
             self.note(f"Evaluation arm: exa_mode={self.exa_mode} " + ("(no Exa calls)." if self.exa_mode == "none" else
-                      "(same number of searches, generic queries not built from the failure)."), level="info", agent="ada")
+                      "(same number of searches, generic queries not built from the failure)."), level="info", agent="exa")
         self.recall_town()
         self.baseline_search()
         idea = self.translate()
@@ -278,7 +278,7 @@ class LiveTrial(Trial):
         city = self.city
         if self.mode == "service":
             q = f"{city} public library hours"
-            res, live = self.search("ada", q, "broad", fixtures.library_hours, "Searching: current library hours")
+            res, live = self.search("exa", q, "broad", fixtures.library_hours, "Searching: current library hours")
             ext, how = self.extract("hours", res, live) if live else (None, "fixture")
             hours = None
             if ext:
@@ -291,21 +291,21 @@ class LiveTrial(Trial):
             if hours:
                 self.base_hours, self.base_source = hours, ext["url"]
                 claim = f"Library hours: {describe_hours(hours)}"
-                self.log_exa("ada", q, "broad", res, live, f"Baseline hours for the simulator: {describe_hours(hours)} (quote: \"{ext['quote'][:160]}\")",
+                self.log_exa("exa", q, "broad", res, live, f"Baseline hours for the simulator: {describe_hours(hours)} (quote: \"{ext['quote'][:160]}\")",
                              say="Searching: current library hours")
-                self.evidence.append({"claim": claim, "url": ext["url"], "author": "ada"})
-                self.remember("ada", "fact-library-hours", claim, "fact", ext["url"], say="Saving the baseline to shared memory", query=q,
+                self.evidence.append({"claim": claim, "url": ext["url"], "author": "exa"})
+                self.remember("exa", "fact-library-hours", claim, "fact", ext["url"], say="Saving the baseline to shared memory", query=q,
                               effective=self.published(res, ext["url"]))
             else:
                 self.base_source = "model default (no local source)" if live else "fixture://library-hours"
-                self.log_exa("ada", q, "broad", res, live,
+                self.log_exa("exa", q, "broad", res, live,
                              f"No usable hours ({how}). Gap logged: using the model's default hours, labelled as an assumption." if live
                              else "Baseline hours for the simulator (FIXTURE)", say="Searching: current library hours")
                 if live:
                     self.note(f"Gap: no source states the {city} library's hours ({how}). Baseline uses the model default "
-                              f"({describe_hours(BASELINE_HOURS)}), labelled as an assumption.", agent="ada")
+                              f"({describe_hours(BASELINE_HOURS)}), labelled as an assumption.", agent="exa")
                 else:
-                    self.remember("ada", "fact-library-hours", "Library open Mon-Sat 10:00-18:00, closed Sun (FIXTURE)", "fact", "fixture://library-hours")
+                    self.remember("exa", "fact-library-hours", "Library open Mon-Sat 10:00-18:00, closed Sun (FIXTURE)", "fact", "fixture://library-hours")
             self.base_policy = {"hours": self.base_hours}
             if self.base_hours != [list(h) if h else None for h in BASELINE_HOURS]:
                 self.note("Residents' 'can't make current hours' flag is defined against the model's default hours (Mon-Sat 10:00-18:00); "
@@ -313,18 +313,18 @@ class LiveTrial(Trial):
         else:
             self.eli_audiences()
             q = f"{city} library news how are hours changes announced"
-            res, live = self.search("ada", q, "broad", fixtures.library_news, "Searching: how this town gets news")
+            res, live = self.search("exa", q, "broad", fixtures.library_news, "Searching: how this town gets news")
             ext, how = self.extract("channels", res, live, "How does the library announce changes?")
             chans = ext["channels"] if ext else ["online"]
             if ext:
                 for c in chans:
                     self.channels_grounded[c] = ext["url"]
-                self.evidence.append({"claim": f"Announcement channels in use: {', '.join(chans)}", "url": ext["url"], "author": "ada"})
-                self.remember("ada", "fact-notice-channels", f"Current announcement channels: {', '.join(chans)}", "fact", ext["url"], query=q,
+                self.evidence.append({"claim": f"Announcement channels in use: {', '.join(chans)}", "url": ext["url"], "author": "exa"})
+                self.remember("exa", "fact-notice-channels", f"Current announcement channels: {', '.join(chans)}", "fact", ext["url"], query=q,
                               effective=self.published(res, ext["url"]))
             else:
-                self.note(f"Gap: no source shows how {city} announces library changes ({how}). Baseline assumes an online post only.", agent="ada")
-            self.log_exa("ada", q, "broad", res, live, f"Baseline channels: {', '.join(chans)}" + ("" if ext else " (assumed)"),
+                self.note(f"Gap: no source shows how {city} announces library changes ({how}). Baseline assumes an online post only.", agent="exa")
+            self.log_exa("exa", q, "broad", res, live, f"Baseline channels: {', '.join(chans)}" + ("" if ext else " (assumed)"),
                          say="Searching: how this town gets news")
             self.base_policy = {"channels": chans}
             self.base_source = ext["url"] if ext else "assumption (no local source)"
@@ -430,11 +430,11 @@ class LiveTrial(Trial):
                   constraint="staff hours (unknown yet)" if mode == "service" else "no paid ads",
                   horizon=f"{'1 week' if mode == 'service' else '3 days'}, {SEEDS} matched seeds", prompt=self.prompt, scripted=bool(out.get("scripted")))
         if mode == "service" and "fact-library-hours" in self.written:
-            self.read("bo", "fact-library-hours", "baseline policy E0", say="Reading Ada's fact, building runs")
+            self.read("bo", "fact-library-hours", "baseline policy E0", say="Reading Exa Dude's fact, building runs")
         return {**out, **_action(mode, out)}
 
     def cy_recall(self) -> None:
-        """Cy recalls the town's evidence (written by Ada) before reviewing; recalled facts join the review context."""
+        """Cy recalls the town's evidence (written by Exa Dude) before reviewing; recalled facts join the review context."""
         facts = self.memory.recall("cy", self.city, "library facts constraints sources", kinds=("fact", "constraint"))
         known = {e["claim"] for e in self.evidence}
         for f in facts:
@@ -476,25 +476,25 @@ class LiveTrial(Trial):
                   entity=fail["entity"], scripted=bool(fail.get("scripted")))
         self.remember("cy", f"failure-{self.id}-{rnd + 1}", f"{best['id']}: {fail['trace']} Next: {fail['next_question']}", "failure", f"trial:{self.id}")
 
-        # 2. Ada's failure-guided search
+        # 2. Exa Dude's failure-guided search
         source = None
         if self.budget.left("exa") > 0:
             q = " ".join(f"{city} {fail['entity']} {fail.get('search_topic') or fail['next_question']}".split()[:16])
             if self.exa_mode == "broad":  # ablation: same number of searches, not guided by the failure
                 q = [f"{city} public library", f"{city} library news"][rnd % 2]
             fx = fixtures.board_minutes if mode == "service" else fixtures.school_bulletin
-            res, live = self.search("ada", q, "failure-guided", fx, "Failure-guided search")
+            res, live = self.search("exa", q, "failure-guided", fx, "Failure-guided search")
             if mode == "service":
                 source = self.apply_constraint(q, res, live, fail["next_question"])
             else:
                 source = self.apply_channels(q, res, live, fail["next_question"])
         else:
-            self.note("Exa budget used up; no failure-guided search this round.", agent="ada")
+            self.note("Exa budget used up; no failure-guided search this round.", agent="exa")
 
-        # 3. Bo revises, reading Ada's facts from memory
+        # 3. Bo revises, reading Exa Dude's facts from memory
         for sid in ("fact-staffing-cap", "fact-school-bulletin", "fact-notice-board", "fact-notice-channels"):
             if sid in self.written:
-                self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Ada's finds")
+                self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
         self.cy_recall()
         context = (f"Current practice: {describe_hours(self.base_hours) if mode == 'service' else ', '.join(self.base_policy['channels'])}\n"
                    f"Results so far: {self.results_text()}\nFailure trace: {self.trace_text(best)}\nReviewer's question: {fail['next_question']}\n"
@@ -541,12 +541,12 @@ class LiveTrial(Trial):
         elif ext and ext["kind"] == "staff_hours_cap" and ext.get("hours_per_week"):
             cap = ext["hours_per_week"]
         if cap is None:
-            self.log_exa("ada", q, "failure-guided", res, live,
+            self.log_exa("exa", q, "failure-guided", res, live,
                          f"No staffing limit stated ({how if not ext else 'statement not about staff hours: ' + ext['statement']}). Gap logged.")
             if not self.constraint and not getattr(self, "_gap_noted", False):
                 self._gap_noted = True
                 self.note("Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are "
-                          f"flagged: they need more than the current {staff_hours(self.base_hours)} staff hours/week.", agent="ada")
+                          f"flagged: they need more than the current {staff_hours(self.base_hours)} staff hours/week.", agent="exa")
             return None
         text = f"staff hours <= {fixed(cap, 0)}/week"
         if ext["kind"] == "budget_cut":
@@ -554,31 +554,31 @@ class LiveTrial(Trial):
         elif ext["kind"] == "no_additional_staff_hours":
             text += " (no additional staff hours)"
         if self.constraint and self.constraint[0] == text:
-            self.log_exa("ada", q, "failure-guided", res, live, f"Confirms the existing constraint: {text} (quote: \"{ext['quote'][:160]}\")")
+            self.log_exa("exa", q, "failure-guided", res, live, f"Confirms the existing constraint: {text} (quote: \"{ext['quote'][:160]}\")")
             return ext["url"]
-        self.log_exa("ada", q, "failure-guided", res, live, f"Adds constraint: {text} (quote: \"{ext['quote'][:160]}\")")
+        self.log_exa("exa", q, "failure-guided", res, live, f"Adds constraint: {text} (quote: \"{ext['quote'][:160]}\")")
         before = [x for x in self.exps if x.get("result") and x["status"] == "done"]
         self.constraint = (text, lambda x, cap=cap: "hours" not in x["policy"] or staff_hours(x["policy"]["hours"]) <= cap)
         broken = [x for x in before if not self.feasible(x)]
-        self.emit("CONSTRAINT", agent="ada", constraint=text, source=ext["url"], previous="unknown",
+        self.emit("CONSTRAINT", agent="exa", constraint=text, source=ext["url"], previous="unknown",
                   changes=[f"{x['id']} is now infeasible" for x in broken] or ["no existing experiment breaks it"])
         for x in broken:
             self.set(x, status="infeasible")
-        self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "ada"})
-        self.remember("ada", "fact-staffing-cap", ext["statement"], "constraint", ext["url"], query=q, effective=self.published(res, ext["url"]))
+        self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "exa"})
+        self.remember("exa", "fact-staffing-cap", ext["statement"], "constraint", ext["url"], query=q, effective=self.published(res, ext["url"]))
         return ext["url"]
 
     def apply_channels(self, q: str, res: list[dict], live: bool, question: str) -> str | None:
         ext, how = self.extract("channels", res, live, question)
         if not ext:
-            self.log_exa("ada", q, "failure-guided", res, live, f"No channel evidence ({how}). Gap logged; untested channels stay labelled as assumptions.")
+            self.log_exa("exa", q, "failure-guided", res, live, f"No channel evidence ({how}). Gap logged; untested channels stay labelled as assumptions.")
             return None
         for c in ext["channels"]:
             self.channels_grounded[c] = ext["url"]
-        self.log_exa("ada", q, "failure-guided", res, live, f"Local evidence for channels: {', '.join(ext['channels'])} (quote: \"{ext['quote'][:160]}\")")
-        self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "ada"})
+        self.log_exa("exa", q, "failure-guided", res, live, f"Local evidence for channels: {', '.join(ext['channels'])} (quote: \"{ext['quote'][:160]}\")")
+        self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "exa"})
         sid = "fact-school-bulletin" if "bulletin" in ext["channels"] else "fact-notice-board" if "board" in ext["channels"] else "fact-notice-channels"
-        self.remember("ada", sid, ext["statement"], "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
+        self.remember("exa", sid, ext["statement"], "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
         return ext["url"]
 
     def scripted_revisions(self, rnd: int) -> list[dict]:
