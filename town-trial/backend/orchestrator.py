@@ -315,9 +315,24 @@ class Trial:
         self.set(best, best=True)
         base = self.exps[0]
         b = self.write_brief(best, base)
+        self.emit_voices(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"])
         self.after_brief(best)
+
+    # ---------- resident voices ----------
+    def voices(self, rows: list[dict], best: dict) -> tuple[list[dict], bool]:
+        from agents import voices as V
+        return V.scripted_voices(rows), True
+
+    def emit_voices(self, best: dict, base: dict) -> None:
+        """How each group of residents would react to the recommended policy. Stances come from simulator numbers; words are LLM or scripted."""
+        from agents import voices as V
+        rows = V.facts(best, base, self.mode == "perception" or bool(getattr(self, "awareness", False)))
+        vs, scripted = self.voices(rows, best)
+        self.emit("VOICES", agent="eli", say="Asking residents how it lands", exp=best["id"], base=base["id"], voices=vs, scripted=scripted,
+                  note=("Scripted quotes" if scripted else "Quotes written by the LLM") + " from simulator numbers (each group's stance is "
+                       "computed in code). They are not real residents.")
 
     def after_brief(self, best: dict) -> None:
         """Hook for the live loop (watched-run replay into past.dev)."""

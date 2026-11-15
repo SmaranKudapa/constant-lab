@@ -69,6 +69,14 @@ class LiveTrial(Trial):
                 return out, None
         return None, err
 
+    def voices(self, rows: list[dict], best: dict) -> tuple[list[dict], bool]:
+        from agents import voices as V
+        out, err = self.attempt("eli", "voices", lambda e: V.llm_voices(self.llm, self.city, self.prompt, best["change"], rows))
+        if err:
+            self.fallback_note("eli", "Resident voices", err)
+            return V.scripted_voices(rows), True
+        return out, False
+
     def fallback_note(self, agent: str, what: str, reason: str) -> None:
         self.note(f"{what}: live step failed ({reason}); using the scripted step instead.", agent=agent, scripted=True)
 

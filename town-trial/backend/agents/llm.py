@@ -11,7 +11,7 @@ import time
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 MAX_EXA = int(os.environ.get("MAX_EXA_CALLS", "6"))
-MAX_LLM = int(os.environ.get("MAX_LLM_CALLS", "20"))
+MAX_LLM = int(os.environ.get("MAX_LLM_CALLS", "24"))
 
 
 class BudgetExceeded(Exception):

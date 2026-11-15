@@ -93,6 +93,10 @@ evs, done = store.read("t3")
 exps = {e["id"]: e for e in evs if e["type"] == "EXPERIMENT"}
 check("town fallback: finishes", done and not err, err or "")
 check("town fallback: framed + briefed", any(e["type"] == "FRAME" for e in evs) and any(e["type"] == "BRIEF" for e in evs))
+_v = [e for e in evs if e["type"] == "VOICES"]
+check("town fallback: resident voices before the brief, one per group, labelled", len(_v) == 1 and _v[0]["scripted"] and len(_v[0]["voices"]) >= 5
+      and all(v["stance"] in ("helped", "hurt", "unchanged") and v["quote"] and v["role"] for v in _v[0]["voices"])
+      and evs.index(_v[0]) < next(i for i, e in enumerate(evs) if e["type"] == "BRIEF"), str([v["stance"] for v in _v[0]["voices"]]) if _v else "none")
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
 # the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
 e0 = exps["E0"]
