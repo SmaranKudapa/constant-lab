@@ -30,7 +30,7 @@ async function request(url, opts = {}) {
 export async function createLive({ api, city, prompt, emit, heaven, researchers, town, onChange, onView, onError }) {
   const base = api.replace(/\/+$/, "");
   const start = await request(`${base}/api/trials`, { method: "POST", body: JSON.stringify({ city, prompt }) });
-  const { trial_id: id, mode, primary } = start;
+  const { trial_id: id, mode, primary, trial_type: hint } = start;
   const exps = [];
   const queue = [];
   let since = 0, serverDone = false, failures = 0, timer = 0, stopped = false, pollT = null;
@@ -71,6 +71,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
       Object.assign(primary, { key: e.key, label: e.label, unit: e.unit || "", target: e.target, direction: e.direction });
       live.days = e.days || live.days;
       live.awareness = e.metric === "awareness";
+      if (window.__setTrialBadge) window.__setTrialBadge(live.awareness ? "perception" : "service");
       onChange();
     }
     if (e.type === "EXPERIMENT") { upsert(e); onChange(); return false; }
@@ -93,7 +94,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   }
 
   const live = {
-    exps, update, primary, mode, id, awareness: mode === "perception",
+    exps, update, primary, mode, id, awareness: mode === "perception" || hint === "perception",
     days: mode === "perception" ? 3 : 7,
     done: () => serverDone && !queue.length,
     stop: () => { stopped = true; clearTimeout(pollT); return request(`${base}/api/trials/${id}/stop`, { method: "POST" }).catch(() => {}); },

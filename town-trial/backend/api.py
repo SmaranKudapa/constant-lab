@@ -68,7 +68,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")
         start(trial_id=trial_id, city=city, prompt=prompt, mode=mode, options=options)
         P = {"key": "visits", "label": "(Bo is framing the question...)", "unit": ""} if mode == "town" else primary(mode)
-        return {"trial_id": trial_id, "mode": mode, "primary": P, "options": options, "version": os.environ.get("CODE_VERSION", "local")}
+        return {"trial_id": trial_id, "mode": mode, "trial_type": classify(prompt), "primary": P, "options": options, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/trials/{trial_id}/events")
     def events(trial_id: str, since: int = 0):

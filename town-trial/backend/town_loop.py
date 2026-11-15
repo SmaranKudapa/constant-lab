@@ -305,6 +305,13 @@ class TownTrial(LiveTrial):
                    "user_idea": {"label": "Two late evenings", "facility_changes": [{"facility": tgt, "hours_changes": [{"day": 1, "open": "10:00", "close": "21:00"},
                                  {"day": 3, "open": "10:00", "close": "21:00"}], "capacity": None, "fee": None, "close": False}] if tgt else [],
                                  "new_facilities": [], "channels": [], "why": "Scripted default idea.", "evidence_url": None, "scripted": True}}
+        # Perception questions ("Will people know about the Walgreens closing?") are measured by awareness. Bo decides; code
+        # enforces it when Bo or the keyword check says the question is clearly about who hears / knows.
+        from policy import strong_perception
+        if out.get("metric") != "awareness" and (out.get("trial_type") == "perception" or strong_perception(self.prompt)):
+            why = "Bo marked it a perception question" if out.get("trial_type") == "perception" else "the question asks whether people will hear or know about something"
+            self.note(f"Framed as a perception trial (awareness), because {why}; Bo's metric was {out.get('metric')}.", agent="bo")
+            out["metric"], out["kind"], out["target"], out["representable"] = "awareness", None, out.get("target"), True
         self.set_metric(out)
         self.set_scope(out)
         if not out["representable"]:
@@ -316,7 +323,7 @@ class TownTrial(LiveTrial):
             return None
         bl = out.get("budget_limit") or {}
         self.pending_limit = (bl["type"], bl.get("value"), "your question", "from your question") if bl.get("type") not in (None, "none") else None
-        self.emit("FRAME", agent="bo", say="Framing the question", metric=self.P["metric"], key=self.P["key"], label=self.P["label"], unit=self.P["unit"],
+        self.emit("FRAME", agent="bo", say="Framing the question", trial_type="perception" if self.awareness else "service", metric=self.P["metric"], key=self.P["key"], label=self.P["label"], unit=self.P["unit"],
                   budget_scope=self.scope_label,
                   direction="max" if self.P["dir"] > 0 else "min", target=self.target, target_name=self.fac.get(self.target, {}).get("name"),
                   kind=out.get("kind"), cohort=out.get("cohort"), days=self.days, budget_limit=bl, scripted=bool(out.get("scripted")))

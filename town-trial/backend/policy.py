@@ -6,6 +6,8 @@ numbers; constraints such as staff hours are checked here, in code.
 """
 from __future__ import annotations
 
+import re
+
 from decimal import ROUND_HALF_UP, Decimal
 
 DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -17,13 +19,33 @@ def H(h: int, m: int = 0) -> int:
 
 BASELINE_HOURS = [[H(10), H(18)]] * 6 + [None]
 
-PERCEPTION_WORDS = ["hear", "aware", "perception", "notice", "market", "campaign", "opinion", "outreach", "flyer", "advert",
-                    "know about", "find out", "word of mouth", "believe", "think about"]
+# Trial type from the question. Keep in sync with classify() in web/js/research.js (tests/classify_cases.json checks both).
+# STRONG: the question is about whether people hear / know / find out about something.
+STRONG_PERCEPTION = re.compile(
+    r"\b(hear|hears|heard|hearing)\b|\baware(ness)?\b|\bunaware\b|\bfind(s|ing)? out\b|\bfound out\b|\blearn(s|ed)? (about|of|that)\b"
+    r"|\bknow(s|n)? (about|of|that|when|if|where|what)\b|\b(will|would|do|does|did|can|could|won't|wouldn't|don't|doesn't)\s+(\w+\s+){0,3}know\b"
+    r"|\bknew\b|\bword of mouth\b|\bget the word out\b|\bspread the word\b|\bnews (of|about|spread)\b|\bwho (will )?(hears?|knows?|finds? out)\b"
+    r"|\bannounce(ment|d|s)?\b|\bperception\b|\bpublici[sz]e\b|\binform(ed|ing)? (people|residents|the public|everyone)\b")
+# WEAK: outreach words that can also appear in a usage question ("will flyers bring more visitors?")
+WEAK_PERCEPTION = re.compile(r"\bnotice(s|d)?\b|\bcampaign\b|\boutreach\b|\bflyers?\b|\badverti[sz]\w*\b|\bmarketing\b|\bnewsletter\b"
+                             r"|\bmailers?\b|\bnewspaper\b|\bopinion\b|\bbelieve\b|\bthink about\b|\bcommunicat\w*\b")
+USAGE = re.compile(r"\bvisit\w*\b|\buse\b|\busage\b|\battend\w*\b|\bturn(ed)? away\b|\bcrowd\w*\b|\bwait\w*\b|\bcost\w*\b|\bbudget\b|\bsave money\b"
+                   r"|\bmore people (come|go|use)\b|\bfoot traffic\b|\bbusier\b")
+
+
+def strong_perception(prompt: str) -> bool:
+    """True when the question's goal is clearly whether people hear about something (and not how many use a place)."""
+    p = prompt.lower()
+    return bool(STRONG_PERCEPTION.search(p)) and not USAGE.search(p)
 
 
 def classify(prompt: str) -> str:
     p = prompt.lower()
-    return "perception" if any(w in p for w in PERCEPTION_WORDS) else "service"
+    if STRONG_PERCEPTION.search(p) and not USAGE.search(p):
+        return "perception"
+    if (STRONG_PERCEPTION.search(p) or WEAK_PERCEPTION.search(p)) and not USAGE.search(p):
+        return "perception"
+    return "service"
 
 
 def primary(mode: str) -> dict:

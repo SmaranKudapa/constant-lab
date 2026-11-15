@@ -5,7 +5,7 @@
 // app only needs town.buildings, town.pathBetween and the landmark ids.
 import * as THREE from "three";
 import { layoutTown, GRID, PITCH, ROAD, HALF, road, blockCentre } from "./layout.js";
-import { box, mat, signSprite } from "./voxel.js";
+import { box, mat } from "./voxel.js";
 
 export { GRID, PITCH, ROAD, HALF };
 
@@ -110,7 +110,6 @@ export function buildTown(cityName, spec = null) {
       for (let k = 0; k < 6; k++) g.add(box(1, 0.5, 1.6, k % 2 ? 0xff5d6c : 0xffffff, -2.5 + k, 2.8, 3.6));
       g.add(box(6.4, 0.4, 6.4, 0x8c5a2b, 0, 3.6, 0));
       windowsOn(g, 6, 3.6, 6, 1);
-      if (!town.real) { const s = signSprite("CAFE", { fg: "#ff7ad9", height: 1.3 }); s.position.set(cx, 5.4, cz); group.add(s); }
     } else if (b.id === "library") {
       g.add(box(16, 0.6, 16, 0xd8d2c0));
       g.add(box(12, 5.5, 8, 0xe9dcc0, 0, 0.6, -1));
@@ -135,7 +134,6 @@ export function buildTown(cityName, spec = null) {
       g.add(box(0.2, 8, 0.2, 0xdddddd, 7.5, 0, 4.5));
       g.add(box(1.8, 1.1, 0.1, 0x59c2ff, 8.4, 6.8, 4.5));
       windowsOn(g, 13, 5, 8, 2);
-      const s = signSprite("SCHOOL", { fg: "#ffffff", bg: "#6e3b2e", height: 1.2 }); s.position.set(cx, 7.4, cz); group.add(s);
     } else if (b.id === "plaza") {
       group.add(box(16, 0.2, 16, 0xd8cfc0, cx, 0, cz));
       group.add(box(4, 0.8, 4, 0x9aa3b8, cx, 0.2, cz));

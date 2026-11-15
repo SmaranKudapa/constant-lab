@@ -131,17 +131,6 @@ export function buildHeaven(scene) {
   for (let k = -3; k <= 3; k++) if (k) group.add(box(0.18, 6.4 + Math.cos(k * 0.45) * 1.2, 0.18, 0, k * 1.15 + (k > 0 ? 0.6 : -0.6), 0, 21, gold));
   for (let k = -3; k <= 3; k++) { const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 6, 4), pearl); ball.position.set(k * 1.25, 3.2, 21.2); group.add(ball); }
 
-  // God-rays: soft light shafts falling onto the island
-  const rays = [];
-  const rayMat = new THREE.MeshBasicMaterial({ color: 0xfff3c4, transparent: true, opacity: 0.12, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false });
-  for (let k = 0; k < 6; k++) {
-    const ray = new THREE.Mesh(new THREE.CylinderGeometry(1.5 + k * 0.3, 4 + k * 0.6, 60, 10, 1, true), rayMat.clone());
-    const a = k * 1.05;
-    ray.position.set(Math.cos(a) * (4 + k * 2.2), 30, Math.sin(a) * (4 + k * 2.2));
-    ray.rotation.z = 0.18 * Math.cos(a); ray.rotation.x = 0.18 * Math.sin(a);
-    ray.userData.ph = k * 1.3;
-    group.add(ray); rays.push(ray);
-  }
   // Drifting sparkle motes
   const motePts = [];
   for (let k = 0; k < 260; k++) motePts.push((Math.random() - 0.5) * 50, Math.random() * 16, (Math.random() - 0.5) * 50);
@@ -168,7 +157,7 @@ export function buildHeaven(scene) {
     group.add(c); clouds.push(c);
   }
 
-  const heavenLight = new THREE.PointLight(0xfff1c0, 900, 90, 1.6);
+  const heavenLight = new THREE.PointLight(0xfff1c0, 300, 90, 1.6);
   heavenLight.position.set(0, 20, 0);
   group.add(heavenLight);
 
@@ -194,7 +183,6 @@ export function buildHeaven(scene) {
       c.position.x = Math.cos(c.userData.a) * c.userData.r;
       c.position.z = Math.sin(c.userData.a) * c.userData.r;
     }
-    for (const r of rays) r.material.opacity = 0.07 + 0.06 * (0.5 + 0.5 * Math.sin(time * 0.8 + r.userData.ph));
     const mp = moteGeo.attributes.position;
     for (let k = 0; k < mp.count; k++) { let y = mp.getY(k) + dt * 0.6; if (y > 16) y = 0; mp.setY(k, y); mp.setX(k, mp.getX(k) + Math.sin(time + k) * dt * 0.2); }
     mp.needsUpdate = true;
