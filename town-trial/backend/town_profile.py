@@ -12,6 +12,7 @@ import time
 from agents.llm import strict
 
 PROFILE_VERSION = 2
+BUILD_CAP_S = 45  # max seconds a trial waits for a first-visit profile
 
 BUDGET = strict({
     "found": {"type": "boolean"},
