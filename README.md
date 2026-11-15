@@ -5,7 +5,9 @@
 Built at Iterate's AI Research Hackathon, San Francisco, Nov 14–15, 2026.
 **Track 4: World Models** (Track 5 Open as fallback) · sponsor challenges: **Exa**, **past.dev**, **Modal**.
 
-> **The website is in `town-trial/web/`.** The root `web/` folder is an old, abandoned project (see the end of this file).
+**Live site: [town-trial.vercel.app](https://town-trial.vercel.app)**
+
+> **The website is in `town-trial/web/`.**
 
 ## Research question
 
@@ -111,7 +113,3 @@ town-trial/
 ```
 
 More detail: [`town-trial/README.md`](town-trial/README.md) · outline: [`town-trial/docs/town-trial-outline.pdf`](town-trial/docs/town-trial-outline.pdf) · events: [`town-trial/docs/LOG_FORMAT.md`](town-trial/docs/LOG_FORMAT.md)
-
-## Archived: Constant Lab (not part of the submission)
-
-Our first direction, agents attacking Terence Tao's optimization-constants table, was dropped Saturday morning. Its files stay for reference only: `web/` (mountain viewer), `constant_lab/`, `server/`, `scripts/`, `docs/FRAMEWORK.md`, `docs/LOG_FORMAT.md`, `docs/SPONSOR_PLAN.md`. **Don't deploy root `web/`.**
