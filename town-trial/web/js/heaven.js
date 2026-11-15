@@ -17,40 +17,55 @@ export function buildHeaven(scene) {
   group.position.y = HEAVEN_Y;
   scene.add(group);
 
-  // Island voxels (instanced)
+  // Cloud floor (instanced voxels): a flat walkable top with soft puffs, billowing layers underneath
   const V = 2, R = 24;
   const cube = new THREE.BoxGeometry(V, V, V);
-  const layers = [
-    { y: 0, r: R, color: 0x7fd85a },
-    { y: -V, r: R - 1, color: 0x9a6a3e },
-    { y: -2 * V, r: R - 4, color: 0x8a5a33 },
-    { y: -3 * V, r: R - 8, color: 0x7a5032 },
-    { y: -4 * V, r: R - 12, color: 0x8e8aa8 },
-    { y: -5 * V, r: R - 16, color: 0x7d7896 },
-    { y: -6 * V, r: R - 20, color: 0x6e6a8a },
-  ];
-  for (const L of layers) {
-    const cells = [];
-    for (let x = -L.r; x <= L.r; x += V) for (let z = -L.r; z <= L.r; z += V) {
-      const wob = Math.sin(x * 0.7) * 1.4 + Math.cos(z * 0.5) * 1.4;
-      if (Math.hypot(x, z) <= L.r + wob) cells.push([x, z]);
-    }
-    const im = new THREE.InstancedMesh(cube, mat(L.color), cells.length);
-    const m4 = new THREE.Matrix4();
-    cells.forEach(([x, z], k) => { m4.makeTranslation(x, L.y - V / 2, z); im.setMatrixAt(k, m4); });
-    im.receiveShadow = true; im.castShadow = true;
+  const m4 = new THREE.Matrix4(), q4 = new THREE.Quaternion(), s4 = new THREE.Vector3(), p4 = new THREE.Vector3();
+  const tints = [0xffffff, 0xf6f4ff, 0xeef2ff, 0xfff8ee];
+  const cloudLayer = (cells, color) => {
+    const im = new THREE.InstancedMesh(cube, new THREE.MeshLambertMaterial({ color, emissive: 0xffffff, emissiveIntensity: 0.18 }), cells.length);
+    cells.forEach(([x, y, z, sc], k) => { p4.set(x, y, z); s4.set(sc, sc, sc); m4.compose(p4, q4, s4); im.setMatrixAt(k, m4); });
+    im.receiveShadow = true;
     group.add(im);
+  };
+  const noise = (x, z) => Math.sin(x * 0.7) * 1.4 + Math.cos(z * 0.5) * 1.4 + Math.sin((x + z) * 0.31) * 0.8;
+  const byTint = tints.map(() => []);
+  // top: flat where people walk, puffier toward the rim
+  for (let x = -R; x <= R; x += V) for (let z = -R; z <= R; z += V) {
+    const r = Math.hypot(x, z);
+    if (r > R + noise(x, z)) continue;
+    const rim = Math.max(0, (r - (R - 7)) / 7);
+    const puff = rim * (0.6 + 0.6 * Math.abs(Math.sin(x * 1.3 + z * 0.9)));
+    byTint[(Math.abs(x * 3 + z * 7) / V) % tints.length | 0].push([x, -V / 2 + puff * 1.4, z, 1 + puff * 0.5]);
   }
-  // Stalactites
-  for (let k = 0; k < 18; k++) {
-    const a = k * 2.1, r = 4 + (k % 5) * 2.2;
-    const len = 2 + (k % 4) * 1.5;
-    group.add(box(V, len, V, 0x6e6a8a, Math.cos(a) * r, -7 * V - len + 1, Math.sin(a) * r));
+  // billows below: each layer narrower, offset and slightly bluer
+  const below = [[-V, R - 1, 0xe9ecfb], [-2 * V, R - 3, 0xdfe4f8], [-3 * V, R - 7, 0xd3daf3], [-4 * V, R - 12, 0xc8d0ee], [-5 * V, R - 17, 0xbcc6ea]];
+  for (const [y, rr, color] of below) {
+    const cells = [];
+    for (let x = -rr; x <= rr; x += V) for (let z = -rr; z <= rr; z += V) {
+      const w = noise(x + y, z - y);
+      if (Math.hypot(x, z) <= rr + w) cells.push([x, y - V / 2 + Math.sin(x * 0.9 + z) * 0.4, z, 1.1]);
+    }
+    cloudLayer(cells, color);
   }
+  byTint.forEach((cells, k) => cloudLayer(cells, tints[k]));
+  // big rim puffs and hanging wisps
+  const puffs = [];
+  for (let k = 0; k < 40; k++) {
+    const a = k * 2.399, r = R - 1 + (k % 3) * 1.6;
+    puffs.push([Math.cos(a) * r, -0.6 + (k % 4) * 0.5, Math.sin(a) * r, 1.6 + (k % 3) * 0.5]);
+  }
+  for (let k = 0; k < 22; k++) {
+    const a = k * 1.7, r = 3 + (k % 6) * 2.6;
+    puffs.push([Math.cos(a) * r, -12 - (k % 4) * 1.6, Math.sin(a) * r, 1 + (k % 3) * 0.45]);
+  }
+  cloudLayer(puffs, 0xffffff);
 
   // Paths and centre fountain
-  group.add(box(3, 0.1, 40, 0xf5ecd8, 0, 0, 0));
-  group.add(box(40, 0.1, 3, 0xf5ecd8, 0, 0, 0));
+  const gold = new THREE.MeshLambertMaterial({ color: 0xffd34d, emissive: 0xffc23a, emissiveIntensity: 0.35 });
+  group.add(box(3, 0.12, 40, 0xf7f1e6, 0, 0, 0));
+  group.add(box(40, 0.12, 3, 0xf7f1e6, 0, 0, 0));
+  for (const o of [-1.7, 1.7]) { group.add(box(0.3, 0.16, 40, 0, o, 0, 0, gold)); group.add(box(40, 0.16, 0.3, 0, 0, 0, o, gold)); }
   group.add(box(5, 0.8, 5, 0xffffff, 0, 0, 0));
   group.add(box(3.6, 0.3, 3.6, 0x8fd3ff, 0, 0.8, 0));
   group.add(box(0.8, 2.6, 0.8, 0xffffff, 0, 0.8, 0));
@@ -105,10 +120,35 @@ export function buildHeaven(scene) {
     g.userData.glow = glow;
   });
 
-  // Gate at the south edge
-  group.add(box(1, 6, 1, 0xffffff, -4, 0, 21));
-  group.add(box(1, 6, 1, 0xffffff, 4, 0, 21));
-  group.add(box(9, 1, 1, 0xffd34d, 0, 6, 21));
+  // Pearly gates at the south edge
+  const pearl = new THREE.MeshLambertMaterial({ color: 0xfff8f0, emissive: 0xfff0e0, emissiveIntensity: 0.4 });
+  for (const x of [-5, 5]) {
+    group.add(box(1.6, 8, 1.6, 0xffffff, x, 0, 21));
+    group.add(box(2.2, 0.6, 2.2, 0, x, 8, 21, gold));
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), pearl); ball.position.set(x, 9.5, 21); group.add(ball);
+  }
+  for (let k = 0; k < 7; k++) { const t = k / 6, x = -4 + t * 8, y = 7 + Math.sin(t * Math.PI) * 2.2; group.add(box(1.3, 0.6, 0.6, 0, x, y, 21, gold)); }
+  for (let k = -3; k <= 3; k++) if (k) group.add(box(0.18, 6.4 + Math.cos(k * 0.45) * 1.2, 0.18, 0, k * 1.15 + (k > 0 ? 0.6 : -0.6), 0, 21, gold));
+  for (let k = -3; k <= 3; k++) { const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 6, 4), pearl); ball.position.set(k * 1.25, 3.2, 21.2); group.add(ball); }
+
+  // God-rays: soft light shafts falling onto the island
+  const rays = [];
+  const rayMat = new THREE.MeshBasicMaterial({ color: 0xfff3c4, transparent: true, opacity: 0.12, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false });
+  for (let k = 0; k < 6; k++) {
+    const ray = new THREE.Mesh(new THREE.CylinderGeometry(1.5 + k * 0.3, 4 + k * 0.6, 60, 10, 1, true), rayMat.clone());
+    const a = k * 1.05;
+    ray.position.set(Math.cos(a) * (4 + k * 2.2), 30, Math.sin(a) * (4 + k * 2.2));
+    ray.rotation.z = 0.18 * Math.cos(a); ray.rotation.x = 0.18 * Math.sin(a);
+    ray.userData.ph = k * 1.3;
+    group.add(ray); rays.push(ray);
+  }
+  // Drifting sparkle motes
+  const motePts = [];
+  for (let k = 0; k < 260; k++) motePts.push((Math.random() - 0.5) * 50, Math.random() * 16, (Math.random() - 0.5) * 50);
+  const moteGeo = new THREE.BufferGeometry();
+  moteGeo.setAttribute("position", new THREE.Float32BufferAttribute(motePts, 3));
+  const motes = new THREE.Points(moteGeo, new THREE.PointsMaterial({ color: 0xfff1a8, size: 0.35, transparent: true, opacity: 0.9, depthWrite: false }));
+  group.add(motes);
 
   // Clouds around the island
   const clouds = [];
@@ -154,6 +194,10 @@ export function buildHeaven(scene) {
       c.position.x = Math.cos(c.userData.a) * c.userData.r;
       c.position.z = Math.sin(c.userData.a) * c.userData.r;
     }
+    for (const r of rays) r.material.opacity = 0.07 + 0.06 * (0.5 + 0.5 * Math.sin(time * 0.8 + r.userData.ph));
+    const mp = moteGeo.attributes.position;
+    for (let k = 0; k < mp.count; k++) { let y = mp.getY(k) + dt * 0.6; if (y > 16) y = 0; mp.setY(k, y); mp.setX(k, mp.getX(k) + Math.sin(time + k) * dt * 0.2); }
+    mp.needsUpdate = true;
     const glow = group.children.find((g) => g.userData && g.userData.glow);
     if (glow) glow.userData.glow.material.opacity = 0.55 + Math.sin(time * 3) * 0.2;
     for (let k = drops.length - 1; k >= 0; k--) {
