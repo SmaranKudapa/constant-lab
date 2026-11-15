@@ -17,6 +17,7 @@ const GOLDEN = {
   Oslo: { buildings: "d194abb82a433800", residents: "c1a41558577e4000", trees: "76e14e88166a4000" },
 };
 
+const GOLDEN_SPEC = { buildings: "7d2669e6a3b2b800", residents: "5b9ad34297e58800", trees: "4d93b8aab6da6000" };
 let fails = 0;
 const check = (name, ok, info = "") => { console.log(`${ok ? "PASS" : "FAIL"} ${name} ${info}`); if (!ok) fails++; };
 
@@ -38,6 +39,20 @@ const H = (h) => h * 60;
 const hours = BASELINE_HOURS.map((x) => (x ? x.slice() : null)); hours[1] = [H(13), H(21)]; hours[3] = [H(13), H(21)];
 const direct = runBatch({ town: t, residents: makeResidents(t, city), mode: "service", policy: { hours }, seeds: [0, 1, 2, 3], days: 7 });
 check("run_batch == runBatch", JSON.stringify(viaCli.mean) === JSON.stringify(direct.mean), JSON.stringify(viaCli.mean));
+
+// Real-town spec (OSM fixture, frozen 2026-11-15): same layout, residents and run results via run_batch and in-process.
+{
+  const fs = await import("node:fs");
+  const { residentScenario } = await import("../web/js/layout.js");
+  const spec = JSON.parse(fs.readFileSync(fileURLToPath(new URL("./fixtures/spec_evart.json", import.meta.url)), "utf8"));
+  const rt = layoutTown("Evart, MI", spec);
+  const rres = makeResidents(rt, "Evart, MI", residentScenario(spec));
+  const fp = townFingerprint(rt, rres);
+  check("real-town fingerprint (Evart spec)", JSON.stringify(fp) === JSON.stringify(GOLDEN_SPEC), JSON.stringify(fp));
+  const pj = spawnSync(process.execPath, [script], { input: JSON.stringify({ city: "Evart, MI", seeds: 4, spec }), encoding: "utf8" });
+  const direct2 = runBatch({ town: rt, residents: rres, mode: "service", policy: { hours: BASELINE_HOURS }, seeds: [0, 1, 2, 3], days: 7 });
+  check("run_batch with spec == runBatch", JSON.stringify(JSON.parse(pj.stdout || "{}").mean) === JSON.stringify(direct2.mean));
+}
 
 // trace: true must not change the numbers
 const pt = spawnSync(process.execPath, [script], { input: JSON.stringify({ ...job, trace: true }), encoding: "utf8" });

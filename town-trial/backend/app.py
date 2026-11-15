@@ -46,6 +46,7 @@ image = (
 app = modal.App("town-trial-api", image=image)
 events_dict = modal.Dict.from_name("town-trial-events", create_if_missing=True)
 memory_dict = modal.Dict.from_name("town-trial-memory", create_if_missing=True)  # local-fallback memory
+towns_dict = modal.Dict.from_name("town-trial-towns", create_if_missing=True)  # real-town specs (OSM + Census), cached per city
 secrets = [modal.Secret.from_name("town-trial-keys")]
 
 
@@ -53,6 +54,12 @@ secrets = [modal.Secret.from_name("town-trial-keys")]
 def run_batch(jobs: list[dict]) -> list[dict]:
     from sim import run_jobs_local
     return run_jobs_local(jobs)
+
+
+@app.function(secrets=secrets, timeout=600)
+def build_town(city: str) -> None:
+    from towns import build_into
+    build_into(city, towns_dict)
 
 
 @app.function(secrets=secrets, timeout=1800)
@@ -66,7 +73,7 @@ def run_trial(trial_id: str, city: str, prompt: str, mode: str, options: dict | 
         return list(run_batch.map(groups))
 
     runner = Runner(mapper=modal_mapper, where="Modal (run_batch.map)", fallback=local_mapper(2))
-    run(EventStore(events_dict), trial_id, city, prompt, mode, runner, memory=make_memory(memory_dict), options=options)
+    run(EventStore(events_dict), trial_id, city, prompt, mode, runner, memory=make_memory(memory_dict), options=options, towns=towns_dict)
 
 
 @app.function(secrets=secrets)
@@ -79,4 +86,4 @@ def web():
     def start(**kw):
         run_trial.spawn(**kw)
 
-    return create_app(EventStore(events_dict), start)
+    return create_app(EventStore(events_dict), start, towns_cache=towns_dict, start_town_build=lambda c: build_town.spawn(c))

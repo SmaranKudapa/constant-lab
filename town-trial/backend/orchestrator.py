@@ -33,6 +33,7 @@ class Trial:
         self.days = days_for(mode)
         self.exps: list[dict] = []
         self.constraint = None  # (text, fn(exp) -> bool)
+        self.spec = None  # real-town spec (backend/towns.py), attached to every simulator job
 
     # ---------- logging ----------
     def emit(self, type_: str, agent: str | None = None, say: str | None = None, **fields) -> dict:
@@ -64,8 +65,29 @@ class Trial:
     def get(self, exp_id: str) -> dict | None:
         return next((x for x in self.exps if x["id"] == exp_id), None)
 
+    def load_town(self, towns) -> None:
+        """Use the real town (OSM + Census) if it can be loaded; otherwise the synthetic town, and say so."""
+        from towns import get_spec
+        try:
+            self.spec = get_spec(self.city, towns)
+            sp = self.spec
+            named = sum(1 for p in sp["places"] if p.get("named"))
+            pop = int(sp["population"]) if sp.get("population") else "unknown"
+            self.emit("NOTE", agent="eli", level="info", say="Loading the real town",
+                      message=f"Real town: {sp['display_name']}. {len(sp['places'])} places from OpenStreetMap ({named} named), "
+                              f"population {pop} ({sp.get('population_source') or 'n/a'}), resident mix: {sp['cohort_mix_source']}. "
+                              f"{sp['attribution']}.",
+                      town={"places": len(sp["places"]), "population": sp.get("population"), "residents": sp.get("residents"),
+                            "census": bool(sp.get("census")), "synthetic_places": sp.get("synthetic_places", [])})
+        except Exception as ex:
+            self.spec = None
+            self.emit("NOTE", agent="eli", level="warn", message=f"Could not load real map data for {self.city} ({type(ex).__name__}: {str(ex)[:160]}); "
+                                                                  "using a synthetic procedural town.")
+
     def job(self, key: str, policy: dict, seeds=SEEDS, scenario: dict | None = None) -> dict:
         j = {"key": key, "city": self.city, "mode": self.mode, "policy": policy, "seeds": seeds, "days": self.days}
+        if self.spec:
+            j["spec"] = self.spec
         if scenario:
             j["scenario"] = scenario
         return j
@@ -210,7 +232,7 @@ class Trial:
 
     def perception(self) -> None:
         city, P = self.city, self.P
-        info = self.runner.info(city)
+        info = self.runner.info(city, spec=self.spec)
         self.emit("CLAIM", agent="bo", say="Writing the testable claim", scripted=True,
                   claim=f"In {city}, posting the new library hours online only reaches most working parents within 3 days.",
                   metric=P["label"], constraint="no paid ads", horizon=f"3 days, {SEEDS} matched seeds", prompt=self.prompt)
@@ -311,7 +333,8 @@ class Trial:
         }
 
 
-def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner, memory=None, options: dict | None = None) -> None:
+def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: str, runner: Runner, memory=None, options: dict | None = None,
+              towns=None) -> None:
     """Live loop when an OpenAI key is available (and TOWN_TRIAL_SCRIPTED is not set); otherwise the labelled scripted loop."""
     live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
     try:
@@ -323,6 +346,8 @@ def run_trial(store: EventStore, trial_id: str, city: str, prompt: str, mode: st
             trial = Trial(store, trial_id, city, prompt, mode, runner)
             store.append(trial_id, "NOTE", {"level": "info", "message": "No LLM key configured: running the scripted research loop. "
                                             "Agents' words are scripted and evidence is FIXTURE; every number is a real simulator run."})
+        if towns is not None:
+            trial.load_town(towns)
         trial.start()
         store.finish(trial_id)
     except Stopped:

@@ -237,7 +237,7 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
       if (group.length < 2) continue;
       const aware = group.filter((g) => g.aware);
       if (!aware.length) continue;
-      const p = place.kind === "home" ? 0.004 : place.kind === "work" || place.kind === "school" ? 0.0006 : 0.002;
+      const p = place.kind === "home" ? 0.004 : place.kind === "work" || place.kind === "school" || place.employs ? 0.0006 : 0.002;
       for (const s of group) if (!s.aware && awake && rng.chance(1 - Math.pow(1 - p, aware.length))) learn(s, "word-of-mouth", rng.pick(aware));
     }
   }

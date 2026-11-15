@@ -323,7 +323,7 @@ class LiveTrial(Trial):
 
     def eli_audiences(self) -> None:
         """One past.dev identity per resident, rule audiences for this town, and the notice scoped to the 'heard' audience."""
-        info = self.runner.info(self.city)
+        info = self.runner.info(self.city, spec=self.spec)
         tk = town_key(self.city)
         # A fresh audience and trait per trial: observed in past.dev that a resident who leaves an audience and rejoins it
         # (as happens when a town is re-run) does not regain recall of its memories, while first-time members do within ~7 s.
@@ -357,7 +357,8 @@ class LiveTrial(Trial):
         if self.mode != "perception" or not getattr(self, "resident_ids", None):
             return
         from sim import run_jobs_local
-        learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True}])[0]["learn"]
+        learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True,
+                                 "spec": self.spec}])[0]["learn"]
         learned = [e["resident"] for e in learn]
         fam = [r for r in learned if self.residents_info[r]["cohort"] == "families"]
         never = [r for r in self.resident_ids if r not in learned]

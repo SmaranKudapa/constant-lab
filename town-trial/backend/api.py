@@ -32,7 +32,7 @@ class TrialRequest(BaseModel):
     options: dict | None = None
 
 
-def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
+def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, start_town_build: Callable[[str], None] | None = None) -> FastAPI:
     """`start(trial_id=, city=, prompt=, mode=)` launches the orchestrator (Modal spawn or a thread)."""
     app = FastAPI(title="Town Trial API")
     origins = [o.strip() for o in (os.environ.get("ALLOWED_ORIGINS") or DEFAULT_ORIGINS).split(",") if o.strip()]
@@ -42,6 +42,17 @@ def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
     @app.get("/api/health")
     def health():
         return {"ok": True, "version": os.environ.get("CODE_VERSION", "local")}
+
+    @app.get("/api/towns")
+    def town(city: str):
+        """Real-town spec (OSM + Census), built in the background on first request and cached."""
+        from towns import lookup
+        if towns_cache is None or start_town_build is None:
+            raise HTTPException(501, "real-town data not configured")
+        c = city.strip()
+        if not c or len(c) > 80:
+            raise HTTPException(400, "city must be 1-80 characters")
+        return lookup(c, towns_cache, start_town_build)
 
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):

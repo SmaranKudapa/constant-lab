@@ -7,6 +7,7 @@
 //   policy: {hours: [[openMin, closeMin]|null x7]} | {hours_changes: [{day, open:"HH:MM"|null, close}]}
 //           | {channels: ["online","board","bulletin"]}, optional capacity
 //   scenario: {name?, seed?, mix?, interestMult?, count?}  (seed defaults to the city name)
+//   spec: optional real-town spec (backend/towns.py); the town and resident mix are built from it
 //   {info: true, city, scenario?} returns {residents: {n, byCohort}} without simulating.
 //   trace: true adds failure traces (counts over the job's seeds) for the reviewer:
 //     turnedAway by cohort / reason / day+hour, visits by cohort, learned via, aware by cohort.
@@ -14,7 +15,7 @@
 //   learn: true adds the ordered LEARN events (resident, via, tick) for the watched-run replay into past.dev.
 // Output: runBatch result ({n, mean, sd, runs}) plus {seeds, ms}, or an array of them.
 import { pathToFileURL } from "node:url";
-import { layoutTown } from "../web/js/layout.js";
+import { layoutTown, residentScenario } from "../web/js/layout.js";
 import { makeResidents, runBatch, hoursWith, createModel, TICKS_PER_DAY, DAYS } from "../web/js/sim.js";
 
 const toMin = (t) => { const [h, m] = String(t).split(":").map(Number); return h * 60 + (m || 0); };
@@ -54,13 +55,15 @@ function runTraced({ town, residents, mode, policy, seeds, days }, keepLearn = f
   return { runs, trace, learn };
 }
 
-export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null, info = false, trace = false, learn = false }) {
+export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null, info = false, trace = false, learn = false, spec = null }) {
   if (!city) throw new Error("job.city is required");
   const t0 = Date.now();
-  if (!towns.has(city)) towns.set(city, layoutTown(city));
-  const town = towns.get(city);
-  const rkey = JSON.stringify([city, scenario]);
-  if (!residentCache.has(rkey)) residentCache.set(rkey, scenario ? makeResidents(town, scenario.seed ?? city, scenario) : makeResidents(town, city));
+  const tkey = spec ? `${city}|spec:${spec.fetched_at}` : city;
+  if (!towns.has(tkey)) towns.set(tkey, layoutTown(city, spec));
+  const town = towns.get(tkey);
+  const rkey = JSON.stringify([tkey, scenario]);
+  const sc = residentScenario(spec, scenario);
+  if (!residentCache.has(rkey)) residentCache.set(rkey, makeResidents(town, (scenario && scenario.seed) ?? city, sc));
   const residents = residentCache.get(rkey);
   if (info) {
     const byCohort = {};

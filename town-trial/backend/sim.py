@@ -124,5 +124,5 @@ class Runner:
                 results[e["key"]]["trace"] = merge_traces(traces, len(seeds))
         return {"results": results, "wall_s": round(wall, 2), "workers": len(groups), "where": where, "error": error}
 
-    def info(self, city: str, scenario: dict | None = None) -> dict:
-        return run_jobs_local([{"info": True, "city": city, "scenario": scenario}])[0]["residents"]
+    def info(self, city: str, scenario: dict | None = None, spec: dict | None = None) -> dict:
+        return run_jobs_local([{"info": True, "city": city, "scenario": scenario, "spec": spec}])[0]["residents"]

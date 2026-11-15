@@ -153,6 +153,10 @@ export function buildingHTML(b, model, events) {
   let extra = "";
   if (b.id === "library" && model) extra = `<div class="kv"><b>Hours</b><span>${esc(hoursText(model.hours))}</span><b>Inside</b><span>${model.state.inside.length}</span><b>Queue</b><span>${model.state.queue.length}</span></div>`;
   const here = model ? model.S.filter((s) => s.at === b).map((s) => s.r.name) : [];
+  if (b.osm || b.synthetic) extra += `<div class="kv"><b>Kind</b><span>${esc(b.kind.replace("_", " "))}${b.public ? " (public)" : ""}</span>` +
+    (b.osm ? `<b>Source</b><span><a href="https://www.openstreetmap.org/${esc(b.osm)}" target="_blank" rel="noopener">OpenStreetMap ${esc(b.osm)}</a></span>` : "") +
+    (b.synthetic ? `<b>Source</b><span>synthetic (not mapped in OSM)</span>` : "") +
+    (b.hoursOsm ? `<b>Mapped hours</b><span>${esc(b.hoursOsm)}</span>` : "") + `</div>`;
   return `<h3><span>${esc(b.name)}</span><span class="close" data-close>CLOSE ✕</span></h3>${extra}<div class="note">${here.length} people here${here.length ? ": " + esc(here.slice(0, 12).join(", ")) + (here.length > 12 ? "..." : "") : ""}</div>`;
 }
 
