@@ -3,7 +3,7 @@ import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 import { roleOf } from "./voices.js";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Treasurer (Budget god)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Treasurer (Budget god)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Past Dev (Memory god)" };
 export const AGENT_COLOR = { exa: "#59c2ff", ada: "#59c2ff", treasurer: "#e8c24a", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
 export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
@@ -201,6 +201,26 @@ export function residentHTML(r, s, mode, events) {
   <b>Library visits/wk</b><span>${r.interest} wanted${s ? `, ${s.visitsWeek} made` : ""}</span><b>Current hours?</b><span>${r.restricted ? "can't make them" : "can make them"}</span></div>
   <div style="margin-top:6px">${aud.map((a) => `<span class="pill on">${a}</span>`).join("")}${s && !s.aware && mode === "perception" ? `<span class="pill off">not in heard-library-notice</span>` : ""}</div>
   <h5>THEIR LOG</h5>${mine.length ? mine.map((e) => entryHTML(e)).join("") : `<p class="note">Nothing yet.</p>`}`;
+}
+
+// Past Dev: the audiences live (members now, graph buttons), then the memory and audience activity.
+export function pastDevHTML(spec, events, mode, model, residents, awareness) {
+  let auds = "";
+  const notice = mode === "perception" || (mode === "town" && awareness);
+  if (model && notice) {
+    for (const a of noticeAudiences(mode === "perception" ? "perception" : "town", residents)) {
+      const n = model.S.filter((s) => s.aware && (!a.cohort || s.r.cohort === a.cohort)).length, tot = a.cohort ? residents.filter((r) => r.cohort === a.cohort).length : residents.length;
+      auds += audCard(a.slug, a.rule, n, tot, null, true, a.cohort ? `#${COHORTS[a.cohort].shirt.toString(16).padStart(6, "0")}` : "#ff7ad9");
+    }
+  }
+  const mem = events.filter((e) => e.type.startsWith("MEMORY") || e.type === "AUDIENCE" || e.type === "LEARN" || e.type === "VOICES");
+  const joins = events.filter((e) => e.type === "LEARN").length, writes = events.filter((e) => e.type === "MEMORY_WRITE").length,
+    reads = events.filter((e) => e.type === "MEMORY_READ" && e.author).length;
+  return `<h3><span>${esc(spec.name)} · ${esc(spec.role)}</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>
+  <div class="note">${esc(spec.does)}</div>
+  <div class="kv"><b>Facts written</b><span>${writes}</span><b>Handoffs read</b><span>${reads} (one god reading another's fact)</span><b>Audience joins</b><span>${joins}</span></div>
+  <h5>AUDIENCES</h5>${auds || `<p class="note">${notice ? "Audiences appear once the run starts." : "This trial isn't about who hears a notice, so no audiences are being built. Memory activity is below."}</p>`}
+  <h5>MEMORY &amp; AUDIENCE ACTIVITY</h5>${mem.length ? mem.slice(-25).reverse().map((e) => entryHTML(e)).join("") : `<p class="note">Waiting for a trial.</p>`}`;
 }
 
 export function researcherHTML(spec, events) {

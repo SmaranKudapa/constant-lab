@@ -422,6 +422,7 @@ function renderSelected() {
   el.classList.remove("hidden", "closing");
   let html = "";
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
+  else if (selected.kind === "researcher" && selected.id === "eli") html = UI.pastDevHTML(researchers.eli.spec, events, mode || "service", model, residents, !!(research && research.awareness));
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
   else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events, townProfile);
@@ -445,7 +446,7 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
 }));
 const openWhy = new Set(); // experiments whose reasoning panel is open
 // Audience graph buttons (Audiences tab)
-$("tab-aud").addEventListener("click", (e) => {
+function graphClick(e) {
   const btn = e.target.closest("[data-graph]");
   if (!btn || !research) return;
   const m = mode || "service";
@@ -453,7 +454,9 @@ $("tab-aud").addEventListener("click", (e) => {
   if (!aud) return;
   const incomeFactor = townSpec && townSpec.census && townSpec.census.median_income ? townSpec.census.median_income / 70000 : 1;
   openAudienceGraph({ town, residents, mode: m, days: research.days || 3, incomeFactor, exps: research.exps, aud, viewingId: viewExp && viewExp.id });
-});
+}
+$("tab-aud").addEventListener("click", graphClick);
+$("selected").addEventListener("click", graphClick);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const g = $("aud-graph"); if (g) g.classList.add("hidden"); } });
 $("tab-exp").addEventListener("click", (e) => {
   const why = e.target.closest("[data-why]");

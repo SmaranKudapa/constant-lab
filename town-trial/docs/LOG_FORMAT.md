@@ -3,7 +3,7 @@
 One JSON object per line. Every component writes it; the viewer rebuilds everything from it.
 Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 19:40`), and `agent` for research events.
 
-## Research events (Heaven)
+## Research events (Olympus)
 
 | type | fields | meaning |
 |---|---|---|
