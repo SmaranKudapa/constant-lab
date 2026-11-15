@@ -8,10 +8,17 @@ const H = (h, m = 0) => h * 60 + m;
 export const SEEDS = 16;       // matched seeds per experiment
 export const SWEEP_BUDGET = 6; // runs the parameter sweep may spend
 
+// Trial type from the question. Keep in sync with classify() in backend/policy.py (tests/classify_cases.json checks both).
+const STRONG_PERCEPTION = new RegExp(
+  "\\b(hear|hears|heard|hearing)\\b|\\baware(ness)?\\b|\\bunaware\\b|\\bfind(s|ing)? out\\b|\\bfound out\\b|\\blearn(s|ed)? (about|of|that)\\b" +
+  "|\\bknow(s|n)? (about|of|that|when|if|where|what)\\b|\\b(will|would|do|does|did|can|could|won't|wouldn't|don't|doesn't)\\s+(\\w+\\s+){0,3}know\\b" +
+  "|\\bknew\\b|\\bword of mouth\\b|\\bget the word out\\b|\\bspread the word\\b|\\bnews (of|about|spread)\\b|\\bwho (will )?(hears?|knows?|finds? out)\\b" +
+  "|\\bannounce(ment|d|s)?\\b|\\bperception\\b|\\bpublici[sz]e\\b|\\binform(ed|ing)? (people|residents|the public|everyone)\\b");
+const WEAK_PERCEPTION = /\bnotice(s|d)?\b|\bcampaign\b|\boutreach\b|\bflyers?\b|\badverti[sz]\w*\b|\bmarketing\b|\bnewsletter\b|\bmailers?\b|\bnewspaper\b|\bopinion\b|\bbelieve\b|\bthink about\b|\bcommunicat\w*\b/;
+const USAGE = /\bvisit\w*\b|\buse\b|\busage\b|\battend\w*\b|\bturn(ed)? away\b|\bcrowd\w*\b|\bwait\w*\b|\bcost\w*\b|\bbudget\b|\bsave money\b|\bmore people (come|go|use)\b|\bfoot traffic\b|\bbusier\b/;
 export function classify(prompt) {
   const p = prompt.toLowerCase();
-  const perception = ["hear", "aware", "perception", "notice", "market", "campaign", "opinion", "outreach", "flyer", "advert", "know about", "find out", "word of mouth", "believe", "think about"];
-  return perception.some((w) => p.includes(w)) ? "perception" : "service";
+  return (STRONG_PERCEPTION.test(p) || WEAK_PERCEPTION.test(p)) && !USAGE.test(p) ? "perception" : "service";
 }
 
 export function primary(mode) {

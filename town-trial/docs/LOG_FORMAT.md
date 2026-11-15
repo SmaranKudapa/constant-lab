@@ -24,7 +24,7 @@ Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 
 | `VOICES` | `exp, base, voices[{cohort, label, role, stance` (`helped`/`hurt`/`unchanged`)`, quote, before, after, unit}], scripted, note` | How each group of residents would react to the recommended policy, emitted just before `BRIEF`. `stance`, `before`, `after` are simulator means computed in code; `role` and `quote` are LLM-written (or scripted if `scripted: true`). Not real residents. |
 | `HELD_OUT_TABLE` | `finalists[{id,label,role,feasible}], table[{scenario, <id>: value}], metric` | Feeds the held-out table. Not shown as a log card. |
 | `NOTE` | `level` (`info`/`warn`/`error`), `message` | A fallback, failure or stop, logged so nothing fails silently. |
-| `FRAME` | `metric` (`visits`/`unique_visitors`/`visits_restricted`/`turned_away`/`awareness`/`net_cost`), `key, label, unit, direction` (`max`/`min`), `target, target_name, kind, cohort, days, budget_limit, budget_scope` | Town mode: how Bo framed the question. The Experiments tab ranks by `key` in `direction`. |
+| `FRAME` | `trial_type` (`perception`/`service`), `metric` (`visits`/`unique_visitors`/`visits_restricted`/`turned_away`/`awareness`/`net_cost`), `key, label, unit, direction` (`max`/`min`), `target, target_name, kind, cohort, days, budget_limit, budget_scope` | Town mode: how Bo framed the question. The Experiments tab ranks by `key` in `direction`. |
 
 Optional fields on research events (backend):
 - `say`: the short line the researcher says while acting the event out.

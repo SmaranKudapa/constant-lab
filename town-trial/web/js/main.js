@@ -286,7 +286,7 @@ function buildLabels() {
   }
   // Real towns: label the public places by their real names; synthetic towns: the two landmarks.
   const labelled = town.real ? town.buildings.filter((b) => b.public && b.id !== "library" && (b.kind !== "school" || b.id === "school")).slice(0, 8)
-    : ["townhall", "park"].map((id) => town.byId[id]).filter(Boolean);
+    : ["townhall", "park", "school", "cafe"].map((id) => town.byId[id]).filter(Boolean);
   for (const b of labelled) add(b.name.toUpperCase(), () => new THREE.Vector3(b.x, (b.h || 0) + 6, b.z));
   for (const st of Object.values(heaven.stations)) add(st.label, () => new THREE.Vector3(st.x, st.labelY, st.z), "lbl sign");
   for (const r of Object.values(researchers)) {
@@ -542,8 +542,8 @@ async function startLiveTrial(prompt) {
       onView: (x) => { startReplay(x); renderPanels(true); },
       onError: (err) => offerDemo(err, prompt),
     });
-    beginTrial(live.mode);
     research = live;
+    beginTrial(live.mode);
     setBanner(true);
     afterTrialStart();
   } catch (err) { offerDemo(err, prompt); }
@@ -560,6 +560,13 @@ function offerDemo(err, prompt) {
   t.classList.remove("hidden");
   clearTimeout(toastT);
 }
+// PERCEPTION TRIAL (who hears about something) or SERVICE TRIAL (who uses a place)
+function setBadge(type) {
+  const badge = $("mode-badge");
+  badge.classList.toggle("perception", type === "perception");
+  badge.textContent = type === "perception" ? "PERCEPTION TRIAL" : "SERVICE TRIAL";
+}
+window.__setTrialBadge = setBadge;
 function beginTrial(m) {
   mode = m;
   endCelebration();
@@ -571,7 +578,7 @@ function beginTrial(m) {
   const badge = $("mode-badge");
   badge.classList.remove("hidden");
   badge.classList.toggle("perception", mode === "perception");
-  badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : mode === "town" ? "TOWN TRIAL" : "SERVICE TRIAL";
+  setBadge(mode === "town" ? (research && research.awareness ? "perception" : "service") : mode);
   startReplay(null);
 }
 function afterTrialStart() {
@@ -615,10 +622,10 @@ function keyboardCamera(dt) {
   controls.target.add(_mv);
   controls.target.y = THREE.MathUtils.clamp(controls.target.y, -2, HEAVEN_Y + 20);
   _sph.setFromVector3(_off);
-  if (keys.has("ArrowLeft")) _sph.theta -= 1.6 * dt;
-  if (keys.has("ArrowRight")) _sph.theta += 1.6 * dt;
-  if (keys.has("ArrowUp")) _sph.phi -= 1.0 * dt;
-  if (keys.has("ArrowDown")) _sph.phi += 1.0 * dt;
+  if (keys.has("ArrowLeft")) _sph.theta += 1.6 * dt;
+  if (keys.has("ArrowRight")) _sph.theta -= 1.6 * dt;
+  if (keys.has("ArrowUp")) _sph.phi += 1.0 * dt;
+  if (keys.has("ArrowDown")) _sph.phi -= 1.0 * dt;
   if (keys.has("o")) _sph.radius *= 1 + 1.4 * dt;
   if (keys.has("i")) _sph.radius *= 1 - 1.4 * dt;
   _sph.phi = THREE.MathUtils.clamp(_sph.phi, 0.08, controls.maxPolarAngle);
