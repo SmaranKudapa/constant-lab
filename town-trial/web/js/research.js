@@ -16,9 +16,14 @@ const STRONG_PERCEPTION = new RegExp(
   "|\\bannounce(ment|d|s)?\\b|\\bperception\\b|\\bpublici[sz]e\\b|\\binform(ed|ing)? (people|residents|the public|everyone)\\b");
 const WEAK_PERCEPTION = /\bnotice(s|d)?\b|\bcampaign\b|\boutreach\b|\bflyers?\b|\badverti[sz]\w*\b|\bmarketing\b|\bnewsletter\b|\bmailers?\b|\bnewspaper\b|\bopinion\b|\bbelieve\b|\bthink about\b|\bcommunicat\w*\b/;
 const USAGE = /\bvisit\w*\b|\buse\b|\busage\b|\battend\w*\b|\bturn(ed)? away\b|\bcrowd\w*\b|\bwait\w*\b|\bcost\w*\b|\bbudget\b|\bsave money\b|\bmore people (come|go|use)\b|\bfoot traffic\b|\bbusier\b/;
+const SERVICE = /\bhours?\b|\bopen(s|ed|ing)?\b|\bclos(e|es|ed|ing|ure)\b|\bvisit\w*\b|\buse\b|\busage\b|\battend\w*\b|\bfees?\b|\bcharge\b|\bcapacity\b|\bturn(ed)? away\b|\bstaff\w*\b|\bbudget\b|\bcost\w*\b|\bcheap\w*\b|\bsave money\b|\bcrowd\w*\b|\bwait\w*\b|\b(mon|tues|wednes|thurs|fri|satur|sun)days?\b|\bweekends?\b|\bevenings?\b|\bmornings?\b|\b\d+ ?(am|pm)\b|\blater\b|\bearlier\b|\bbusier\b|\bfoot traffic\b|\bmore people (come|go|use)\b/;
+// perception (who hears / knows), service (a place's hours, use, fees, cost), or town: the default for broad goals
+// ("Make school more accessible") and the fallback whenever the question fits neither.
 export function classify(prompt) {
   const p = prompt.toLowerCase();
-  return (STRONG_PERCEPTION.test(p) || WEAK_PERCEPTION.test(p)) && !USAGE.test(p) ? "perception" : "service";
+  if ((STRONG_PERCEPTION.test(p) || WEAK_PERCEPTION.test(p)) && !USAGE.test(p)) return "perception";
+  if (SERVICE.test(p)) return "service";
+  return "town";
 }
 
 export function primary(mode) {

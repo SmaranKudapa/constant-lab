@@ -71,7 +71,8 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
       Object.assign(primary, { key: e.key, label: e.label, unit: e.unit || "", target: e.target, direction: e.direction });
       live.days = e.days || live.days;
       live.awareness = e.metric === "awareness";
-      if (window.__setTrialBadge) window.__setTrialBadge(live.awareness ? "perception" : "service");
+      live.trialType = e.trial_type || (live.awareness ? "perception" : "town");
+      if (window.__setTrialBadge) window.__setTrialBadge(live.trialType);
       onChange();
     }
     if (e.type === "EXPERIMENT") { upsert(e); onChange(); return false; }
@@ -94,7 +95,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   }
 
   const live = {
-    exps, update, primary, mode, id, awareness: mode === "perception" || hint === "perception",
+    exps, update, primary, mode, id, awareness: mode === "perception" || hint === "perception", trialType: hint || "town",
     days: mode === "perception" ? 3 : 7,
     done: () => serverDone && !queue.length,
     stop: () => { stopped = true; clearTimeout(pollT); return request(`${base}/api/trials/${id}/stop`, { method: "POST" }).catch(() => {}); },

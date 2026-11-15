@@ -120,3 +120,4 @@
 .rp-why { border-left-color: var(--green); }
 .rp-why .rp-h { color: var(--green); }
 .rp-lead { margin: 0; font-size: 15px; line-height: 1.5; }
+.mode.town { background: var(--blue); }
