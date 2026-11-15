@@ -239,16 +239,35 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       const best = feasible.sort((a, b) => b.result.mean[P.key] - a.result.mean[P.key])[0];
       best.best = true; onChange();
       const base = exps[0];
-      emit("VOICES", { agent: "eli", exp: best.id, base: base.id, scripted: true, voices: demoVoices({ town, residents, mode, best, base, days }),
+      const voices = demoVoices({ town, residents, mode, best, base, days });
+      emit("VOICES", { agent: "eli", exp: best.id, base: base.id, scripted: true, voices,
         note: "Scripted quotes from simulator numbers (each group's stance is computed from 4 matched seeds). They are not real residents." });
       emit("BRIEF", {
-        agent: "bo", recommend: best.id, label: best.label,
+        agent: "bo", recommend: best.id, label: best.label, ...explain(best, base, voices),
         summary: `${best.label}: ${fmt(best)} vs ${fmt(base)} for current practice (${P.label}).`,
         assumptions: mode === "service" ? "Arrival patterns are synthetic; staffing cap from a fixture source." : "Channel use and word-of-mouth rates are synthetic.",
         pilot: mode === "service" ? "Pilot for 4 weeks; count evening visitors and ask whether they could have come before 18:00." : "Ask the school to include the notice for 2 weeks; survey parents at pickup.",
       });
       onView(best);
     });
+  }
+
+  // Plain-language brief: what the policy does, and the reasoning for why it wins
+  function explain(best, base, voices) {
+    const groups = (st) => voices.filter((v) => v.stance === st).map((v) => v.label.toLowerCase());
+    const helped = groups("helped"), same = groups("unchanged");
+    const list = (a) => (a.length > 1 ? `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}` : a[0] || "");
+    const dStaff = mode === "service" ? staffHours(best.policy.hours) - staffHours(base.policy.hours) : 0;
+    const what = mode === "service"
+      ? `The library replaces its current schedule (Mon-Sat 10:00-18:00) with new hours on these days: ${best.change}. Every other day stays as it is. ` +
+        `The new hours run into the evening, so the library is open when people who work or study during the day are free. ` +
+        (dStaff === 0 ? "Hours are moved rather than added, so total staff time stays the same." : `This needs ${dStaff > 0 ? `${dStaff} more` : `${-dStaff} fewer`} staff hours a week.`)
+      : `The notice about the new library hours goes out through: ${best.change}. Each channel puts the notice where a different group already looks, so people hear about it without having to go searching.`;
+    const val = (x) => `${x.result.mean[P.key].toFixed(1)}${P.unit}`;
+    const reasoning = `It does best on ${P.label}: ${val(best)} against ${val(base)} today. ` +
+      (helped.length ? `The gain comes from ${list(helped)}, because the change reaches them at times and places that fit their routine` : "No single group gains much") +
+      (same.length ? `; ${list(same)} were already served, so little changes for them.` : ".");
+    return { what, reasoning };
   }
 
   // Step runner

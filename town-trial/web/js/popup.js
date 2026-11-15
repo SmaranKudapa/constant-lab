@@ -1,6 +1,6 @@
 // Results popup: trial question, key numbers, then tabs (why it wins / steps / other experiments).
 // Also the TRIALS history: every finished trial's summary, reopenable (kept in localStorage when allowed).
-import { esc, link, AGENTS, AGENT_COLOR } from "./ui.js";
+import { esc, link, AGENT_COLOR, AGENTS } from "./ui.js";
 
 const KEY = "town-trial:history:v1";
 const $ = (id) => document.getElementById(id);
@@ -13,26 +13,24 @@ export function historyCount() { return history.length; }
 
 const STANCE = { helped: { c: "#5be37d", t: "HELPED" }, hurt: { c: "#ff5d6c", t: "WORSE OFF" }, unchanged: { c: "#a99cc8", t: "NO CHANGE" } };
 
-function whyHTML(s) {
-  let h = "";
-  if (s.brief) h += `<div class="rp-card rp-brief"><div class="rp-who" style="color:${AGENT_COLOR.bo}">BO · DECISION BRIEF${s.brief.scripted ? " · scripted" : ""}</div>
-    <p>${esc(s.brief.summary)}</p>${s.brief.assumptions ? `<p class="rp-dim"><b>Assumes:</b> ${esc(s.brief.assumptions)}</p>` : ""}${s.brief.pilot ? `<p class="rp-dim"><b>Pilot:</b> ${esc(s.brief.pilot)}</p>` : ""}</div>`;
-  if (s.voices && s.voices.list.length) {
-    h += `<h4 class="rp-h">WHAT RESIDENTS SAY <span class="rp-tag">${s.voices.scripted ? "SCRIPTED" : "LLM-WRITTEN"} · NOT REAL PEOPLE</span></h4><div class="rp-voices">`;
-    for (const v of s.voices.list) {
-      const st = STANCE[v.stance] || STANCE.unchanged;
-      h += `<div class="rp-voice" style="border-color:${st.c}"><div class="rp-vrole">${esc(v.role)} <span class="rp-dim">· ${esc(v.label)}</span></div>
-        <div class="rp-quote">"${esc(v.quote)}"</div><div class="rp-vnum" style="color:${st.c}">${st.t} · ${v.before} → ${v.after} ${esc(v.unit)}</div></div>`;
-    }
-    h += `</div><p class="rp-dim rp-small">${esc(s.voices.note || "")}</p>`;
+function policyHTML(s) {
+  const what = s.what || (s.best ? `${s.best.label}: ${s.best.change}.` : s.brief ? s.brief.label : "");
+  const why = s.reasoning || (s.brief ? s.brief.summary : "");
+  let h = `<section class="rp-sec"><h4 class="rp-h">WHAT THE POLICY DOES</h4><p class="rp-lead">${esc(what)}</p></section>`;
+  if (why) h += `<section class="rp-sec rp-why"><h4 class="rp-h">WHY IT WINS</h4><p class="rp-lead">${esc(why)}</p></section>`;
+  if (s.sources && s.sources.length) h += `<div class="rp-src rp-small">Sources: ${s.sources.map((u) => link(u)).join(" · ")}</div>`;
+  return h;
+}
+
+function residentsHTML(s) {
+  if (!s.voices || !s.voices.list.length) return `<p class="rp-dim">No resident reactions recorded for this trial.</p>`;
+  let h = `<div class="rp-voices">`;
+  for (const v of s.voices.list) {
+    const st = STANCE[v.stance] || STANCE.unchanged;
+    h += `<div class="rp-voice" style="border-color:${st.c}"><div class="rp-vrole">${esc(v.role)} <span class="rp-dim">· ${esc(v.label)}</span></div>
+      <div class="rp-quote">"${esc(v.quote)}"</div><div class="rp-vnum" style="color:${st.c}">${st.t} · ${v.before} → ${v.after} ${esc(v.unit)}</div></div>`;
   }
-  if (s.chain && s.chain.length > 1) h += `<h4 class="rp-h">HOW WE GOT HERE</h4><div class="rp-chain">${s.chain.map((c) => `<span>${esc(c.id)}<i>${esc(c.label)}</i></span>`).join("<b>→</b>")}</div>`;
-  for (const g of s.why) {
-    h += `<h4 class="rp-h" style="color:${AGENT_COLOR[g.agent] || "#ccc"}">${esc(AGENTS[g.agent] || g.agent)}</h4>`;
-    for (const st of g.steps) h += `<div class="rp-card" style="border-left-color:${AGENT_COLOR[g.agent] || "#999"}"><div class="rp-who">${esc(st.type.replace("_", " "))}${st.scripted ? " · scripted" : ""}</div>
-      <div>${esc(st.text)}</div>${st.sources.filter(Boolean).map((u) => `<div class="rp-src">source: ${link(u)}</div>`).join("")}</div>`;
-  }
-  return h || `<p class="rp-dim">No reasoning recorded.</p>`;
+  return h + `</div>`;
 }
 
 function stepsHTML(s) {
@@ -62,7 +60,9 @@ function roll(el, delay) {
   requestAnimationFrame(tick);
 }
 
-export function openSummary(s, origin = null) {
+let onClosed = null;
+export function openSummary(s, origin = null, onClose = null) {
+  onClosed = onClose;
   const root = $("results");
   const tiles = s.tiles.map((t, i) => `<div class="rp-tile ${t.good ? "good" : "bad"}" style="--i:${i}"><div class="rp-tl">${esc(t.label)}</div><div class="rp-tv">${esc(t.text)}</div><div class="rp-ts">${esc(t.sub)}</div></div>`).join("");
   root.innerHTML = `<div class="rp-backdrop" data-close></div><div class="rp-rays"></div>
@@ -74,10 +74,10 @@ export function openSummary(s, origin = null) {
       <div class="rp-q">"${esc(s.prompt)}"</div>
       ${s.best ? `<div class="rp-best"><span class="rp-badge">${esc(s.best.id)}</span>${esc(s.best.label)}<div class="rp-change">${esc(s.best.change)} · ${esc(s.best.role)}</div></div>` : `<div class="rp-best">${esc(s.brief ? s.brief.label : "No recommendation")}</div>`}
       <div class="rp-tiles">${tiles}</div>
-      <div class="rp-metric rp-dim">Ranked by: ${esc(s.metricLabel)}. Numbers are simulator means over matched seeds; resident schedules are model defaults.</div>
+      <div class="rp-metric rp-dim">Ranked by ${esc(s.metricLabel)}.</div>
     </div>
-    <div class="rp-tabs"><button class="rp-tab active" data-rt="why">WHY IT WINS</button><button class="rp-tab" data-rt="steps">STEPS (${s.steps.length})</button><button class="rp-tab" data-rt="others">OTHER EXPERIMENTS (${s.others.length})</button><i class="rp-ink"></i></div>
-    <div class="rp-body"><div data-rb="why">${whyHTML(s)}</div><div data-rb="steps" hidden>${stepsHTML(s)}</div><div data-rb="others" hidden>${othersHTML(s)}</div></div>
+    <div class="rp-tabs"><button class="rp-tab active" data-rt="policy">POLICY</button><button class="rp-tab" data-rt="residents">RESIDENTS</button><button class="rp-tab" data-rt="steps">STEPS (${s.steps.length})</button><button class="rp-tab" data-rt="others">OTHER EXPERIMENTS (${s.others.length})</button><i class="rp-ink"></i></div>
+    <div class="rp-body"><div data-rb="policy">${policyHTML(s)}</div><div data-rb="residents" hidden>${residentsHTML(s)}</div><div data-rb="steps" hidden>${stepsHTML(s)}</div><div data-rb="others" hidden>${othersHTML(s)}</div></div>
   </div>`;
   const win = root.querySelector(".rp-win");
   if (origin) { // fly out of the winning building's spot on screen
@@ -102,6 +102,8 @@ export function closeSummary() {
   const root = $("results");
   if (root.classList.contains("hidden")) return;
   root.classList.add("closing");
+  const cb = onClosed; onClosed = null;
+  if (cb) cb();
   setTimeout(() => { root.classList.add("hidden"); root.classList.remove("closing"); root.innerHTML = ""; }, 380);
 }
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSummary(); $("trials-menu").classList.add("hidden"); } });

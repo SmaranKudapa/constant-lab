@@ -99,3 +99,24 @@
 .lbl.say.helped { border-color: #2f9e52; } .lbl.say.hurt { border-color: #d43a4b; }
 .lbl.role { font-size: 8px; opacity: .9; }
 .role-badge { display: inline-block; font-family: var(--px); font-size: 9px; color: var(--ink); background: var(--hi); border: 2px solid var(--edge); padding: 4px 7px; margin: 0 0 8px; }
+
+/* ---------- selection panel on the left ---------- */
+#selected.panel { position: fixed; top: 108px; left: 10px; width: 340px; max-height: calc(100vh - 290px); overflow-y: auto; z-index: 11; padding: 10px; border-bottom: 3px solid var(--edge); }
+@media (max-width: 760px) { #selected.panel { width: calc(100vw - 20px); max-height: 30vh; } }
+#osm-credit { position: fixed; right: 400px; bottom: 6px; font-size: 10px; color: var(--ink); background: rgba(255, 255, 255, .7); padding: 1px 5px; z-index: 8; }
+#side.collapsed ~ #osm-credit { right: 10px; }
+
+/* ---------- hover name ---------- */
+#hover-tip { position: fixed; z-index: 35; pointer-events: none; font-family: var(--px); font-size: 9px; color: var(--ink); background: var(--hi);
+  border: 2px solid var(--edge); box-shadow: 3px 3px 0 var(--edge); padding: 5px 7px; white-space: nowrap; }
+
+/* ---------- LIVE / DEMO badge ---------- */
+#demo-banner { font-family: var(--px); font-size: 9px; padding: 5px 9px; }
+#demo-banner.live { background: var(--green); }
+
+/* ---------- popup policy tab ---------- */
+.rp-sec { background: var(--ink); border: 2px solid var(--edge); border-left: 4px solid var(--hi); padding: 10px 14px; margin-bottom: 10px; }
+.rp-sec .rp-h { margin: 0 0 6px; }
+.rp-why { border-left-color: var(--green); }
+.rp-why .rp-h { color: var(--green); }
+.rp-lead { margin: 0; font-size: 15px; line-height: 1.5; }

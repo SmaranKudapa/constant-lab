@@ -67,7 +67,7 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
-let trialPrompt = "", briefAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
+let trialPrompt = "", briefAt = 0, doneAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
@@ -139,6 +139,7 @@ async function makeTown(name, real = false) {
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
   endCelebration(); summaryDone = true; hover.set(null);
+  $("mode-badge").classList.add("hidden");
   $("log").innerHTML = "";
   startReplay(null);
   buildLabels();
@@ -227,7 +228,7 @@ function finishTrial() {
   summaryDone = true;
   const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
   remember(sum);
-  openSummary(sum, screenOf(winningPlace()));
+  openSummary(sum, screenOf(winningPlace()), endCelebration);
 }
 
 // ---------- residents' point of view: short reaction bubbles ----------
@@ -363,7 +364,15 @@ canvas.addEventListener("pointerup", (e) => {
 });
 let hoverAt = null;
 canvas.addEventListener("pointermove", (e) => { hoverAt = e.buttons ? null : { x: e.clientX, y: e.clientY }; });
-canvas.addEventListener("pointerleave", () => { hoverAt = null; hover.set(null); });
+canvas.addEventListener("pointerleave", () => { hoverAt = null; hover.set(null); tip.classList.add("hidden"); });
+const tip = $("hover-tip");
+function pickName(p) {
+  if (p.kind === "resident") { const v = views[p.id]; return v ? `${v.data.name} · ${roleOf(v.data)}` : ""; }
+  if (p.kind === "researcher") { const r = researchers[p.id]; return r ? `${r.spec.name} · ${r.spec.role}` : ""; }
+  if (p.kind === "building") { const b = town.byId[p.id]; return b ? b.name : ""; }
+  if (p.kind === "station") { const st = heaven.stations[p.id]; return st ? st.label : ""; }
+  return "";
+}
 let lastHover = 0;
 function updateHover(t) {
   if (!inTown || !$("landing").classList.contains("hidden")) { hover.set(null); return; }
@@ -372,7 +381,11 @@ function updateHover(t) {
     lastHover = now;
     const hit = pickAt(hoverAt.x, hoverAt.y);
     hover.set(hit ? pickRoot(hit) : null);
-  } else if (!hoverAt) hover.set(null);
+    const name = hit ? pickName(hit.pick) : "";
+    tip.textContent = name;
+    tip.classList.toggle("hidden", !name);
+  } else if (!hoverAt) { hover.set(null); tip.classList.add("hidden"); }
+  if (hoverAt) { tip.style.left = `${hoverAt.x + 14}px`; tip.style.top = `${hoverAt.y + 16}px`; }
   hover.update(t);
 }
 
@@ -393,7 +406,6 @@ function renderSelected() {
   const el = $("selected");
   if (!selected) { el.classList.add("hidden"); el._html = null; marker.visible = false; return; }
   el.classList.remove("hidden");
-  $("side").classList.remove("collapsed");
   let html = "";
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
@@ -503,11 +515,10 @@ $("prompt-form").addEventListener("submit", (e) => {
 // Live mode: the backend (Modal) runs the research loop when TOWN_TRIAL_API is set.
 // Any network error offers to continue in demo mode, which needs no backend.
 let liveDisabled = false;
-const DEMO_BANNER = $("demo-banner").textContent;
-const LIVE_BANNER = "LIVE: research loop on the backend. Scripted steps and FIXTURE sources are labelled in the log.";
 function setBanner(live) {
-  $("demo-banner").textContent = (devMode ? "DEV MODE (DEV67): sample town, scripted demo loop, no backend. " : "") + (live ? LIVE_BANNER : DEMO_BANNER) +
-    (townSpec ? " · REAL TOWN (streets schematic) · Map data © OpenStreetMap contributors" : "");
+  $("demo-banner").textContent = live ? "LIVE" : "DEMO";
+  $("demo-banner").classList.toggle("live", live);
+  $("osm-credit").classList.toggle("hidden", !townSpec); // OpenStreetMap's licence asks for this credit wherever its data is shown
 }
 function startTrial(prompt) {
   if (window.TOWN_TRIAL_API && !liveDisabled) { startLiveTrial(prompt); return; }
@@ -553,7 +564,7 @@ function beginTrial(m) {
   mode = m;
   endCelebration();
   closeSummary();
-  briefAt = 0; summaryDone = false;
+  briefAt = 0; doneAt = 0; summaryDone = false;
   openWhy.clear();
   events = [];
   $("log").innerHTML = "";
@@ -637,7 +648,10 @@ function frame() {
   for (const r of Object.values(researchers)) r.update(dt);
   for (const v of Object.values(views)) v.cheer = cheering;
   celebration.update(dt);
-  if (!summaryDone && briefAt && research && research.done() && performance.now() - briefAt > (cheering ? 3800 : 1200)) finishTrial();
+  if (!summaryDone && briefAt && research && research.done()) {  // finished: let the celebration play for 3 s, then show the results
+    if (!doneAt) { doneAt = performance.now(); $("mode-badge").classList.add("hidden"); }
+    if (performance.now() - doneAt >= 3000) finishTrial();
+  }
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
   heaven.update(dt, t);
   lighting();

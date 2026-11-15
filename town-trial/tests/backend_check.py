@@ -97,6 +97,8 @@ _v = [e for e in evs if e["type"] == "VOICES"]
 check("town fallback: resident voices before the brief, one per group, labelled", len(_v) == 1 and _v[0]["scripted"] and len(_v[0]["voices"]) >= 5
       and all(v["stance"] in ("helped", "hurt", "unchanged") and v["quote"] and v["role"] for v in _v[0]["voices"])
       and evs.index(_v[0]) < next(i for i, e in enumerate(evs) if e["type"] == "BRIEF"), str([v["stance"] for v in _v[0]["voices"]]) if _v else "none")
+_b = [e for e in evs if e["type"] == "BRIEF"]
+check("town fallback: brief explains what the policy does and why it wins", bool(_b) and bool(_b[-1].get("what")) and bool(_b[-1].get("reasoning")), (_b[-1].get("reasoning") or "")[:120] if _b else "")
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
 # the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
 e0 = exps["E0"]

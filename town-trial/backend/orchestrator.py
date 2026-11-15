@@ -314,10 +314,10 @@ class Trial:
         best = max(feasible, key=self.value)
         self.set(best, best=True)
         base = self.exps[0]
-        b = self.write_brief(best, base)
         self.emit_voices(best, base)
+        b = self.write_brief(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
-                  summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"])
+                  summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], what=b["what"], reasoning=b["reasoning"])
         self.after_brief(best)
 
     # ---------- resident voices ----------
@@ -329,6 +329,7 @@ class Trial:
         """How each group of residents would react to the recommended policy. Stances come from simulator numbers; words are LLM or scripted."""
         from agents import voices as V
         rows = V.facts(best, base, self.mode == "perception" or bool(getattr(self, "awareness", False)))
+        self.voice_rows = rows
         vs, scripted = self.voices(rows, best)
         self.emit("VOICES", agent="eli", say="Asking residents how it lands", exp=best["id"], base=base["id"], voices=vs, scripted=scripted,
                   note=("Scripted quotes" if scripted else "Quotes written by the LLM") + " from simulator numbers (each group's stance is "
@@ -337,9 +338,24 @@ class Trial:
     def after_brief(self, best: dict) -> None:
         """Hook for the live loop (watched-run replay into past.dev)."""
 
+    def who_text(self) -> str:
+        """Per-group effect of the recommended policy (simulator numbers), for the brief."""
+        rows = getattr(self, "voice_rows", None) or []
+        return "; ".join(f"{r['label']}: {r['stance']} ({r['before']} -> {r['after']} {r['unit']})" for r in rows) or "not computed"
+
+    def scripted_explain(self, best: dict, base: dict) -> dict:
+        rows = getattr(self, "voice_rows", None) or []
+        names = lambda st: [r["label"].lower() for r in rows if r["stance"] == st]  # noqa: E731
+        helped, same = names("helped"), names("unchanged")
+        what = f"{best['label']}: {best['change']}. Everything else stays as it is today."
+        reasoning = (f"It does best on {self.P['label']} ({self.fmt(best)} vs {self.fmt(base)} today). "
+                     + (f"The gain comes from {', '.join(helped)}, whose schedules the change now fits" if helped else "No single group gains much")
+                     + (f"; {', '.join(same)} see little difference." if same else "."))
+        return {"what": what, "reasoning": reasoning}
+
     def write_brief(self, best: dict, base: dict) -> dict:
         service = self.mode == "service"
-        return {
+        return {**self.scripted_explain(best, base),
             "summary": f"{best['label']}: {self.fmt(best)} vs {self.fmt(base)} for current practice ({self.P['label']}).",
             "assumptions": "Arrival patterns are synthetic; staffing cap from a fixture source." if service else "Channel use and word-of-mouth rates are synthetic.",
             "pilot": "Pilot for 4 weeks; count evening visitors and ask whether they could have come before 18:00." if service

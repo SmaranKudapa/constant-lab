@@ -639,6 +639,7 @@ class LiveTrial(Trial):
         sourced = [e for e in self.evidence if not str(e["url"]).startswith("fixture://")]
         ctx = (f"Recommended: {best['id']} {best['label']} ({best['change']}). {summary}\nAll results: {self.results_text()}\n"
                f"Held-out test: {json.dumps(self.held_out_table)}\nConstraints: {self.constraints_text()}\nLocal sources: {self.evidence_text()}\n"
+               f"Effect per resident group (simulator): {self.who_text()}\n"
                f"Inputs that are synthetic: resident schedules, arrival and word-of-mouth rates (model defaults). "
                + (f"The recommended policy assumes these channels exist without a local source: {', '.join(self.assumed(best['policy']))}. "
                   if self.mode == "perception" and self.assumed(best["policy"]) else "")
@@ -647,9 +648,10 @@ class LiveTrial(Trial):
         out, err = self.attempt("bo", "brief", lambda e: self.bo.brief(self.mode, ctx))
         if err:
             self.fallback_note("bo", "Writing the brief", err)
-            return {"summary": summary, "scripted": True,
+            return {"summary": summary, "scripted": True, **self.scripted_explain(best, base),
                     "assumptions": f"Resident schedules and arrival/word-of-mouth rates are synthetic. Constraints: {self.constraints_text()}. "
                                    f"Sources: {self.evidence_text()}",
                     "pilot": "Pilot for 4 weeks and count who uses the change; compare with the simulated cohorts." if self.mode == "service"
                     else "Try the channel for 2 weeks and survey parents at pickup."}
-        return {"summary": f"{summary} {out['why']}", "assumptions": out["assumptions"], "pilot": out["pilot"], "scripted": False}
+        return {"summary": f"{summary} {out['why']}", "assumptions": out["assumptions"], "pilot": out["pilot"], "what": out["what"],
+                "reasoning": out["reasoning"], "scripted": False}
