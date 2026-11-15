@@ -172,11 +172,13 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       const sweep = options.slice(0, SWEEP_BUDGET).map((c, k) => ({ id: `S${k + 1}`, policy: { hours: hoursWith(c) }, change: hoursText(hoursWith(c)) }));
       let best = null;
       for (const s of sweep) { s.result = runBatch({ town, residents, mode, policy: s.policy, seeds: [...Array(SEEDS).keys()], days }); if (!best || s.result.mean[P.key] > best.result.mean[P.key]) best = s; }
-      const SW = exp({ id: "SW", label: `Sweep best of ${SWEEP_BUDGET}`, role: "sweep", parent: "E0", policy: best.policy, change: best.change });
+      const tried = sweep.map((s) => ({ key: s.id, change: s.change, score: s.result.mean[P.key], value: `${s.result.mean[P.key].toFixed(1)}${P.unit}`, ok: true, best: s === best }))
+        .sort((a, b) => b.score - a.score);
+      const SW = exp({ id: "SW", label: `Best of ${SWEEP_BUDGET} auto-tried options`, role: "sweep", parent: "E0", policy: best.policy, change: best.change, tried });
       run(SW);
       const OS = exp({ id: "OS", label: "One-shot proposal", role: "oneshot", parent: "E0", policy: { hours: hoursWith([[5, H(12), H(20)]]) }, change: "Sat 12:00-20:00 (single proposal, no feedback)" });
       run(OS);
-      emit("RUN_DONE", { agent: "dee", exp: "SW", metric: P.key, value: fmt(SW), note: `best of ${SWEEP_BUDGET} sweep configs` });
+      emit("RUN_DONE", { agent: "dee", exp: "SW", metric: P.key, value: fmt(SW), note: `best of ${SWEEP_BUDGET} auto-tried options`, tried });
       emit("RUN_DONE", { agent: "dee", exp: "OS", metric: P.key, value: fmt(OS) });
     }, 2.5);
     heldOutAndBrief(() => [E0, E1, exps.find((x) => x.id === "SW"), exps.find((x) => x.id === "OS"), [E3, E4].sort((a, b) => b.result.mean[P.key] - a.result.mean[P.key])[0]]);
@@ -238,12 +240,15 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     act(() => {
       const combos = [["online", "board"], ["online", "bulletin"], ["online", "board", "bulletin"], ["board"], ["bulletin"], ["online"]].slice(0, SWEEP_BUDGET);
       let best = null;
-      for (const c of combos) { const r = runBatch({ town, residents, mode, policy: { channels: c }, seeds: [...Array(SEEDS).keys()], days }); if (!best || r.mean[P.key] > best.r.mean[P.key]) best = { c, r }; }
-      const SW = exp({ id: "SW", label: `Sweep best of ${combos.length}`, role: "sweep", parent: "P0", policy: { channels: best.c }, change: best.c.join(" + ") });
+      const all = [];
+      for (const c of combos) { const r = runBatch({ town, residents, mode, policy: { channels: c }, seeds: [...Array(SEEDS).keys()], days }); all.push({ c, r }); if (!best || r.mean[P.key] > best.r.mean[P.key]) best = all[all.length - 1]; }
+      const tried = all.map((o, k) => ({ key: `S${k + 1}`, change: o.c.join(" + "), score: o.r.mean[P.key], value: `${o.r.mean[P.key].toFixed(1)}${P.unit}`, ok: true, best: o === best }))
+        .sort((a, b) => b.score - a.score);
+      const SW = exp({ id: "SW", label: `Best of ${combos.length} auto-tried options`, role: "sweep", parent: "P0", policy: { channels: best.c }, change: best.c.join(" + "), tried });
       run(SW);
       const OS = exp({ id: "OS", label: "One-shot proposal", role: "oneshot", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + flyers (no feedback)" });
       run(OS);
-      emit("RUN_DONE", { agent: "dee", exp: "SW", metric: P.key, value: fmt(SW), note: `best of ${combos.length} channel combos (uses 3 channels)` });
+      emit("RUN_DONE", { agent: "dee", exp: "SW", metric: P.key, value: fmt(SW), note: `best of ${combos.length} auto-tried channel combos`, tried });
     }, 2.5);
     heldOutAndBrief(() => [P0, exps.find((x) => x.id === "SW"), exps.find((x) => x.id === "OS"), [P1, P2].sort((a, b) => b.result.mean[P.key] - a.result.mean[P.key])[0]]);
   }
@@ -266,7 +271,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
         }
         return row;
       });
-      const roleName = { baseline: "current practice", user: "your idea", sweep: "parameter sweep", oneshot: "one-shot", revision: "iterative agent" };
+      const roleName = { baseline: "current practice", user: "your idea", sweep: "auto-tried options", oneshot: "one-shot", revision: "iterative agent" };
       const heldOut = { finalists: finalists.map((f) => ({ id: f.id, label: f.label, role: roleName[f.role] || f.role, feasible: f.status !== "infeasible" })), table, metric: P.label };
       exps.heldOut = heldOut;
       onChange();

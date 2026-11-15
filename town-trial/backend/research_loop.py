@@ -624,7 +624,7 @@ class LiveTrial(Trial):
                   workers=len(self.runner.plan(jobs)), where=self.runner.where)
         out = self.fanout(jobs)
         best = max(sweep, key=lambda s: out["results"][s["key"]]["mean"][P["key"]])
-        SW = self.exp(id="SW", label=f"Sweep best of {len(sweep)}", role="sweep", parent=self.exps[0]["id"], policy=best["policy"],
+        SW = self.exp(id="SW", label=f"Best of {len(sweep)} auto-tried options", role="sweep", parent=self.exps[0]["id"], policy=best["policy"],
                       change=self.change_of(best["policy"]))
         self.set(SW, result=out["results"][best["key"]], status="done" if self.feasible(SW) else "infeasible")
         self.set(OS, result=out["results"]["OS"], status="done" if self.feasible(OS) else "infeasible")

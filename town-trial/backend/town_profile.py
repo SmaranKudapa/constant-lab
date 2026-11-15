@@ -11,7 +11,7 @@ import time
 
 from agents.llm import strict
 
-PROFILE_VERSION = 2
+PROFILE_VERSION = 3  # v3: a second, targeted budget search when the first finds no verified total
 BUILD_CAP_S = 45  # max seconds a trial waits for a first-visit profile
 
 BUDGET = strict({
@@ -84,9 +84,14 @@ def build(city: str, ada, spec: dict | None) -> dict:
         if url and url not in {s["url"] for s in prof["sources"]}:
             prof["sources"].append({"url": url, "title": r.get("title") or url, "published": str(r.get("published") or "")[:10] or None})
 
-    # 1. Budget documents
-    res = search(f"{city} annual budget fiscal year general fund revenues expenditures departments")
-    if res:
+    # 1. Budget documents: a broad search, then a targeted one for the adopted total if the first has no verified figure
+    for q in (f"{city} annual budget fiscal year general fund revenues expenditures departments",
+              f"{city} city adopted budget total appropriations general fund million"):
+        if prof["budget"]:
+            break
+        res = search(q)
+        if not res:
+            continue
         try:
             out = ada.llm.json("town_budget", BUDGET, ada.SYSTEM, f"From the sources, extract {city}'s current municipal budget. Use only stated figures; "
                                f"leave anything not stated empty or null. Distinguish money budgeted (appropriated) from money actually unspent.\n\n{ada._sources(res)}")
@@ -95,6 +100,7 @@ def build(city: str, ada, spec: dict | None) -> dict:
                 prof["budget"] = {k: chk[k] for k in ("fiscal_year", "total_budget_usd", "total_kind", "revenue_sources", "departments", "restricted_funds", "balances")}
                 prof["budget"].update(url=chk["url"], published=chk.get("published"), quote=chk["quote"][:300], check=chk.get("check"))
                 src(chk["url"], res)
+                prof["missing"] = [m for m in prof["missing"] if not m.startswith("budget")]
             elif chk:
                 prof["missing"].append(f"budget ({chk.get('check')})")
         except Exception as ex:
@@ -165,3 +171,53 @@ def budget_docs(prof: dict | None) -> list[dict]:
     for x in (b.get("balances") or [])[:4]:
         out.append({"statement": f"{x['kind']}: {x['fund']} {usd(x.get('amount_usd'))}", "kind": x["kind"], "amount": x.get("amount_usd"), "url": url, "published": pub})
     return out
+
+
+# ---------- built as soon as the town loads (so the budget is in the top bar before any trial) ----------
+def _status_key(city: str) -> str:
+    return _key(city) + ":status"
+
+
+def public(prof: dict) -> dict:
+    """The fields the browser shows (same shape as the TOWN_PROFILE event)."""
+    return {"cached": True, "built": prof.get("built"), "budget": prof.get("budget") or None, "channels": prof.get("channels", []),
+            "places": prof.get("places", []), "exa_only_places": prof.get("exa_only_places", []), "sources": prof.get("sources", []),
+            "missing": prof.get("missing", [])}
+
+
+def build_into(city: str, cache) -> None:
+    """Build the profile with its own small search budget and cache it (or the error). Runs in the background."""
+    try:
+        if cached(city, cache):
+            cache[_status_key(city)] = {"state": "ready", "t": time.time()}
+            return
+        from agents.ada import Ada
+        from agents.llm import LLM, Budget
+        from towns import norm_key
+        spec = cache.get(norm_key(city), None)
+        pb = Budget(exa=4, llm=4)
+        ada = Ada(pb, LLM(pb))
+        if not ada.available:
+            raise RuntimeError("Exa search is unavailable")
+        if spec and spec.get("display_name"):  # place check: town, county, state from the geocoded name
+            parts = [p.strip().lower() for p in spec["display_name"].split(",")[:3] if p.strip()]
+            ada.place_terms = [p.replace(" county", "") if p.endswith(" county") else p for p in parts]
+        cache[_key(city)] = build(city, ada, spec)
+        cache[_status_key(city)] = {"state": "ready", "t": time.time()}
+    except Exception as ex:
+        cache[_status_key(city)] = {"state": "error", "t": time.time(), "error": f"{type(ex).__name__}: {str(ex)[:160]}"}
+
+
+def lookup(city: str, cache, start_build) -> dict:
+    """Non-blocking: {"status": "ready", "profile"} | {"status": "building"} | {"status": "error", "error"}."""
+    prof = cached(city, cache)
+    if prof:
+        return {"status": "ready", "profile": public(prof)}
+    st = cache.get(_status_key(city), None) or {}
+    age = time.time() - st.get("t", 0)
+    if st.get("state") == "error" and age < 120:
+        return {"status": "error", "error": st["error"]}
+    if st.get("state") != "building" or age > 240:
+        cache[_status_key(city)] = {"state": "building", "t": time.time()}
+        start_build(city)
+    return {"status": "building"}

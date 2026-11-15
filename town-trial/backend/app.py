@@ -62,6 +62,12 @@ def build_town(city: str) -> None:
     build_into(city, towns_dict)
 
 
+@app.function(secrets=secrets, timeout=300)
+def build_profile(city: str) -> None:
+    from town_profile import build_into
+    build_into(city, towns_dict)
+
+
 @app.function(secrets=secrets, timeout=1800)
 def run_trial(trial_id: str, city: str, prompt: str, mode: str, options: dict | None = None) -> None:
     from events import EventStore
@@ -86,4 +92,5 @@ def web():
     def start(**kw):
         run_trial.spawn(**kw)
 
-    return create_app(EventStore(events_dict), start, towns_cache=towns_dict, start_town_build=lambda c: build_town.spawn(c))
+    return create_app(EventStore(events_dict), start, towns_cache=towns_dict, start_town_build=lambda c: build_town.spawn(c),
+                      start_profile_build=lambda c: build_profile.spawn(c))

@@ -1,6 +1,6 @@
 // Results popup: trial question, key numbers, then tabs (why it wins / steps / other experiments).
 // Also the TRIALS history: every trial finished in this visit, reopenable. Kept in memory only, so a refresh clears it.
-import { esc, link, AGENT_COLOR, AGENTS } from "./ui.js";
+import { esc, link, AGENT_COLOR, AGENTS, triedHTML } from "./ui.js";
 
 const $ = (id) => document.getElementById(id);
 let history = [];
@@ -67,7 +67,7 @@ function stepsHTML(s) {
 function othersHTML(s) {
   if (!s.others.length) return `<p class="rp-dim">No other experiments.</p>`;
   return s.others.map((o) => `<div class="rp-other st-${esc(o.status)}"><div class="rp-otop"><b>${esc(o.id)}</b> ${esc(o.label)}<span class="rp-ostat">${esc(o.status.toUpperCase())}</span><span class="rp-oval">${esc(o.text)}</span></div>
-    <div class="rp-dim">${esc(o.role)} · ${esc(o.why)}</div></div>`).join("");
+    <div class="rp-dim">${esc(o.role)} · ${esc(o.why)}</div>${o.tried ? triedHTML(o.tried, null, true) : ""}</div>`).join("");
 }
 
 // Digits roll like a slot machine before settling on the real value.
