@@ -18,13 +18,49 @@ export function createRitual(scene, { altarWorld }) {
   const dome = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xbff6ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })));
   dome.visible = false;
   const flash = add(new THREE.PointLight(0xbff6ff, 0, 60, 1.5));
+  // A scroll rides the beam down, lands like a ragdoll (tumbling, bouncing), then shrinks away
+  const scroll = new THREE.Group();
+  const parch = new THREE.MeshLambertMaterial({ color: 0xf6e7c1, emissive: 0xffe2a0, emissiveIntensity: 0.35 });
+  const gold = new THREE.MeshLambertMaterial({ color: 0xffd34d, emissive: 0xffc23a, emissiveIntensity: 0.4 });
+  const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 4.4, 10), parch); roll.rotation.z = Math.PI / 2; scroll.add(roll);
+  for (const x of [-2.4, 2.4]) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.45, 10), gold); c.rotation.z = Math.PI / 2; c.position.x = x; scroll.add(c); }
+  const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.5, 1.5), new THREE.MeshLambertMaterial({ color: 0xd94a5a })); scroll.add(ribbon);
+  scroll.visible = false; add(scroll);
+  const rag = { on: false, v: new THREE.Vector3(), w: new THREE.Vector3(), t: 0 };
+  function scrollUpdate(dt, down, landed) {
+    if (!landed) {  // riding the beam
+      scroll.visible = true; scroll.scale.setScalar(1);
+      scroll.position.copy(end); scroll.position.y += 1.5;
+      scroll.rotation.x += dt * 6; scroll.rotation.y += dt * 3;
+      return;
+    }
+    if (!rag.on) {  // impact: thrown off with a random tumble
+      rag.on = true; rag.t = 0;
+      scroll.position.set(target.x, 1.5, target.z);  // starts from where the beam hits
+      const a = Math.random() * Math.PI * 2;
+      rag.v.set(Math.cos(a) * 7, 9, Math.sin(a) * 7);
+      rag.w.set((Math.random() - 0.5) * 14, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 14);
+    }
+    rag.t += dt;
+    rag.v.y -= 32 * dt;
+    scroll.position.addScaledVector(rag.v, dt);
+    if (scroll.position.y < 0.7) {  // bounce, losing energy, spin damped by the ground
+      scroll.position.y = 0.7;
+      rag.v.y = Math.abs(rag.v.y) * 0.38; rag.v.x *= 0.6; rag.v.z *= 0.6; rag.w.multiplyScalar(0.55);
+    }
+    scroll.rotation.x += rag.w.x * dt; scroll.rotation.y += rag.w.y * dt; scroll.rotation.z += rag.w.z * dt;
+    const shrink = rag.t > 1.1 ? Math.max(0, 1 - (rag.t - 1.1) / 0.3) : 1;  // then it disappears quickly by shrinking
+    scroll.scale.setScalar(shrink);
+    if (shrink <= 0) { scroll.visible = false; }
+  }
   let t = -1, target = new THREE.Vector3(), shake = 0;
   const top = altarWorld.clone(), end = new THREE.Vector3(), dir = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
 
   return {
     get shake() { return shake; },
+    get scroll() { return scroll; },  // for tests
     // Fire the beam from the altar to a point in town; delay lets the scroll land first.
-    fire(to, delay = 0.35) { target.set(to.x, 0, to.z); t = -delay; },
+    fire(to, delay = 0.35) { target.set(to.x, 0, to.z); t = -delay; rag.on = false; scroll.visible = false; },
     update(dt) {
       shake = Math.max(0, shake - dt * 2.2);
       if (t === -1 && !beam.visible) return;
@@ -41,6 +77,7 @@ export function createRitual(scene, { altarWorld }) {
         m.scale.set(1, len, 1);
       }
       const hit = t - 0.35;                             // impact: shockwave rings, dome flash, light
+      if (!rag.on || scroll.visible) scrollUpdate(dt, down, hit >= 0);
       const fade = hit < 0 ? 1 : Math.max(0, 1 - hit / 1.6);
       beamMat.opacity = 0.55 * fade; coreMat.opacity = 0.95 * fade;
       if (hit >= 0) {
@@ -56,7 +93,7 @@ export function createRitual(scene, { altarWorld }) {
         dome.visible = u < 1; dome.position.copy(target); dome.scale.setScalar(2 + u * 18); dome.material.opacity = (1 - u) * 0.5;
         flash.position.set(target.x, 6, target.z); flash.intensity = Math.max(0, 1 - hit / 0.8) * 1800;
       }
-      if (hit > 1.8) { beam.visible = core.visible = false; rings.forEach((r) => (r.visible = false)); dome.visible = false; flash.intensity = 0; t = -1; }
+      if (hit > 1.8 && !scroll.visible) { beam.visible = core.visible = false; rings.forEach((r) => (r.visible = false)); dome.visible = false; flash.intensity = 0; t = -1; }
     },
   };
 }

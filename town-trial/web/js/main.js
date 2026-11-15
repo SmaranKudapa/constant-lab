@@ -19,7 +19,8 @@ import { createSky } from "./sky.js";
 import { openAudienceGraph } from "./graphs.js";
 import { createRitual } from "./ritual.js";
 
-const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
+let PIX = 3;              // render at 1/3 resolution, scale up with nearest-neighbour (the PX button switches to full resolution)
+try { if (localStorage.getItem("tt-pix") === "off") PIX = 1; } catch (e) { /* storage blocked */ }
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
 const START_TICK = 7 * 6; // start the replay at Mon 07:00
 const $ = (id) => document.getElementById(id);
@@ -64,6 +65,16 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resize);
+// Pixel art on/off: render at 1/3 resolution (pixelated) or at full CSS resolution (not retina, to stay light)
+function setPix(on) {
+  PIX = on ? 3 : 1;
+  $("toggle-pix").classList.toggle("active", on);
+  try { localStorage.setItem("tt-pix", on ? "on" : "off"); } catch (e) { /* storage blocked */ }
+  resize();
+}
+document.getElementById("toggle-pix").addEventListener("click", () => setPix(PIX < 3));
+document.getElementById("toggle-pix").classList.toggle("active", PIX === 3);
+
 resize();
 
 // ---------- state ----------
@@ -86,7 +97,7 @@ const ritual = createRitual(scene, { altarWorld: heaven.altarWorld });
 let pendingRitual = null;
 // Gods are twice human size with wings: keep every pair at least a wingspan apart, and move a god's walking target off
 // any spot another god holds, so two gods sent to the same station settle side by side instead of overlapping.
-const GOD_GAP = 5.2;
+const GOD_GAP = 2.6 * ANGEL_SCALE;  // a wingspan
 function clearSpot(t, o, nx, nz) {  // push target t to GOD_GAP from point o (along o->t, or along n if they coincide)
   let dx = t.x - o.x, dz = t.z - o.z, d = Math.hypot(dx, dz);
   if (d >= GOD_GAP) return;
@@ -299,10 +310,27 @@ function screenOf(p) {
   const v = new THREE.Vector3(p.x, 4, p.z).project(camera);
   return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight };
 }
+// Lesson Forge: one row per finished trial in this page session (how much the gods improved on today's practice, how
+// far they beat the auto-tried options, and which earlier trials' lessons they read). Kept in memory only.
+const forgeLog = [];
+function forgeEntry() {
+  const P = research.primary || {}, ex = research.exps.filter((x) => x.result);
+  const val = (x) => UI.metricOf(x, P), dir = /min/i.test(P.direction || "") ? -1 : 1;
+  const base = ex.find((x) => x.role === "baseline"), best = ex.find((x) => x.best), sw = ex.find((x) => x.role === "sweep");
+  const agents = ex.filter((x) => x.role === "revision" && x.status === "done");
+  const top = agents.length ? agents.reduce((a, b) => (dir * val(b) > dir * val(a) ? b : a)) : null;
+  const rel = (a, b) => (a && b && val(b) ? (dir * (val(a) - val(b))) / Math.abs(val(b)) * 100 : null);
+  const reads = events.filter((e) => e.type === "MEMORY_READ" && /^(lesson|cy-notes)-/.test(e.source_id || ""));
+  return { n: forgeLog.length + 1, prompt: trialPrompt, city: town.name, metric: P.label || "", live: !!research.id,
+    gain: rel(best, base), vsAuto: rel(top, sw), unit: P.unit || "",
+    gainAbs: best && base ? dir * (val(best) - val(base)) : null, vsAutoAbs: top && sw ? dir * (val(top) - val(sw)) : null, rounds: events.filter((e) => e.type === "CHAIN").length, tried: research.exps.length,
+    best: best ? `${best.id} · ${best.label}` : "no recommendation", lessons: reads.map((e) => ({ by: e.agent, author: e.author, claim: e.claim })) };
+}
 function finishTrial() {
   summaryDone = true;
   const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
   remember(sum);
+  try { forgeLog.push(forgeEntry()); heaven.setForgeLevel(forgeLog.length); if (researchers.cy) researchers.cy.moveTo(heaven.stations.forge.stand); } catch (e) { console.warn("forge", e); }
   openSummary(sum, screenOf(winningPlace()), endCelebration);
 }
 
@@ -496,6 +524,7 @@ function renderSelected() {
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
   else if (selected.kind === "researcher" && selected.id === "eli") html = UI.pastDevHTML(researchers.eli.spec, events, mode || "service", model, residents, !!(research && research.awareness));
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
+  else if (selected.kind === "station" && selected.id === "forge") html = UI.forgeHTML(forgeLog, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
   else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events, townProfile);
   if (el._html !== html) { const top = el.scrollTop; el.innerHTML = html; el._html = html; el.scrollTop = top; }
@@ -703,7 +732,6 @@ function renderBanner() {
 function setBanner(live) {
   bannerLive = live;
   renderBanner();
-  $("osm-credit").classList.toggle("hidden", !townSpec); // OpenStreetMap's licence asks for this credit wherever its data is shown
 }
 function startTrial(prompt) {
   if (window.TOWN_TRIAL_API && !liveDisabled) { startLiveTrial(prompt); return; }
@@ -919,7 +947,7 @@ function frameBody() {
 }
 
 // Debug handle for tests and the console
-window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, researchers, fingerprint: () => townFingerprint(town, residents) };
+window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, researchers, ritual, fingerprint: () => townFingerprint(town, residents) };
 
 initHistory();
 

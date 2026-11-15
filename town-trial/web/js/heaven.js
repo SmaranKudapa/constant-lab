@@ -7,7 +7,7 @@ export const HEAVEN_Y = 72;
 export const RESEARCHERS = [
   { id: "exa", name: "Exa Dude", role: "Research god", does: "Searches the web with Exa for local facts, budget records and similar towns, and checks every claim against its source passage, place and date.", robe: 0x59c2ff, skin: 0xf1c7a5, hair: 0x2b1d14, station: "lookout" },
   { id: "bo", name: "Bo", role: "Designer", does: "Turns the idea into allowed policy actions and proposes revisions.", robe: 0xffd34d, skin: 0xb07a55, hair: 0x1b1530, station: "drafting" },
-  { id: "cy", name: "Cy", role: "Reviewer", does: "Checks causal assumptions and blocks unsupported changes.", robe: 0xff9f43, skin: 0xd9a07a, hair: 0xb3412f, station: "court" },
+  { id: "cy", name: "Cy", role: "Reviewer", does: "Checks causal assumptions and blocks unsupported changes. Runs the Lesson Forge: what won and what failed in each trial is saved to past.dev and read back by the next trial.", robe: 0xff9f43, skin: 0xd9a07a, hair: 0xb3412f, station: "court" },
   { id: "dee", name: "Dee", role: "Runner", does: "Fans experiments out to Modal workers and collects results.", robe: 0x5be37d, skin: 0x8a5a3c, hair: 0x5a3a22, station: "portal" },
   { id: "eli", name: "Past Dev", role: "Memory & audiences god", does: "Keeps the team's shared memory in past.dev (evidence, handoffs between gods, decisions) and the residents' identities and audiences: who has heard what, and when.", robe: 0xff7ad9, skin: 0xf5d6c0, hair: 0xe0c068, station: "archive" },
   { id: "treasurer", name: "Treasurer", role: "Budget god", does: "Costs every proposal line by line and checks it against the town's sourced budget: a funding source, a gap, or budget unverified. Advises only; never changes the budget.", robe: 0xe8c24a, skin: 0xc68e62, hair: 0x2b2b2b, station: "treasury" },
@@ -105,7 +105,7 @@ export function buildHeaven(scene) {
     g.traverse((o) => { if (o.isMesh) o.userData.pick = { kind: "station", id }; });
     group.add(g);
     const len = Math.hypot(x, z) || 1;
-    stations[id] = { id, x, z, label, stand: { x: x - (x / len) * 7, z: z - (z / len) * 7 }, labelY: HEAVEN_Y + 10 };
+    stations[id] = { id, x, z, label, stand: { x: x - (x / len) * 9, z: z - (z / len) * 9 }, labelY: HEAVEN_Y + 12 };
   };
 
   station("archive", -13, -10, "PAST.DEV ARCHIVE", (g) => {
@@ -146,6 +146,37 @@ export function buildHeaven(scene) {
     g.add(box(4, 0.7, 4, 0, 0, 5.5, 0, goldM));
     for (let k = 0; k < 4; k++) g.add(box(0.9, 0.3 + k * 0.25, 0.9, 0, -2.4 + k * 1.6, 0.6, 3.6, goldM)); // coin stacks
   });
+  // Lesson Forge (Cy): where each finished trial's lessons are forged into the next one. One gold ingot per trial this session.
+  const forge = { gear: null, smoke: [], ingots: [], level: 0, glow: null, flash: 0 };
+  station("forge", 21, 0, "LESSON FORGE", (g) => {
+    const copper = 0xd9773a, brick = 0xb5532f, dark = 0x3a2a35;
+    g.add(box(8, 0.6, 7, 0xffffff));
+    g.add(box(6.4, 4.4, 5.4, brick, 0, 0.6, 0));
+    for (let k = 0; k < 3; k++) { const r = box(2.1, 1.2, 5.6, copper, -2.15 + k * 2.15, 5, 0); r.rotation.z = 0.5; g.add(r); }  // sawtooth roof
+    g.add(box(1.3, 5, 1.3, dark, 2.4, 5, -1.6));  // chimney
+    const furnace = new THREE.MeshLambertMaterial({ color: 0xff9f43, emissive: 0xff7a1a, emissiveIntensity: 1 });
+    forge.glow = box(2.4, 1.8, 0.2, 0, 0, 0.9, 2.75, furnace); g.add(forge.glow);  // furnace mouth
+    g.add(box(1.6, 0.8, 1, dark, -2.6, 0.6, 3.8)); g.add(box(2.2, 0.4, 1.1, dark, -2.6, 1.4, 3.8));  // anvil
+    const gear = new THREE.Group();
+    gear.add(box(2.4, 2.4, 0.3, 0xffd34d, 0, -1.2, 0));
+    for (let k = 0; k < 4; k++) { const t = box(0.6, 3.4, 0.3, 0xffd34d, 0, -1.7, 0); t.rotation.z = (k * Math.PI) / 4; gear.add(t); }
+    gear.position.set(-1.4, 3.6, 2.85); g.add(gear); forge.gear = gear;
+    for (let k = 0; k < 3; k++) { const p = box(1, 1, 1, 0xd8d4e8, 0, 0, 0); p.position.set(2.4, 10 + k * 1.5, -1.6); p.userData.k = k; g.add(p); forge.smoke.push(p); }
+    forge.group = g;
+  });
+  // One more finished trial this session: a new gold ingot on the shelf in front of the forge, and a flash of the furnace
+  function setForgeLevel(n) {
+    const gm = new THREE.MeshLambertMaterial({ color: 0xffd34d, emissive: 0xffc23a, emissiveIntensity: 0.5 });
+    while (forge.ingots.length < Math.min(n, 12)) {
+      const k = forge.ingots.length, ing = box(1.1, 0.5, 0.6, 0, 0, 0, 0, gm);
+      ing.position.set(-3.6 + (k % 6) * 1.3, 0.6 + Math.floor(k / 6) * 0.55 + 6, 4.6);
+      ing.userData = { drop: 6, y0: 0.6 + Math.floor(k / 6) * 0.55, pick: { kind: "station", id: "forge" } };
+      forge.group.add(ing); forge.ingots.push(ing);
+    }
+    if (n > forge.level) forge.flash = 1.5;
+    forge.level = n;
+  }
+
   station("portal", 0, -19, "MODAL PORTAL", (g) => {
     g.add(box(1.2, 7, 1.2, 0x2b2840, -3, 0, 0));
     g.add(box(1.2, 7, 1.2, 0x2b2840, 3, 0, 0));
@@ -213,6 +244,11 @@ export function buildHeaven(scene) {
   }
 
   function update(dt, time) {
+    if (forge.gear) forge.gear.rotation.z -= dt * (0.6 + forge.flash);
+    for (const p of forge.smoke) { p.position.y += dt * 1.4; const u = (p.position.y - 10) / 4.5; p.scale.setScalar(0.6 + u); if (p.position.y > 14.5) p.position.y = 10; }
+    for (const ing of forge.ingots) if (ing.userData.drop > 0) { ing.userData.drop = Math.max(0, ing.userData.drop - dt * 12); ing.position.y = ing.userData.y0 + ing.userData.drop; }
+    forge.flash = Math.max(0, forge.flash - dt);
+    if (forge.glow) forge.glow.material.emissiveIntensity = 0.8 + forge.flash + Math.sin(time * 3) * 0.15;
     for (const c of clouds) {
       c.userData.a += c.userData.v * dt;
       c.position.x = Math.cos(c.userData.a) * c.userData.r;
@@ -247,5 +283,5 @@ export function buildHeaven(scene) {
   }
 
   stations.altar = { id: "altar", x: 0, z: 0, label: "ALTAR OF TRIALS", stand: { x: 0, z: 4.6 }, labelY: HEAVEN_Y + 7 };
-  return { group, stations, update, drop, placeScroll, altarWorld: new THREE.Vector3(0, HEAVEN_Y + 3.4, 0) };
+  return { group, stations, update, drop, placeScroll, setForgeLevel, altarWorld: new THREE.Vector3(0, HEAVEN_Y + 3.4, 0) };
 }

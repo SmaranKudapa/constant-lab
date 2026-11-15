@@ -60,7 +60,9 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   function animate(e) {
     const r = e.agent && researchers[e.agent === "ada" ? "exa" : e.agent]; // older logs and memory use "ada"
     if (!r) return;
-    const st = STATION[e.type];
+    // Saving or reading a trial's lessons (what won, Cy's failure notes) happens at the Lesson Forge
+    const lesson = (e.type === "MEMORY_READ" || e.type === "MEMORY_WRITE") && /^(lesson|cy-notes)-/.test(e.source_id || "") || (e.type === "NOTE" && /earlier trial/i.test(e.message || ""));
+    const st = lesson ? "forge" : STATION[e.type];
     if (st) r.moveTo(heaven.stations[st].stand);
     r.say(e.say || `${e.type.replace("_", " ")}${e.exp ? " " + e.exp : ""}`, STEP_SEC + 1.5);
     const focus = (primary.target && town.byId[primary.target]) || town.byId.library || town.byId.plaza;

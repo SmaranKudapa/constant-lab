@@ -103,8 +103,6 @@
 /* ---------- selection panel on the left ---------- */
 #selected.panel { position: fixed; top: 108px; left: 10px; width: 340px; max-height: calc(100vh - 290px); overflow-y: auto; z-index: 11; padding: 10px; border-bottom: 3px solid var(--edge); }
 @media (max-width: 760px) { #selected.panel { width: calc(100vw - 20px); max-height: 30vh; } }
-#osm-credit { position: fixed; right: 400px; bottom: 6px; font-size: 10px; color: var(--ink); background: rgba(255, 255, 255, .7); padding: 1px 5px; z-index: 8; }
-#side.collapsed ~ #osm-credit { right: 10px; }
 
 /* ---------- hover name ---------- */
 #hover-tip { position: fixed; z-index: 35; pointer-events: none; font-family: var(--px); font-size: 9px; color: var(--ink); background: var(--hi);
@@ -233,3 +231,15 @@
 .tr-tag { grid-area: t; font-family: var(--px); font-size: 7px; color: var(--green); text-align: right; }
 .tried li.over .tr-tag { color: var(--red); }
 .tried.compact li { font-size: 10px; }
+
+/* ---------- Lesson Forge panel ---------- */
+.fg-row { border-left: 3px solid #d9773a; background: rgba(217, 119, 58, .08); padding: 6px 8px; margin: 6px 0; display: grid; gap: 3px; }
+.fg-top { font-size: 12px; }
+.fg-dim { font-size: 11px; color: var(--dim); }
+.fg-kv { display: grid; grid-template-columns: 78px 1fr 44px; align-items: center; gap: 6px; font-size: 10px; color: var(--dim); }
+.fg-kv b { font-family: var(--px); font-size: 9px; color: var(--hi); text-align: right; }
+.fg-bar { height: 6px; background: rgba(255, 255, 255, .08); }
+.fg-bar i { display: block; height: 100%; }
+.fg-bar.g i { background: var(--green); }
+.fg-bar.a i { background: #d9773a; }
+.fg-lesson { font-size: 11px; padding: 4px 6px; background: rgba(255, 255, 255, .04); border-left: 2px solid var(--hi); }
