@@ -1,14 +1,11 @@
 // Results popup: trial question, key numbers, then tabs (why it wins / steps / other experiments).
-// Also the TRIALS history: every finished trial's summary, reopenable (kept in localStorage when allowed).
+// Also the TRIALS history: every trial finished in this visit, reopenable. Kept in memory only, so a refresh clears it.
 import { esc, link, AGENT_COLOR, AGENTS } from "./ui.js";
 
-const KEY = "town-trial:history:v1";
 const $ = (id) => document.getElementById(id);
 let history = [];
-try { history = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { history = []; }
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(history.slice(-20))); } catch { /* storage blocked */ } };
 
-export function remember(sum) { history.push(sum); history = history.slice(-20); save(); renderHistory(); }
+export function remember(sum) { history.push(sum); history = history.slice(-20); renderHistory(); }
 export function historyCount() { return history.length; }
 
 const STANCE = { helped: { c: "#5be37d", t: "HELPED" }, hurt: { c: "#ff5d6c", t: "WORSE OFF" }, unchanged: { c: "#a99cc8", t: "NO CHANGE" } };
