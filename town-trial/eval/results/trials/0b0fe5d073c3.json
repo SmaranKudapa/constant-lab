@@ -1,0 +1,1540 @@
+{
+ "trial_id": "0b0fe5d073c3",
+ "city": "Ely, MN",
+ "mode": "perception",
+ "options": {},
+ "tag": "compare",
+ "version": "c4e3ddaf283c",
+ "wall_s": 124.3,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:40:00.242Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Ely, MN library",
+   "found": 2,
+   "note": "2 prior facts from earlier trials: Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed; The library faced a budget cut that would reduce hours.",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:40:00.381Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:40:00.539Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:40:01.059Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "bulk_replace_identities",
+   "count": 72,
+   "note": "One identity per resident (ely-mn-r01 ...) with traits: town, cohort, channel, neighborhood.",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Setting up audiences"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:40:01.495Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "heard-0b0fe5d073c3",
+   "kind": "rule",
+   "rule": "town = ely-mn AND heard_notice_0b0fe5d073c3 = true (this trial's notice)",
+   "members": 0,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:40:01.919Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "parents-ely-mn",
+   "kind": "rule",
+   "rule": "town = ely-mn AND cohort = families",
+   "members": 16,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:40:02.433Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "notice-0b0fe5d073c3",
+   "kind": "notice",
+   "claim": "Library notice 0b0fe5d073c3: the Ely, MN public library is changing its opening hours. Residents who received notice 0b0fe5d073c3 can find the new times on the library website.",
+   "source": "town-trial:notice",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:40:05.219Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "Current announcement channels: online",
+   "source": "https://www.elylibrary.org/",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:40:05.380Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN library news how are hours changes announced",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Check it out at your library!",
+     "url": "https://www.elyecho.com/article/2763,check-it-out-at-your-library",
+     "passage": "Check it out at your library! Check it out at your library! 03/14/2025 08:00 AM NEW HOURS Starting Monday, March 17: Monday-Thursday 9 a.m.-5 p.m. Friday 10 a.m. - 6 p.m. Tuesday, March 18 from 10 a.m. -1 p.m. Adult Watercolor Class with 321 Art Studio. Wednesday, March 19 at 10:30 a.m. - Preschool Story Time Lots of FREE books outside the Library. NEW ARRIVALS DVD: Legend of the Lost Locket For Love & Honey Pearl in Paradise Upload date: 03/14/2025 08:00 AM Views: 179 15 E. Chapman Street, Ely, MN 55731 218-365-3141 elyecho@aol.com 218-365-3142",
+     "published": "2025-03-14T13:00:00.000Z"
+    },
+    {
+     "title": "Check it out at your library!",
+     "url": "https://www.elyecho.com/article/3605,check-it-out-at-your-library",
+     "passage": "Check it out at your library! Check it out at your library! 09/26/2025 06:00 AM This concerns the council budget meeting held on Sept. 22. The library faced a budget cut of $38,506.91. While the council reinstated $20,000, there were still funds available that could have restored the library\u2019s budget to the full amount we requested. However, the council chose to allocate those funds elsewhere rather than fully restore the library\u2019s budget. With this cut, the library will face reduced hours, staff layoffs and fewer new books. New arrivals at the library: Adult Fiction: \u201cBlack Widows\u201d by Cate Qu",
+     "published": "2025-09-26T11:00:00.000Z"
+    },
+    {
+     "title": "Ely library",
+     "url": "https://www.elylibrary.org/",
+     "passage": "Ely library | Library building at sunrise | Welcome to the Ely Public Library! We are located at 224 E Chapman St. in Ely MN. Our hours currently are: Monday - 9 am -6:30 pm Tuesday - 9 am - 6:30 pm Wednesday - 9 am - 6:30 pm Thursday - 9 am - 6:30 pm Friday - 9 am - 6:30 pm Saturday closed Sunday closed | | --- | --- | The library's wifi is available 24/7 in the parking lot (the password is posted on the door). ... News from the Library Are you interested in getting notices from the library about upcoming programs? The library staff is working on better ways to communicate with patrons about ",
+     "published": null
+    }
+   ],
+   "used_for": "Baseline channels: online",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: how this town gets news"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:40:06.790Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If the library announces the new hours only online, then working parents in Ely, MN will hear about the change within the notice period, compared with other notice channels not used.",
+   "metric": "% of working parents who heard within 3 days",
+   "constraint": "no paid ads",
+   "horizon": "3 days, 16 matched seeds",
+   "prompt": "Will working parents hear about the new library hours if we only post the notice online?",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:40:06.968Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:40:07.111Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "The user's idea is current practice, so the baseline is also 'your idea'.",
+   "agent": "bo"
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:40:07.264Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:40:07.423Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:40:07.561Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning P0 out to Modal"
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:40:07.970Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 46.18055555555556,
+     "familiesAwarePct": 39.453125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 9.413074262863823,
+     "familiesAwarePct": 15.089792010384592
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:40:08.111Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P0",
+   "metric": "familiesAwarePct",
+   "value": "39.5% \u00b1 15.1",
+   "wall_s": 0.27,
+   "workers": 2,
+   "view": "P0",
+   "note": null,
+   "overall": "46%",
+   "agent": "dee"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:40:10.393Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P0",
+   "trace": "P0 still misses working parents unevenly after 3 days: day-workers are 44%, families 39%, and seniors 35% aware, while remote workers are much higher at 78% and night-shift at 63%. The trace suggests word-of-mouth (17.3) and online (15.9) are helping, but reach is still weak for people tied to daytime schedules.",
+   "next_question": "Which official alert channels does Ely use for public notices?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:40:10.982Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-0b0fe5d073c3-1",
+   "kind": "failure",
+   "claim": "P0: P0 still misses working parents unevenly after 3 days: day-workers are 44%, families 39%, and seniors 35% aware, while remote workers are much higher at 78% and night-shift at 63%. The trace suggests word-of-mouth (17.3) and online (15.9) are helping, but reach is still weak for people tied to daytime schedules. Next: Which official alert channels does Ely use for public notices?",
+   "source": "trial:0b0fe5d073c3",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:40:14.125Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN city council Ely MN public notices alert channels city clerk",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Public Notices - Ely, MN",
+     "url": "https://www.ely.mn.us/notices",
+     "passage": "Public Notices - Ely, MN Skip to main content Search Public Notices May 20th, 2026 BOA Conditional Use Permit Public Hearing - 751 N Pioneer Rd Wednesday, May 20, 2026 at 5:00 PM The Ely Board of Adjustment will be holding a public hearing for considering a Conditional Use Permit on Wednesday, May 20th, 2026 at 5:00 pm in the City Hall council chambers. At this public hearing the Board of Adjustment will be considering the approval of a Conditional Use Permit Application submitted by Kelly Klun and Tanner Spawn, on behalf of KK & PI LLC; proposed location of 751 N Pioneer Rd, Parcel 030-0500-0",
+     "published": null
+    },
+    {
+     "title": "Ely, MN",
+     "url": "https://www.ely.mn.us/",
+     "passage": "Ely, MN Welcome To Ely City Council Meet your Ely City Council Notices Public Notices, Committee Meetings, Council Meeting Schedules Property Information ... Any questions, please call 218-365-3224 ext 1 Ely City Hall 209 E Chapman St Ely, MN 55731 (p) 218-365-3224 | Toll-Free 1-855-884-1374 | (f) 218-365-7811 Utility Problem/Emergency 1-800-890-8713 City Hall Hours: Monday \u2013 Friday 8:00 am -4:30pm",
+     "published": null
+    },
+    {
+     "title": "Clerk's Office - Ely, MN",
+     "url": "https://www.ely.mn.us/clerks-office",
+     "passage": "Clerk's Office - Ely, MN Clerk's Office The Clerk's Office is open Monday - Friday from 8:00 am until 4:30 pm General questions about the city can be directed to this office. - Animal licenses Lifetime and Yearly Licenses are Now Available. Animal Licenses can be purchased at Ely City Hall in the Police Department - Cemetery information Cemetery information can be obtained from the clerk's office, regarding burials, locations of internments, etc. - Passport Ely City Hall is your nearest Passport Application Facility! Please visit www.travel.state.gov for up to date Passport and Travel Informat",
+     "published": null
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"Public Notices, Committee Meetings, Council Meeting Schedules\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:40:14.650Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "A source shows Ely uses an online public notices page on its website to reach residents. No source provided explicitly shows a public notice board or a bulletin/newsletter channel.",
+   "source": "https://www.ely.mn.us/",
+   "effective": null,
+   "supersedes": "fact-notice-channels r1: Current announcement channels: online",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:40:41.661Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Ely uses an online public notices page on its website to reach residents. No source provided explicitly shows a public notice board or a bulletin/newsletter channel.",
+   "used_for": "round 1 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:40:42.114Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Ely Public Library opening hours Monday: Mon 09:00-18:30.",
+    "ada: Ely Public Library opening hours Friday: Fri 09:00-18:30.",
+    "ada: Ely Public Library opening hours Tuesday: Tue 09:00-18:30."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:40:42.261Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Raised an issue: library budget cut and reduced hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:40:42.407Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Ely uses an online public notices page on its website to reach residents. No source provided explicitly shows a public notice board or a bulletin/newsletter channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:40:45.320Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.ely.mn.us/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:40:45.470Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P1",
+   "parent": "P0",
+   "change": "online + board",
+   "why": "Keep the official website notice and add the town-square board to widen reach beyond the current online-only result, which left working-parent awareness at 39.5% after 3 days and relied heavily on word-of-mouth.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P1"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:40:48.118Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P1",
+   "ok": true,
+   "reason": "The proposal stays within supported actions and mainly makes testable reach assumptions. The cited 39.5% result and word-of-mouth mix come from the simulation trace; no unsupported real-world demand or behavior inputs are introduced.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:40:48.262Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.ely.mn.us/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:40:48.421Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P2",
+   "parent": "P0",
+   "change": "online + bulletin",
+   "why": "Keep the online public notice page and add the school family bulletin to reach families more directly, addressing the low family awareness seen in the trace under the current online-only practice.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P2"
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:40:50.731Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P2",
+   "ok": true,
+   "reason": "The proposal mainly changes channel mix, which is allowed, and its rationale is an effect claim the simulation can test. The only unsupported part is the real-town existence of a school bulletin, but that is handled as a coded channel-existence assumption rather than a local-input claim.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:40:50.885Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.ely.mn.us/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:40:51.037Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.ely.mn.us/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:40:51.206Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P1",
+    "P2"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P1 + P2"
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:40:51.684Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online + board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.ely.mn.us/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 71.35416666666666,
+     "familiesAwarePct": 60.546875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.57097605667899,
+     "familiesAwarePct": 13.829081299324743
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:40:51.832Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online + bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.ely.mn.us/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 63.54166666666666,
+     "familiesAwarePct": 91.015625
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.180165405913052,
+     "familiesAwarePct": 11.173058649417953
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:40:51.975Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P1",
+   "metric": "familiesAwarePct",
+   "value": "60.5% \u00b1 13.8",
+   "wall_s": 0.33,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "71%",
+   "agent": "dee"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:40:52.136Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P2",
+   "metric": "familiesAwarePct",
+   "value": "91.0% \u00b1 11.2",
+   "wall_s": 0.33,
+   "workers": 4,
+   "view": "P2",
+   "note": "new best so far",
+   "overall": "64%",
+   "agent": "dee"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:40:54.903Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P2",
+   "trace": "P2 still misses day-workers and seniors most: after 3 days they\u2019re only at 47% awareness, versus 91% for families; night-shift is also lower at 63%. The trace also shows word-of-mouth is the biggest source (21.6), so the remaining gap likely comes from channels that don\u2019t reach people during work hours or in daily routines.",
+   "next_question": "Does the town allow employer or school outbound notices for public alerts?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:40:55.450Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-0b0fe5d073c3-2",
+   "kind": "failure",
+   "claim": "P2: P2 still misses day-workers and seniors most: after 3 days they\u2019re only at 47% awareness, versus 91% for families; night-shift is also lower at 63%. The trace also shows word-of-mouth is the biggest source (21.6), so the remaining gap likely comes from channels that don\u2019t reach people during work hours or in daily routines. Next: Does the town allow employer or school outbound notices for public alerts?",
+   "source": "trial:0b0fe5d073c3",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:40:59.166Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN city council public alerts employer school notices policy",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Public Notices - Ely, MN",
+     "url": "https://www.ely.mn.us/notices",
+     "passage": "Public Notices - Ely, MN Skip to main content Search Public Notices May 20th, 2026 BOA Conditional Use Permit Public Hearing - 751 N Pioneer Rd Wednesday, May 20, 2026 at 5:00 PM The Ely Board of Adjustment will be holding a public hearing for considering a Conditional Use Permit on Wednesday, May 20th, 2026 at 5:00 pm in the City Hall council chambers. At this public hearing the Board of Adjustment will be considering the approval of a Conditional Use Permit Application submitted by Kelly Klun and Tanner Spawn, on behalf of KK & PI LLC; proposed location of 751 N Pioneer Rd, Parcel 030-0500-0",
+     "published": null
+    },
+    {
+     "title": "Ely, MN",
+     "url": "https://ely.mn.us/",
+     "passage": "Ely, MN Public Notices, Committee Meetings, Council Meeting Schedules News Release March 12, 2026 Contact: Margie Nelson, D1 Public Affairs Coordinator margie.nelson@state.mn.us Highway 1/169 stoplight control returns in Ely March 19 DULUTH, Minn. \u2013 The Minnesota Department of Transportation will be returning traffic control to signalized intersections on Highway 1/169 (Sheridan Street) in Ely on Thursday, March 19, weather dependent. The intersections are at Hwy 1/169 and Central Avenue and Hwy 1/169 and 3 rd Avenue East. The signals have been in flashing red with stop signs for approximately",
+     "published": null
+    },
+    {
+     "title": "Workplace posters | Minnesota Department of Labor and ...",
+     "url": "https://www.dli.mn.gov/posters",
+     "passage": "Workplace posters | Minnesota Department of Labor and Industry Workplace posters Minnesota law requires employers to display certain posters in a location where employees can easily see them. The posters are available at no cost and need to be updated only when Minnesota law changes. Sign up to be notified when Minnesota posters have been updated. Employee notices and handbook requirements In addition, some Minnesota labor laws require employers to provide written notice to employees and to include certain notices in an employee handbook if one is provided. These requirements are separate from",
+     "published": null
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"Please visit our website at ely.mn.us/notices for updated information, including a map and information packet of the proposal. Information packets are also avai\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:40:59.581Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "source": "https://www.ely.mn.us/notices",
+   "effective": null,
+   "supersedes": "fact-notice-channels r2: A source shows Ely uses an online public notices page on its website to reach residents. No source provided explicitly shows a public notice board or a bulletin/newsletter channel.",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:41:25.319Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:41:25.813Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Ely Public Library opening hours Monday: Mon 09:00-18:30.",
+    "ada: Ely Public Library opening hours Sunday: closed.",
+    "ada: Ely Public Library opening hours Tuesday: Tue 09:00-18:30."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:41:25.973Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Raised an issue: library budget cut and reduced hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:41:26.214Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:41:32.095Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board plus bulletin",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:41:32.251Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P3",
+   "parent": "P2",
+   "change": "board + bulletin",
+   "why": "This tests the two non-online local notice routes together; the local source only confirms Ely\u2019s online public notices page and does not provide evidence for employer or school outbound notices.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P3"
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:41:34.142Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P3",
+   "ok": true,
+   "reason": "This proposal stays within supported action space: it only tests board + bulletin as channels the code can assume exist. The only substantive claim is about expected reach/effect, which the simulation is meant to test.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:41:34.299Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P4",
+   "label": "All three channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:41:34.443Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P4",
+   "parent": "P2",
+   "change": "online + board + bulletin",
+   "why": "This keeps the confirmed online notice path and adds both alternative notice routes to see whether wider exposure can improve hearing within 3 days without relying on unverified employer or school alerts.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P4"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:41:36.889Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P4",
+   "ok": true,
+   "reason": "The proposal stays within supported channels and uses the simulation-relevant idea that broader notice exposure may change awareness. I do not see any unsupported real-world demand, staffing, or behavior input beyond the already-acknowledged channel assumptions.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:41:37.044Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board plus bulletin",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:41:37.185Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P4",
+   "label": "All three channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:41:37.340Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P3",
+    "P4"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P3 + P4"
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:41:37.819Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "Board plus bulletin",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 70.74652777777777,
+     "familiesAwarePct": 92.96875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 5.859042771788416,
+     "familiesAwarePct": 6.798820363366967
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:41:37.960Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P4",
+   "label": "All three channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 81.85763888888889,
+     "familiesAwarePct": 94.53125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 5.083377605555034,
+     "familiesAwarePct": 5.038911092686593
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:41:38.111Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P3",
+   "metric": "familiesAwarePct",
+   "value": "93.0% \u00b1 6.8",
+   "wall_s": 0.32,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "71%",
+   "agent": "dee"
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:41:38.276Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P4",
+   "metric": "familiesAwarePct",
+   "value": "94.5% \u00b1 5.0",
+   "wall_s": 0.32,
+   "workers": 4,
+   "view": "P4",
+   "note": "new best so far",
+   "overall": "82%",
+   "agent": "dee"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:41:40.073Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Multi-channel hours notice",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin (single proposal, no feedback)",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:41:40.217Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:41:40.993Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:41:41.148Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 81.85763888888889,
+     "familiesAwarePct": 94.53125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 5.083377605555034,
+     "familiesAwarePct": 5.038911092686593
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:41:41.303Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Multi-channel hours notice",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin (single proposal, no feedback)",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 81.85763888888889,
+     "familiesAwarePct": 94.53125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 5.083377605555034,
+     "familiesAwarePct": 5.038911092686593
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:41:41.454Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "familiesAwarePct",
+   "value": "94.5% \u00b1 5.0",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.62,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:41:41.612Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "familiesAwarePct",
+   "value": "94.5% \u00b1 5.0",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.62,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:41:41.757Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0",
+    "SW",
+    "OS",
+    "P4"
+   ],
+   "seeds": 8,
+   "workers": 12,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T01:41:42.560Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "P0",
+    "SW",
+    "OS",
+    "P4"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.62,
+   "workers": 12,
+   "agent": "cy"
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T01:41:42.719Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "% of working parents who heard within 3 days",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "P0": 50.0,
+     "SW": 93.75,
+     "OS": 93.75,
+     "P4": 93.75
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "P0": 40.0,
+     "SW": 95.0,
+     "OS": 95.0,
+     "P4": 95.0
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "P0": 35.9375,
+     "SW": 96.875,
+     "OS": 96.875,
+     "P4": 96.875
+    }
+   ],
+   "finalists": [
+    {
+     "id": "P0",
+     "label": "Current practice (= your idea)",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Multi-channel hours notice",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "P4",
+     "label": "All three channels",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 70,
+   "t": "2026-11-15T01:41:42.865Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P4",
+   "label": "All three channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://www.ely.mn.us/notices",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 81.85763888888889,
+     "familiesAwarePct": 94.53125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 5.083377605555034,
+     "familiesAwarePct": 5.038911092686593
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 71,
+   "t": "2026-11-15T01:41:45.143Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "P4",
+   "label": "All three channels",
+   "summary": "All three channels: 94.5% \u00b1 5.0 vs 39.5% \u00b1 15.1 for current practice (% of working parents who heard within 3 days). P4 has the highest reach: 94.5% \u00b1 5.0 of working parents heard within 3 days versus 39.5% \u00b1 15.1 under current practice, a gain of 55.0 percentage points. It also edges out the other tested options, beating P3 at 93.0% \u00b1 6.8 and P2 at 91.0% \u00b1 11.2 while keeping the best observed average and the tightest spread.",
+   "assumptions": "The result depends on synthetic defaults for resident schedules, arrival patterns, and word-of-mouth rates, plus the model assumption that board and bulletin channels exist locally even though the provided sources only explicitly confirm the online channel. It also assumes the measured outcome in the completed runs generalizes to the held-out scenarios.",
+   "pilot": "Run a 2-week live pilot using all three channels for one library notice cycle. Measure the share of working parents who report hearing the notice within 3 days, plus per-channel click/scan counts and any duplicate exposures, then compare against the prior online-only notices baseline.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  },
+  {
+   "seq": 72,
+   "t": "2026-11-15T01:41:45.942Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r33",
+   "found": 0,
+   "note": "Before replay: Quin Chen (families, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 73,
+   "t": "2026-11-15T01:41:46.532Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r49",
+   "found": 0,
+   "note": "Before replay: Omar Patel (students, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 74,
+   "t": "2026-11-15T01:41:47.056Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r01",
+   "found": 0,
+   "note": "Before replay: Lou Larsen (day-workers, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 75,
+   "t": "2026-11-15T01:41:52.154Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 20,
+   "identity": "ely-mn-r48",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "board"
+   },
+   "slug": "heard-0b0fe5d073c3",
+   "members": 20,
+   "note": "P4 seed 0: 20/57 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Replaying the watched run into past.dev"
+  },
+  {
+   "seq": 76,
+   "t": "2026-11-15T01:41:56.650Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 40,
+   "identity": "ely-mn-r61",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "board"
+   },
+   "slug": "heard-0b0fe5d073c3",
+   "members": 40,
+   "note": "P4 seed 0: 40/57 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 77,
+   "t": "2026-11-15T01:42:00.501Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 57,
+   "identity": "ely-mn-r67",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-0b0fe5d073c3",
+   "members": 57,
+   "note": "P4 seed 0: 57/57 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 78,
+   "t": "2026-11-15T01:42:01.018Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r33",
+   "found": 1,
+   "note": "After replay: Quin Chen (families, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 79,
+   "t": "2026-11-15T01:42:01.566Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r49",
+   "found": 1,
+   "note": "After replay: Omar Patel (students, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 80,
+   "t": "2026-11-15T01:42:02.053Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice 0b0fe5d073c3",
+   "identity": "ely-mn-r01",
+   "found": 0,
+   "note": "After replay: Lou Larsen (day-workers, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  }
+ ]
+}

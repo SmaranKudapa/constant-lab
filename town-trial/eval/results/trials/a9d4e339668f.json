@@ -1,0 +1,1397 @@
+{
+ "trial_id": "a9d4e339668f",
+ "city": "Hood River, OR",
+ "mode": "perception",
+ "options": {},
+ "tag": "compare",
+ "version": "c4e3ddaf283c",
+ "wall_s": 111.5,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:42:05.854Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Hood River, OR library",
+   "found": 1,
+   "note": "1 prior facts from earlier trials: Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:42:06.024Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:42:06.632Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "bulk_replace_identities",
+   "count": 72,
+   "note": "One identity per resident (hood-river-or-r01 ...) with traits: town, cohort, channel, neighborhood.",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Setting up audiences"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:42:07.083Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "heard-a9d4e339668f",
+   "kind": "rule",
+   "rule": "town = hood-river-or AND heard_notice_a9d4e339668f = true (this trial's notice)",
+   "members": 0,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:42:07.509Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "replace_audience",
+   "slug": "parents-hood-river-or",
+   "kind": "rule",
+   "rule": "town = hood-river-or AND cohort = families",
+   "members": 16,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:42:07.969Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "notice-a9d4e339668f",
+   "kind": "notice",
+   "claim": "Library notice a9d4e339668f: the Hood River, OR public library is changing its opening hours. Residents who received notice a9d4e339668f can find the new times on the library website.",
+   "source": "town-trial:notice",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:42:10.877Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "Current announcement channels: online",
+   "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+   "effective": "2020-07-30",
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:42:11.037Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Hood River, OR library news how are hours changes announced",
+   "search": "broad",
+   "results": [
+    {
+     "title": "News | Hood River County Library District",
+     "url": "https://hoodriverlibrary.org/news/",
+     "passage": "We are open for Regular Library Services! by hrcldadmin | Jun 29, 2021 | Library News We are open for browsing, computer use, and hold pick-up. All seating has been restored and we encourage you beat the heat and stay as long as you like. Our small meeting rooms are open. Our large meeting room is available starting Tuesday, July 6! Book your meeting... by hrcldadmin | Jun 18, 2021 | Uncategorized Meeting Room Application Scheduling DetailsDate of Event:(Required) MM slash DD slash YYYY Time (include setup & cleanup)(Required) Hours : Minutes AM PM AM/PM To(Required) Hours : Minutes AM PM AM/P",
+     "published": "2021-06-29T00:00:00.000Z"
+    },
+    {
+     "title": "Hood River | Hood River County Library District",
+     "url": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+     "passage": "Hood River Address & Contact 502 State Street Hood River, OR 97031 Phone: 541-386-2535 Library Hours | Weekday | Open Hours | | --- | --- | | Monday | Closed | | Tuesday | 10am-7pm | | Wednesday | 10am-7pm | | Thursday | 10am-7pm | | Friday | 10am-6pm | | Saturday | 10am-6pm | | Sunday | Closed | Events at Hood River This event is in the \"Adults\" group Free Yoga 10:30am\u201311:30am Adults This event is in the \"Teens\" group Tween Escape Room Party 6:00pm\u20138:00pm Teens This event is in the \"Children\" group 4:00pm\u20135:00pm Library Foundation meeting 4:00pm\u20135:30pm Library Board Meeting 7:00pm\u20139:00pm Than",
+     "published": null
+    },
+    {
+     "title": "The Hood River County Library District has expanded their Curbside Services and hours | Hood River County Library District",
+     "url": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+     "passage": "The Hood River County Library District has expanded their Curbside Services and hours | Hood River County Library District 541-386-2535 info@hoodriverlibrary.org The Hood River County Library District has expanded their Curbside Services and hours Jul 30, 2020 | Library News The Hood River County Library District has expanded their Curbside Services and hours. Cardholders may continue to reserve and pick up books, movies, Wi-Fi hot spots, Library of Things Food Preservation items and much more, all while practicing physical distancing. In addition, patrons can pick up computer printouts, check",
+     "published": "2020-07-30T00:00:00.000Z"
+    }
+   ],
+   "used_for": "Baseline channels: online",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: how this town gets news"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:42:12.641Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If the new library-hours notice is posted only online, then working parents will hear about it over the notice period.",
+   "metric": "% of working parents who heard within 3 days",
+   "constraint": "no paid ads",
+   "horizon": "3 days, 16 matched seeds",
+   "prompt": "Will working parents hear about the new library hours if we only post the notice online?",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:42:12.860Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:42:13.008Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "The user's idea is current practice, so the baseline is also 'your idea'.",
+   "agent": "bo"
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:42:13.154Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:42:13.288Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:42:13.439Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning P0 out to Modal"
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:42:13.882Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P0",
+   "label": "Current practice (= your idea)",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://hoodriverlibrary.org/2020/07/30/the-hood-river-county-library-district-has-expanded-their-curbside-services-and-hours/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 38.020833333333336,
+     "familiesAwarePct": 26.953125
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 9.126948182583924,
+     "familiesAwarePct": 13.639470526746997
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:42:14.025Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P0",
+   "metric": "familiesAwarePct",
+   "value": "27.0% \u00b1 13.6",
+   "wall_s": 0.29,
+   "workers": 2,
+   "view": "P0",
+   "note": null,
+   "overall": "38%",
+   "agent": "dee"
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:42:15.339Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P0",
+   "trace": "The biggest miss is working parents/families: only 27% are aware after 3 days, well below students (58%) and remote workers (65%). The trace also shows reliance on word-of-mouth (13.9) and online (13.5), so the current practice is not reaching this cohort fast enough through those paths.",
+   "next_question": "Which local channels can the town actually use for parent outreach?",
+   "entity": "city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:42:15.706Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-a9d4e339668f-1",
+   "kind": "failure",
+   "claim": "P0: The biggest miss is working parents/families: only 27% are aware after 3 days, well below students (58%) and remote workers (65%). The trace also shows reliance on word-of-mouth (13.9) and online (13.5), so the current practice is not reaching this cohort fast enough through those paths. Next: Which local channels can the town actually use for parent outreach?",
+   "source": "trial:a9d4e339668f",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:42:19.245Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Hood River, OR city council Hood River parent outreach channels school district city website text alerts",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "ParentSquare - Hood River County School District",
+     "url": "https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+     "passage": "ParentSquare - Hood River County School District ParentSquare ParentSquare is Hood River County School District's primary tool for communicating electronically with parents, guardians, and the broader community. Please access information, tutorials, resources, and answers to frequently asked questions on this ParentSquare webpage. Register for ParentSquare Registering for ParentSquare gives parents and guardians the ability to customize how they receive information from the school and our district. We highly recommend that parents and guardians register their ParentSquare account and update th",
+     "published": null
+    },
+    {
+     "title": "Stay Connected - City of Hood River",
+     "url": "https://cityofhoodriver.gov/connect/",
+     "passage": "Stay Connected - City of Hood River Hood River Connect Welcome to Hood River Connect, a new central base for subscriptions to all City of Hood River email distribution lists. Please subscribe to any or all topic areas in which you are interested. City-wide E-News is now bilingual. Once subscribed, your email address is securely stored and you can easily opt-out or update your email preferences at any time. Thank you for your interest in the City of Hood River. We look forward to staying in touch. City of Hood River email communications are not intended as a substitute or replacement for legall",
+     "published": null
+    },
+    {
+     "title": "Inclement Weather Procedures - Hood River County School District",
+     "url": "https://www.hoodriver.k12.or.us/departments/transportation/inclement-weather-procedures",
+     "passage": "Inclement Weather Procedures - Hood River County School District Inclement Weather Procedures Hood River County School District (HRCSD) will inform staff, students, and parents/guardians about school delays and closures due to inclement weather. HRCSD sends messages to families about delays, closures, and other weather-related decisions via ParentSquare in four ways, including phone call, email, text message, and the app. HRCSD will communicate with families in their preferred language. The school district will use the contact information each parent/guardian provided during student registrati",
+     "published": null
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"ParentSquare is Hood River County School District's primary tool for communicating electronically with parents, guardians, and the broader community. Please acc\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:42:19.824Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "A source shows an online channel exists in Hood River, OR for reaching parents/residents. No source provided here shows a board or bulletin channel.",
+   "source": "https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "effective": null,
+   "supersedes": "fact-notice-channels r1: Current announcement channels: online",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:42:39.094Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Hood River, OR for reaching parents/residents. No source provided here shows a board or bulletin channel.",
+   "used_for": "round 1 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:42:39.569Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Hood River Public Library Sunday opening hours: closed.",
+    "ada: Hood River Public Library Monday opening hours: closed.",
+    "ada: Hood River Public Library Friday opening hours: 10:00-18:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:42:39.722Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Hood River, OR for reaching parents/residents. No source provided here shows a board or bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:42:42.839Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus town board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:42:42.991Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P1",
+   "parent": "P0",
+   "change": "online + board",
+   "why": "Keep the proven online channel and add a paper notice in the town square to reach working parents who may not see the website/social post within 3 days, when online awareness among families was only 27% in the trace.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P1"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:42:45.376Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P1",
+   "ok": true,
+   "reason": "The proposal stays within supported channels: online is locally sourced, and board is allowed as a coded channel-existence assumption. The rest is an effect hypothesis grounded in the simulation trace, not an unsupported real-world input.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:42:45.538Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online plus school bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:42:45.696Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P2",
+   "parent": "P0",
+   "change": "online + bulletin",
+   "why": "Keep the proven online channel and add the school family bulletin to reach parents through a parent-facing school communication path, addressing the low family awareness seen in the trace.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P2"
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:42:48.427Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P2",
+   "ok": true,
+   "reason": "The proposal is supported by the simulation trace showing low family awareness and by the existing online channel source. The bulletin channel itself is allowed under the code\u2019s channel-existence handling, so it should be treated as a testable channel assumption rather than rejected.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:42:48.587Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus town board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:42:48.737Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online plus school bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:42:48.891Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P1",
+    "P2"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P1 + P2"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:42:49.349Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P1",
+   "label": "Online plus town board",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board"
+    ]
+   },
+   "change": "online + board",
+   "source": "assumes board exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 70.57291666666667,
+     "familiesAwarePct": 61.71875
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.751366840729883,
+     "familiesAwarePct": 11.151186409227195
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:42:49.506Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P2",
+   "label": "Online plus school bulletin",
+   "role": "revision",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin",
+   "source": "assumes bulletin exists (no local source); https://www.hoodriver.k12.or.us/departments/communications/parentsquare",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 58.940972222222214,
+     "familiesAwarePct": 89.84375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.513849403655102,
+     "familiesAwarePct": 9.648780147424509
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:42:49.665Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P1",
+   "metric": "familiesAwarePct",
+   "value": "61.7% \u00b1 11.2",
+   "wall_s": 0.31,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "overall": "71%",
+   "agent": "dee"
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:42:49.822Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P2",
+   "metric": "familiesAwarePct",
+   "value": "89.8% \u00b1 9.6",
+   "wall_s": 0.31,
+   "workers": 4,
+   "view": "P2",
+   "note": "new best so far",
+   "overall": "59%",
+   "agent": "dee"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:42:52.552Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "P2",
+   "trace": "P2 still misses day-workers (46% aware) and seniors (33%), while families are much higher at 90%. The trace suggests online + bulletin reaches families better, but older and work-bound residents are still not getting the message fast enough; most learning is still word-of-mouth (18.3) and online (13.1), with bulletin only 11.1.",
+   "next_question": "Which public notice channels does Hood River officially use?",
+   "entity": "Hood River city council",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:42:53.028Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-a9d4e339668f-2",
+   "kind": "failure",
+   "claim": "P2: P2 still misses day-workers (46% aware) and seniors (33%), while families are much higher at 90%. The trace suggests online + bulletin reaches families better, but older and work-bound residents are still not getting the message fast enough; most learning is still word-of-mouth (18.3) and online (13.1), with bulletin only 11.1. Next: Which public notice channels does Hood River officially use?",
+   "source": "trial:a9d4e339668f",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:42:56.418Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Hood River, OR Hood River city council Hood River public notice channels bulletin website mail social",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "City Council - City of Hood River",
+     "url": "https://cityofhoodriver.gov/administration/city-council/",
+     "passage": "City Council - City of Hood River City Council City Council Elections \u2013 2026 Prospective Candidate Information Interested in running for City Council in the November 3, 2026 General Election? Click here for the City Elections page. Contact the City Recorders office with questions at j.gray@cityofhoodriver.gov or call (541) 387-5212. City Council Procedures City of Hood River City Charter 2019 City Council Meetings The City Council is comprised of six Councilors and the Mayor. Meetings are held on the second and fourth Mondays of each month in the City Hall Council Chambers starting at 6:00 p.m",
+     "published": "2019-03-26T02:26:10.000Z"
+    },
+    {
+     "title": "Stay Connected - City of Hood River",
+     "url": "https://cityofhoodriver.gov/connect/",
+     "passage": "Stay Connected - City of Hood River Hood River Connect Welcome to Hood River Connect, a new central base for subscriptions to all City of Hood River email distribution lists. Please subscribe to any or all topic areas in which you are interested. City-wide E-News is now bilingual. Once subscribed, your email address is securely stored and you can easily opt-out or update your email preferences at any time. Thank you for your interest in the City of Hood River. We look forward to staying in touch. City of Hood River email communications are not intended as a substitute or replacement for legall",
+     "published": null
+    },
+    {
+     "title": "Current News",
+     "url": "https://cityofhoodriver.gov/community/current-news/",
+     "passage": "Current News - City of Hood River Current News October 14, 2026 Measure 14-86 Police Station Renovation Open House If passed, Measure 14-86 would authorize a property tax increase to fund renovations to upgrade and expand the police station, as well as address health and safety hazards, and increase accessibility. We are hosting a Police Station Renovation Open House. Stop by to learn more, take a September 29, 2026 11 A, B, and C Streets Description Reconstruction of east/west streets to provide new sidewalks and other intersection and infrastructure improvements. These streets will become on",
+     "published": "2018-11-26T19:17:23.000Z"
+    }
+   ],
+   "used_for": "Local evidence for channels: online (quote: \"Welcome to Hood River Connect, a new central base for subscriptions to all City of Hood River email distribution lists. Please subscribe to any or all topic are\")",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:42:56.913Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "kind": "fact",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "source": "https://cityofhoodriver.gov/connect/",
+   "effective": null,
+   "supersedes": "fact-notice-channels r2: A source shows an online channel exists in Hood River, OR for reaching parents/residents. No source provided here shows a board or bulletin channel.",
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:43:09.869Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:43:10.366Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Hood River Public Library Sunday opening hours: closed.",
+    "ada: Hood River Public Library Monday opening hours: closed.",
+    "ada: Hood River Public Library Friday opening hours: 10:00-18:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:43:10.520Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:43:14.594Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Bo's proposal 'Online only' repeats an earlier experiment; skipped.",
+   "agent": "bo"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:43:14.748Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "All channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://cityofhoodriver.gov/connect/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:43:14.921Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "P3",
+   "parent": "P2",
+   "change": "online + board + bulletin",
+   "why": "Retains the verified online notice and adds the other two channels to test whether broader reach can close the day-worker/senior gap seen in P2, where awareness still lagged in those cohorts despite high family reach.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing P3"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:43:17.388Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "P3",
+   "ok": true,
+   "reason": "The proposal stays within the supported channel set and uses the simulation gap in P2 to motivate a broader-reach test. No unsupported town-level demand or behavior claim is required beyond the model-mechanism expectation that the extra channels may shift awareness.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:43:17.554Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "All channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://cityofhoodriver.gov/connect/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:43:17.716Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P3"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running P3"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:43:18.241Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "All channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://cityofhoodriver.gov/connect/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 82.37847222222221,
+     "familiesAwarePct": 96.09375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 3.6117787844294016,
+     "familiesAwarePct": 4.492470552676631
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:43:18.389Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "P3",
+   "metric": "familiesAwarePct",
+   "value": "96.1% \u00b1 4.5",
+   "wall_s": 0.37,
+   "workers": 2,
+   "view": "P3",
+   "note": "new best so far",
+   "overall": "82%",
+   "agent": "dee"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:43:20.542Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online plus school bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:43:20.709Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:43:21.774Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:43:21.927Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 82.37847222222221,
+     "familiesAwarePct": 96.09375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 3.6117787844294016,
+     "familiesAwarePct": 4.492470552676631
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:43:22.073Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Online plus school bulletin",
+   "role": "oneshot",
+   "parent": "P0",
+   "policy": {
+    "channels": [
+     "online",
+     "bulletin"
+    ]
+   },
+   "change": "online + bulletin (single proposal, no feedback)",
+   "source": "assumes bulletin exists (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 58.940972222222214,
+     "familiesAwarePct": 89.84375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 6.513849403655102,
+     "familiesAwarePct": 9.648780147424509
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:43:22.228Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "familiesAwarePct",
+   "value": "96.1% \u00b1 4.5",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.89,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:43:22.393Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "familiesAwarePct",
+   "value": "89.8% \u00b1 9.6",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.89,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:43:22.541Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "P0",
+    "SW",
+    "OS",
+    "P3"
+   ],
+   "seeds": 8,
+   "workers": 12,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:43:23.376Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "P0",
+    "SW",
+    "OS",
+    "P3"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.66,
+   "workers": 12,
+   "agent": "cy"
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:43:23.516Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "% of working parents who heard within 3 days",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "P0": 36.607142857142854,
+     "SW": 95.5357142857143,
+     "OS": 88.39285714285715,
+     "P3": 95.5357142857143
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "P0": 34.166666666666664,
+     "SW": 95.83333333333333,
+     "OS": 92.5,
+     "P3": 95.83333333333333
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "P0": 46.875,
+     "SW": 94.53125,
+     "OS": 95.3125,
+     "P3": 94.53125
+    }
+   ],
+   "finalists": [
+    {
+     "id": "P0",
+     "label": "Current practice (= your idea)",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Online plus school bulletin",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "P3",
+     "label": "All channels",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:43:23.671Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "P3",
+   "label": "All channels",
+   "role": "revision",
+   "parent": "P2",
+   "policy": {
+    "channels": [
+     "online",
+     "board",
+     "bulletin"
+    ]
+   },
+   "change": "online + board + bulletin",
+   "source": "assumes board, bulletin exists (no local source); https://cityofhoodriver.gov/connect/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 96.0,
+     "awarePct": 82.37847222222221,
+     "familiesAwarePct": 96.09375
+    },
+    "sd": {
+     "visits": 0.0,
+     "restrictedVisits": 0.0,
+     "turnedAway": 0.0,
+     "uniqueVisitors": 0.0,
+     "staffHours": 0.0,
+     "awarePct": 3.6117787844294016,
+     "familiesAwarePct": 4.492470552676631
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:43:25.812Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "P3",
+   "label": "All channels",
+   "summary": "All channels: 96.1% \u00b1 4.5 vs 27.0% \u00b1 13.6 for current practice (% of working parents who heard within 3 days). P3 wins because it reaches 96.1% \u00b1 4.5 of working parents within 3 days, compared with 27.0% \u00b1 13.6 under current practice. It also matches or exceeds the best held-out results in two of three scenarios (95.5% vs 95.5% in A and B) while staying far above current practice in every scenario.",
+   "assumptions": "The result depends on synthetic/model-default resident schedules and word-of-mouth/arrival rates. It also assumes the board and bulletin channels exist locally even though no local source here explicitly confirms them.",
+   "pilot": "Run a 2-week pilot using online + board + bulletin for one parent-facing notice, then measure the share of working parents who report hearing it within 3 days and compare against the usual online-only posting.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:43:26.886Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r30",
+   "found": 0,
+   "note": "Before replay: Uma Diaz (families, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:43:27.433Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r17",
+   "found": 0,
+   "note": "Before replay: Omar Okafor (day-workers, heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:43:27.955Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r03",
+   "found": 0,
+   "note": "Before replay: Lena Cruz (seniors, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:43:33.826Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 20,
+   "identity": "hood-river-or-r09",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-a9d4e339668f",
+   "members": 20,
+   "note": "P3 seed 0: 20/61 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Replaying the watched run into past.dev"
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T01:43:40.170Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 40,
+   "identity": "hood-river-or-r02",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-a9d4e339668f",
+   "members": 40,
+   "note": "P3 seed 0: 40/61 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T01:43:45.097Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 60,
+   "identity": "hood-river-or-r49",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-a9d4e339668f",
+   "members": 60,
+   "note": "P3 seed 0: 60/61 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 70,
+   "t": "2026-11-15T01:43:45.548Z",
+   "type": "AUDIENCE",
+   "clock": "",
+   "op": "update_traits",
+   "count": 61,
+   "identity": "hood-river-or-r45",
+   "traits": {
+    "heard_library_notice": "true",
+    "heard_via": "word-of-mouth"
+   },
+   "slug": "heard-a9d4e339668f",
+   "members": 61,
+   "note": "P3 seed 0: 61/61 residents who heard the notice updated; audience recomputed",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 71,
+   "t": "2026-11-15T01:43:54.684Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r30",
+   "found": 1,
+   "note": "After replay: Uma Diaz (families, heard it in the run) CAN recall the notice (after 3 tries)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 72,
+   "t": "2026-11-15T01:43:55.183Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r17",
+   "found": 1,
+   "note": "After replay: Omar Okafor (day-workers, heard it in the run) CAN recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 73,
+   "t": "2026-11-15T01:43:55.691Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "library notice a9d4e339668f",
+   "identity": "hood-river-or-r03",
+   "found": 0,
+   "note": "After replay: Lena Cruz (seniors, never heard it in the run) cannot recall the notice",
+   "store": "past.dev",
+   "agent": "eli"
+  }
+ ]
+}

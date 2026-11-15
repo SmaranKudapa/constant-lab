@@ -1,0 +1,1671 @@
+{
+ "trial_id": "a76949f45479",
+ "city": "Hood River, OR",
+ "mode": "service",
+ "options": {
+  "exa_mode": "none"
+ },
+ "tag": "ablation",
+ "version": "c4e3ddaf283c",
+ "wall_s": 58.3,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:45:22.987Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Evaluation arm: exa_mode=none (no Exa calls).",
+   "agent": "ada"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:45:23.753Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Hood River, OR library",
+   "found": 2,
+   "note": "2 prior facts from earlier trials: Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed; A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:45:23.960Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:45:24.176Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:45:24.387Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no source states the Hood River, OR library's hours (no search results (Exa disabled: ablation arm)). Baseline uses the model default (Mon 10:00-18:00, Tue 10:00-18:00, Wed 10:00-18:00, Thu 10:00-18:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed), labelled as an assumption.",
+   "agent": "ada"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:45:26.427Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If the library extends hours on two weekdays for evening access, then residents who work during the day will be more able to visit during a 6\u20138 week trial.",
+   "metric": "visits/week by residents who can't make current hours",
+   "constraint": "staff hours (unknown yet)",
+   "horizon": "1 week, 16 matched seeds",
+   "prompt": "Extend library hours two evenings a week to reach residents who work during the day",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:45:26.667Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:45:26.884Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:45:27.099Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E1",
+   "parent": "E0",
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "why": "Extending Tuesday and Thursday hours directly creates two evening opening windows for people unavailable during daytime, matching the proposed access change.",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:45:29.793Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E1",
+   "ok": true,
+   "reason": "The schedule partly overlaps the library\u2019s published hours, but the extra hour past closing needs an unsupported local claim about staffing/access. The uptake effect of Tue/Thu timing is something the simulation would test, not a claim about the town. Needs 104 staff hours/week vs 96 now.",
+   "ungrounded": [
+    "The service can operate on Tue and Thu from 19:00 to 20:00 even though the library closes at 19:00 on those days.",
+    "Running the service later on Tue/Thu will still be feasible with available staff/space."
+   ],
+   "scripted": false,
+   "note": "user's idea: always run",
+   "agent": "cy",
+   "say": "Checking E1's assumptions"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:45:30.008Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:45:30.237Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:45:30.476Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning E0 + E1 out to Modal"
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:45:31.156Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 55.125,
+     "restrictedVisits": 0.0,
+     "turnedAway": 71.4375,
+     "uniqueVisitors": 39.5,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.806225774829855,
+     "restrictedVisits": 0.0,
+     "turnedAway": 6.428776451757105,
+     "uniqueVisitors": 0.816496580927726,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:45:31.371Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 60.0625,
+     "restrictedVisits": 2.9375,
+     "turnedAway": 40.8125,
+     "uniqueVisitors": 42.875,
+     "staffHours": 104.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.9979144919948469,
+     "restrictedVisits": 0.7719024117939607,
+     "turnedAway": 5.878988008152423,
+     "uniqueVisitors": 0.806225774829855,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:45:31.591Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E0",
+   "metric": "restrictedVisits",
+   "value": "0.0 \u00b1 0.0",
+   "wall_s": 0.46,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 96,
+   "turned_away": "71.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:45:31.815Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E1",
+   "metric": "restrictedVisits",
+   "value": "2.9 \u00b1 0.8",
+   "wall_s": 0.46,
+   "workers": 4,
+   "view": "E1",
+   "note": null,
+   "staff_hours": 104,
+   "turned_away": "40.8",
+   "agent": "dee"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:45:33.517Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 improved access but still missed many residents: day-workers 24.9 turned away, plus seniors 7.2 and families 3.9; the biggest missed times were Mon 18:00, Mon 19:00, and Mon 09:00. Most unmet demand was because the library was closed (40.1), not because of waiting.",
+   "next_question": "What staffing or budget limits constrain extended library hours?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:45:34.368Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-a76949f45479-1",
+   "kind": "failure",
+   "claim": "E1: E1 improved access but still missed many residents: day-workers 24.9 turned away, plus seniors 7.2 and families 3.9; the biggest missed times were Mon 18:00, Mon 19:00, and Mon 09:00. Most unmet demand was because the library was closed (40.1), not because of waiting. Next: What staffing or budget limits constrain extended library hours?",
+   "source": "trial:a76949f45479",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:45:34.590Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are flagged: they need more than the current 96 staff hours/week.",
+   "agent": "ada"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:45:35.226Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Hood River Public Library Sunday opening hours: closed.",
+    "ada: Hood River Public Library Monday opening hours: closed.",
+    "ada: Hood River Public Library Friday opening hours: 10:00-18:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:45:35.444Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:45:41.625Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Mon/Wed evening extend",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 10:00-20:00, Wed 10:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:45:41.839Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E2",
+   "parent": "E1",
+   "change": "Mon 10:00-20:00, Wed 10:00-20:00",
+   "why": "The trace shows the busiest turned-away slots are Mon 18:00, Mon 19:00, and Wed 18:00, with day-workers the largest blocked cohort, so adding Monday and Wednesday evening access should capture demand while keeping staffing to a modest 104 staff-hours/week.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E2"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:45:45.367Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Mon/Wed evening extend",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 10:00-20:00, Wed 10:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:45:45.599Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E2",
+   "ok": false,
+   "reason": "The first two claims are directly supported by the simulation trace. The third is a reasonable mechanism the simulation can test next. The staffing feasibility claim is not supported by any local source.",
+   "ungrounded": [
+    "A schedule requiring about 104 staff-hours/week is operationally acceptable for the town."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:45:45.824Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Add Sunday, trim Fri/Sat",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1020
+     ],
+     [
+      600,
+      1020
+     ],
+     [
+      720,
+      960
+     ]
+    ]
+   },
+   "change": "Fri 10:00-17:00, Sat 10:00-17:00, Sun 12:00-16:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:45:46.059Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E3",
+   "parent": "E1",
+   "change": "Fri 10:00-17:00, Sat 10:00-17:00, Sun 12:00-16:00",
+   "why": "Because residents are being turned away when the library is closed and the current schedule has no Sunday service, a small reallocation to Sunday plus slightly shorter Friday/Saturday hours tests whether weekend access helps without increasing staff time above 96 hours/week.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E3"
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:45:50.845Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Add Sunday, trim Fri/Sat",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1020
+     ],
+     [
+      600,
+      1020
+     ],
+     [
+      720,
+      960
+     ]
+    ]
+   },
+   "change": "Fri 10:00-17:00, Sat 10:00-17:00, Sun 12:00-16:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:45:51.069Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E3",
+   "ok": false,
+   "reason": "The hours change itself is a supported service trial, and the simulation shows substantial turn-aways when closed. The only unsupported piece is the specific 96-hour staffing cap, which is not backed by a local source.",
+   "ungrounded": [
+    "The schedule can be implemented without exceeding a 96-hour/week staffing limit."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:45:52.721Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 still misses mostly day-workers (24.9 turned away) plus seniors (7.2), families (3.9), remote workers (2.4), students (1.6), and night-shift (0.8). The main reason is simply that the library is closed (40.1), with peak unmet demand at Mon 18:00, Mon 19:00, and Mon 09:00, so the current Tue/Thu evening extension helps but does not cover Monday or daytime gaps.",
+   "next_question": "What staffing or budget limit controls adding more open hours?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:45:53.476Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-a76949f45479-2",
+   "kind": "failure",
+   "claim": "E1: E1 still misses mostly day-workers (24.9 turned away) plus seniors (7.2), families (3.9), remote workers (2.4), students (1.6), and night-shift (0.8). The main reason is simply that the library is closed (40.1), with peak unmet demand at Mon 18:00, Mon 19:00, and Mon 09:00, so the current Tue/Thu evening extension helps but does not cover Monday or daytime gaps. Next: What staffing or budget limit controls adding more open hours?",
+   "source": "trial:a76949f45479",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:45:54.185Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon closed, Tue 10:00-19:00, Wed 10:00-19:00, Thu 10:00-19:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Hood River Public Library Sunday opening hours: closed.",
+    "ada: Hood River Public Library Monday opening hours: closed.",
+    "ada: Hood River Public Library Friday opening hours: 10:00-18:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:45:54.412Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Hood River uses online channels for reaching residents, including email distribution lists and online meeting materials. No source provided here explicitly shows a public notice board or a school bulletin/family bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:46:00.215Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Mon/Wed evening extension",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 12:00-20:00, Wed 12:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:46:00.446Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E4",
+   "parent": "E1",
+   "change": "Mon 12:00-20:00, Wed 12:00-20:00",
+   "why": "The trace shows the biggest turned-away slots are Mon 18:00-19:00 and Wed 18:00, and there is no explicit staffing or budget cap in the local trace, so this tests evening access on the highest-demand days.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E4"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:46:03.033Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E4",
+   "ok": true,
+   "reason": "The proposal is supported by the simulation trace showing the largest turn-aways on Mon/Wed evenings. The main assumption is that extending those hours will capture that unmet demand; the trace does not show any staffing or budget cap.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:46:03.273Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Tue/Thu morning+evening",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:46:03.617Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E5",
+   "parent": "E1",
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "why": "The failure trace shows day-workers are the largest turned-away cohort and some unmet demand occurs at Mon 09:00 and evening hours, so this tests broader coverage without assuming a formal staffing limit beyond the current schedule.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E5"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:46:06.076Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E5",
+   "ok": true,
+   "reason": "The proposal is grounded in the simulation trace: day-workers are the largest turned-away cohort and unmet demand appears in morning/evening slots. It is a plausible coverage test, not a claim about real-world staffing or demand beyond the provided sources.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:46:06.341Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Mon/Wed evening extension",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 12:00-20:00, Wed 12:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:46:06.581Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Tue/Thu morning+evening",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:46:06.808Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E4",
+    "E5"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E4 + E5"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:46:07.487Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Mon/Wed evening extension",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      720,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 12:00-20:00, Wed 12:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 59.75,
+     "restrictedVisits": 2.875,
+     "turnedAway": 38.1875,
+     "uniqueVisitors": 42.6875,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.61245154965971,
+     "restrictedVisits": 1.0878112581387147,
+     "turnedAway": 7.892770954065076,
+     "uniqueVisitors": 1.3022416570411703,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:46:07.713Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Tue/Thu morning+evening",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": "https://www.hoodriverlibrary.org/hours-locations/hood-river",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 60.25,
+     "restrictedVisits": 3.0,
+     "turnedAway": 37.4375,
+     "uniqueVisitors": 42.875,
+     "staffHours": 108.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.1832159566199232,
+     "restrictedVisits": 0.8944271909999159,
+     "turnedAway": 7.136467380060436,
+     "uniqueVisitors": 0.8850612031567836,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:46:07.925Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E4",
+   "metric": "restrictedVisits",
+   "value": "2.9 \u00b1 1.1",
+   "wall_s": 0.44,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 96,
+   "turned_away": "38.2",
+   "agent": "dee"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:46:08.152Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E5",
+   "metric": "restrictedVisits",
+   "value": "3.0 \u00b1 0.9",
+   "wall_s": 0.44,
+   "workers": 4,
+   "view": "E5",
+   "note": "new best so far",
+   "staff_hours": 108,
+   "turned_away": "37.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:46:10.892Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue/Thu late evenings",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-21:00, Thu 10:00-21:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:46:11.116Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:46:11.886Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 13:00-21:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:46:12.120Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 13:00-21:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 59.625,
+     "restrictedVisits": 2.875,
+     "turnedAway": 45.1875,
+     "uniqueVisitors": 42.6875,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.2041594578792296,
+     "restrictedVisits": 0.806225774829855,
+     "turnedAway": 8.05165614433867,
+     "uniqueVisitors": 0.873212459828649,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:46:12.361Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue/Thu late evenings",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-21:00, Thu 10:00-21:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 61.3125,
+     "restrictedVisits": 3.6875,
+     "turnedAway": 32.0625,
+     "uniqueVisitors": 43.6875,
+     "staffHours": 108.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.704154339142587,
+     "restrictedVisits": 0.47871355387816905,
+     "turnedAway": 4.625563028792639,
+     "uniqueVisitors": 0.47871355387816905,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:46:12.591Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "restrictedVisits",
+   "value": "2.9 \u00b1 0.8",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.55,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:46:12.817Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "restrictedVisits",
+   "value": "3.7 \u00b1 0.5",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.55,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:46:13.064Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E5"
+   ],
+   "seeds": 8,
+   "workers": 15,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:46:13.973Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E5"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.69,
+   "workers": 15,
+   "agent": "cy"
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:46:14.193Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "visits/week by residents who can't make current hours",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "E0": 0.0,
+     "E1": 6.0,
+     "SW": 5.125,
+     "OS": 7.0,
+     "E5": 6.875
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "E0": 0.0,
+     "E1": 3.625,
+     "SW": 4.25,
+     "OS": 5.625,
+     "E5": 5.625
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "E0": 0.0,
+     "E1": 4.75,
+     "SW": 3.25,
+     "OS": 5.5,
+     "E5": 4.5
+    }
+   ],
+   "finalists": [
+    {
+     "id": "E0",
+     "label": "Current practice",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "E1",
+     "label": "Your idea: Two evening hours",
+     "role": "your idea",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Tue/Thu late evenings",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "E5",
+     "label": "Tue/Thu morning+evening",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:46:14.411Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue/Thu late evenings",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-21:00, Thu 10:00-21:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 61.3125,
+     "restrictedVisits": 3.6875,
+     "turnedAway": 32.0625,
+     "uniqueVisitors": 43.6875,
+     "staffHours": 108.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.704154339142587,
+     "restrictedVisits": 0.47871355387816905,
+     "turnedAway": 4.625563028792639,
+     "uniqueVisitors": 0.47871355387816905,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:46:16.750Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "OS",
+   "label": "One-shot: Tue/Thu late evenings",
+   "summary": "One-shot: Tue/Thu late evenings: 3.7 \u00b1 0.5 vs 0.0 \u00b1 0.0 for current practice (visits/week by residents who can't make current hours). OS One-shot: Tue/Thu late evenings wins on the target metric, with 3.7 \u00b1 0.5 visits/week from residents who can\u2019t make current hours, versus 0.0 \u00b1 0.0 for current practice. It also beats the other tested options (2.9\u20133.0 \u00b1 0.8\u20131.1) while staying within the same 108 staff h/wk as E5.",
+   "assumptions": "This recommendation depends on the synthetic resident schedules, arrival rates, and word-of-mouth defaults used in the model. It also assumes the held-out patterns are directionally informative for the town, since no additional local constraints were provided.",
+   "pilot": "Run a 4-week pilot with Tuesday and Thursday open 10:00\u201321:00, then measure total visits from residents who previously could not attend current hours, along with staff hours actually used. Compare against the prior schedule using the same weekly tracking format.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  }
+ ]
+}

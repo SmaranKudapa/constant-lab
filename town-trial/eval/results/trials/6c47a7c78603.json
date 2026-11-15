@@ -1,0 +1,1856 @@
+{
+ "trial_id": "6c47a7c78603",
+ "city": "Evart, MI",
+ "mode": "service",
+ "options": {},
+ "tag": "compare",
+ "version": "c4e3ddaf283c",
+ "wall_s": 81.8,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:37:12.651Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Evart, MI library",
+   "found": 3,
+   "note": "3 prior facts from earlier trials: Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed; A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows ",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:37:12.815Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:37:12.977Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows a public notice board or a bulletin to families.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:37:13.134Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:37:15.489Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI public library hours",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Evart Public District Library",
+     "url": "https://evartlibrary.com/",
+     "passage": "Fun, educational and FREE e-books about the great state of Michigan. WiFi and Internet access available along with computer usage and a wide range of books: from Juvenile through Adult Fiction, Non-Fiction, Large Print, and Audio Books. Connect With Us evartpubliclibrary@gmail.com 231-734-5542 (2317345542) 105 N Main St Evart, Michigan 49631 Hours Monday \u2013 Friday 9 AM \u2013 4:30 PM Saturday \u2013 Sunday Closed",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/our_community/library.php",
+     "passage": "Evart Public Library Evart Public Library Along with their regular book selection The Evart Public Library has access to a variety of audio books and large print books. Additionally, the Evart Public Library has cemetery records for Evart, Osceola, Hartwick, Sylvan, Orient, Middle Branch and some Mecosta & Wexford Cemeteries. The Evart Public library also has documentation of the Evart Review from 1872 to present \u2013 microfilm, County Farm records, and some family histories. Website: Evart Public District Library P.O. Box 576 Evart, MI 49631 Phone: 231-734-5542 Hours of Operation: Monday 10:00am",
+     "published": null
+    },
+    {
+     "title": "Events from September 7 \u2013 Evart Public District Library",
+     "url": "https://evartlibrary.com/events/",
+     "passage": "Events from September 7 \u2013 Evart Public District Library - September 2026 - Mon 7 Closed for Labor Day! September 7 Evart Public Library 105 N. Main St., Evart, MI, United States Connect With Us evartpubliclibrary@gmail.com 231-734-5542 (2317345542) 105 N Main St Evart, Michigan 49631 Hours Monday \u2013 Friday 9 AM \u2013 4:30 PM Saturday \u2013 Sunday Closed",
+     "published": null
+    }
+   ],
+   "used_for": "Baseline hours for the simulator: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed (quote: \"Hours Monday \u2013 Friday 9 AM \u2013 4:30 PM Saturday \u2013 Sunday Closed\")",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: current library hours"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:37:16.219Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "kind": "fact",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "source": "https://evartlibrary.com/",
+   "effective": null,
+   "supersedes": "fact-library-hours r1: Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "store": "past.dev",
+   "agent": "ada",
+   "say": "Saving the baseline to shared memory"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:37:16.384Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Residents' 'can't make current hours' flag is defined against the model's default hours (Mon-Sat 10:00-18:00); the baseline experiment uses the sourced hours.",
+   "agent": "dee"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:37:18.387Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If the library extends hours on two weekday evenings, then residents who work during the day will have more opportunity to visit during a 3-month trial.",
+   "metric": "visits/week by residents who can't make current hours",
+   "constraint": "staff hours (unknown yet)",
+   "horizon": "1 week, 16 matched seeds",
+   "prompt": "Extend library hours two evenings a week to reach residents who work during the day",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:37:27.112Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "baseline policy E0",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's fact, building runs"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:37:27.269Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:37:27.416Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:37:27.571Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E1",
+   "parent": "E0",
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "why": "Extending Tuesday and Thursday into the evening directly tests whether added after-work access reaches daytime workers without changing any other practice.",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:37:31.091Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E1",
+   "ok": true,
+   "reason": "This is a straightforward hours-extension proposal. The main ungrounded assumption is that the site can actually support 19:00 coverage; the rest is the expected reach effect of adding evening availability. Needs 85 staff hours/week vs 75 now.",
+   "ungrounded": [
+    "The service can be staffed and kept open until 19:00 on Tuesdays and Thursdays."
+   ],
+   "scripted": false,
+   "note": "user's idea: always run",
+   "agent": "cy",
+   "say": "Checking E1's assumptions"
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:37:31.231Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:37:31.386Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": null,
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:37:31.534Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning E0 + E1 out to Modal"
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:37:35.085Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://evartlibrary.com/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 45.125,
+     "restrictedVisits": 0.0,
+     "turnedAway": 133.375,
+     "uniqueVisitors": 32.25,
+     "staffHours": 75.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.8211717839530315,
+     "restrictedVisits": 0.0,
+     "turnedAway": 8.277479487541282,
+     "uniqueVisitors": 1.4832396974191326,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:37:35.232Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 56.0625,
+     "restrictedVisits": 2.875,
+     "turnedAway": 88.0,
+     "uniqueVisitors": 42.0,
+     "staffHours": 85.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.8062391868188443,
+     "restrictedVisits": 1.2041594578792296,
+     "turnedAway": 6.356099432828281,
+     "uniqueVisitors": 1.5491933384829668,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:37:35.374Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E0",
+   "metric": "restrictedVisits",
+   "value": "0.0 \u00b1 0.0",
+   "wall_s": 3.4,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 75,
+   "turned_away": "133.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:37:35.531Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E1",
+   "metric": "restrictedVisits",
+   "value": "2.9 \u00b1 1.2",
+   "wall_s": 3.4,
+   "workers": 4,
+   "view": "E1",
+   "note": null,
+   "staff_hours": 85,
+   "turned_away": "88.0",
+   "agent": "dee"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:37:37.435Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 raises missed-access visits to 2.9/week, but most turned-away residents are still day-workers (64.5), then families (10.4), remote workers (5.9), and students (5.1). The main reason is simply that the library is closed (84.2), especially Mon 18:00\u201320:00 and Tue 19:00, so the added Tue/Thu daytime hours still miss after-work demand.",
+   "next_question": "What staffing or budget limit sets opening hours?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:37:37.884Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-6c47a7c78603-1",
+   "kind": "failure",
+   "claim": "E1: E1 raises missed-access visits to 2.9/week, but most turned-away residents are still day-workers (64.5), then families (10.4), remote workers (5.9), and students (5.1). The main reason is simply that the library is closed (84.2), especially Mon 18:00\u201320:00 and Tue 19:00, so the added Tue/Thu daytime hours still miss after-work demand. Next: What staffing or budget limit sets opening hours?",
+   "source": "trial:6c47a7c78603",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:37:45.350Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI library board library board staffing budget opening hours",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/city_government/library_board.php",
+     "passage": "Welcome to Evart, MI Library Board The Library Board is comprised of two representatives from each participating municipality (Osceola Township, Evart Township, City of Evart) and must be City electors. The purpose of this board is to help support the library's sustainability in the future and creating a responsive plan of action to the community's needs by monitoring and evaluating the overall effectiveness of the library. More information on the Evart Public Library and Museum can be found here. The Library Board meets monthly. Please join us for our next meeting! More information is availab",
+     "published": null
+    },
+    {
+     "title": "Evart Public District Library",
+     "url": "https://evartlibrary.com/",
+     "passage": "Evart Public District Library Evart Public District Library MELCat offers more than just books! Check out their test prep tools for everything from AP exams to military exams. Job hunting? Create a resume, job letter or cover letter. Looking for a tutorial? Skip YouTube and find it at MELCat! That\u2019s just the start, there\u2019s so much more to discover. Looking for a specific book? Find out if we carry it here! Don\u2019t worry, there\u2019s no need to log in or create an account. Fun, educational and FREE e-books about the great state of Michigan. WiFi and Internet access available along with computer usage",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/our_community/library.php",
+     "passage": "Welcome to Evart, MI Evart Public Library Evart Public Library Along with their regular book selection The Evart Public Library has access to a variety of audio books and large print books. Additionally, the Evart Public Library has cemetery records for Evart, Osceola, Hartwick, Sylvan, Orient, Middle Branch and some Mecosta & Wexford Cemeteries. The Evart Public library also has documentation of the Evart Review from 1872 to present \u2013 microfilm, County Farm records, and some family histories. Website: Evart Public District Library P.O. Box 576 Evart, MI 49631 Phone: 231-734-5542 Hours of Oper",
+     "published": null
+    }
+   ],
+   "used_for": "No staffing limit stated (no source states it). Gap logged.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:37:45.506Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are flagged: they need more than the current 75 staff hours/week.",
+   "agent": "ada"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:37:46.225Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board (statement).",
+    "ada: Mentioned Evart school communications."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:37:46.371Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart, MI public library hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:37:46.516Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows a public notice board or a bulletin to families.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned online channel for reaching residents through Evart city website/document center and city clerk contact pages."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:37:52.874Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Three late weekdays",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:00, Wed 09:00-19:00, Fri 09:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:37:53.024Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E2",
+   "parent": "E1",
+   "change": "Mon 09:00-19:00, Wed 09:00-19:00, Fri 09:00-19:00",
+   "why": "The library site shows weekday-only 09:00\u201316:30 service, and E1 showed extra evening hours can lift access for residents who miss current hours, so this trial tests a broader but still weekday-based staffing increase for day-workers.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E2"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:37:55.766Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Three late weekdays",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:00, Wed 09:00-19:00, Fri 09:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:37:55.944Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E2",
+   "ok": false,
+   "reason": "The proposal is supported by the local library hours and by the simulation trace showing most turn-aways are day-workers in evening slots. The staffing feasibility of the extended schedule is not supported by any local source.",
+   "ungrounded": [
+    "The library can staff and operate Mon/Wed/Fri 09:00-19:00."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:37:56.083Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Saturday pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      600,
+      840
+     ],
+     null
+    ]
+   },
+   "change": "Sat 10:00-14:00",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:37:56.268Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E3",
+   "parent": "E1",
+   "change": "Sat 10:00-14:00",
+   "why": "The current schedule has no weekend access on the library site, and the failure trace shows many missed visits occur in the evening and among family/day-worker cohorts, so a short Saturday opening tests whether the practical hours limit is better spent on weekend coverage.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E3"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:37:58.632Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E3",
+   "ok": true,
+   "reason": "Supported: the library is closed weekends per local source, and the simulation shows many turn-aways in weekday evenings with families/day-workers affected. The proposal is a testable schedule change, not an unsupported claim about real-world demand.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:37:58.783Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Saturday pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      600,
+      840
+     ],
+     null
+    ]
+   },
+   "change": "Sat 10:00-14:00",
+   "source": "https://evartlibrary.com/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:37:58.929Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E3"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E3"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:37:59.409Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Saturday pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      600,
+      840
+     ],
+     null
+    ]
+   },
+   "change": "Sat 10:00-14:00",
+   "source": "https://evartlibrary.com/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 56.1875,
+     "restrictedVisits": 0.0,
+     "turnedAway": 113.625,
+     "uniqueVisitors": 42.0625,
+     "staffHours": 83.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 2.007278422807027,
+     "restrictedVisits": 0.0,
+     "turnedAway": 9.590794197215022,
+     "uniqueVisitors": 2.048373338367138,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:37:59.548Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E3",
+   "metric": "restrictedVisits",
+   "value": "0.0 \u00b1 0.0",
+   "wall_s": 0.34,
+   "workers": 2,
+   "view": null,
+   "note": null,
+   "staff_hours": 83,
+   "turned_away": "113.6",
+   "agent": "dee"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:38:01.151Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 still misses mainly day-workers (64.5 turned away) and some families (10.4), with smaller numbers of remote users, students, and night-shift residents. The main reason is the library being closed (84.2), especially on Mon 18:00-20:00 and Tue 19:00, so the added Tue/Thu evening hours help but do not cover the busiest unmet times.",
+   "next_question": "Can the library add Monday evening hours or only Tue/Thu/Sat?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:38:01.703Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-6c47a7c78603-2",
+   "kind": "failure",
+   "claim": "E1: E1 still misses mainly day-workers (64.5 turned away) and some families (10.4), with smaller numbers of remote users, students, and night-shift residents. The main reason is the library being closed (84.2), especially on Mon 18:00-20:00 and Tue 19:00, so the added Tue/Thu evening hours help but do not cover the busiest unmet times. Next: Can the library add Monday evening hours or only Tue/Thu/Sat?",
+   "source": "trial:6c47a7c78603",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:38:04.938Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Evart, MI library board library board hours staffing budget evening hours",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/city_government/library_board.php",
+     "passage": "Welcome to Evart, MI Library Board The Library Board is comprised of two representatives from each participating municipality (Osceola Township, Evart Township, City of Evart) and must be City electors. The purpose of this board is to help support the library's sustainability in the future and creating a responsive plan of action to the community's needs by monitoring and evaluating the overall effectiveness of the library. More information on the Evart Public Library and Museum can be found here. The Library Board meets monthly. Please join us for our next meeting! More information is availab",
+     "published": null
+    },
+    {
+     "title": "Welcome to Evart, MI",
+     "url": "https://www.evart.org/our_community/library.php",
+     "passage": "Evart Public Library Evart Public Library Along with their regular book selection The Evart Public Library has access to a variety of audio books and large print books. Additionally, the Evart Public Library has cemetery records for Evart, Osceola, Hartwick, Sylvan, Orient, Middle Branch and some Mecosta & Wexford Cemeteries. The Evart Public library also has documentation of the Evart Review from 1872 to present \u2013 microfilm, County Farm records, and some family histories. Website: Evart Public District Library P.O. Box 576 Evart, MI 49631 Phone: 231-734-5542 Hours of Operation: Monday 10:00am",
+     "published": null
+    },
+    {
+     "title": "About \u2013 Evart Public District Library",
+     "url": "https://evartlibrary.com/about-2/",
+     "passage": "About We offer eBooks to our patrons through the Libby App. We offer free WiFi, computer usage, have a wide range of books: from Juvenile through Adult Fiction, Non-Fiction, Large Print, and Audio books. Our museum offers a look into Evart\u2019s past. Donations & loans should be limited to Evart History. Please contact the library with any questions. EVART PUBLIC DISTRICT LIBRARY OVERDUE POLICY Effective March 1, 2026 - No daily fines! The library understands that things happen! We would appreciate a courtesy call and we can renew your book! - Renew books: The library is happy to renew your book u",
+     "published": null
+    }
+   ],
+   "used_for": "No staffing limit stated (no source states it). Gap logged.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:38:06.258Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-school-bulletin",
+   "author": "ada",
+   "claim": "Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Evart sources show an online district website and a school communication to parents/guardians; no source provided shows a public notice board (statement).",
+    "ada: Mentioned Evart school communications."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:38:06.416Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-16:30, Tue 09:00-16:30, Wed 09:00-16:30, Thu 09:00-16:30, Fri 09:00-16:30, Sat closed, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned Evart, MI public library hours."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:38:06.560Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel in Evart, MI for reaching residents through the city website/document center and city clerk contact pages. No source provided explicitly shows a public notice board or a bulletin to families.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Mentioned online channel for reaching residents through Evart city website/document center and city clerk contact pages."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:38:09.774Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Monday evening full pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:38:09.923Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E4",
+   "parent": "E1",
+   "change": "Mon 09:00-19:00",
+   "why": "The failure trace shows the busiest turned-away slots are Monday 18:00 and 19:00 and E1 was still capped by day-workers, so adding Monday evening hours directly targets the unmet Monday demand.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E4"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:38:12.304Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E4",
+   "ok": true,
+   "reason": "The proposal is grounded in the simulation trace, which shows Monday 18:00-19:00 as the busiest turned-away slots and day-workers as the main unmet cohort. No unsupported real-world demand or staffing claims are needed.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:38:12.475Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Monday late-evening only",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 12:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:38:12.634Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E5",
+   "parent": "E1",
+   "change": "Mon 12:00-19:00",
+   "why": "The trace concentrates missed visits on Monday evening, so a narrower Monday extension tests whether adding just late-day access captures the same day-worker demand with fewer added staff hours.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E5"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:38:14.283Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E5",
+   "ok": true,
+   "reason": "The proposal is consistent with the simulation trace, which shows the largest turn-aways on Monday evening. It does not rely on unsupported real-world demand or staffing claims.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:38:14.430Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Monday evening full pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:38:14.578Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Monday late-evening only",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 12:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:38:14.731Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E4",
+    "E5"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E4 + E5"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:38:15.379Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Monday evening full pilot",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 49.9375,
+     "restrictedVisits": 1.1875,
+     "turnedAway": 103.375,
+     "uniqueVisitors": 36.4375,
+     "staffHours": 80.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.3400870618483463,
+     "restrictedVisits": 0.9810708435174292,
+     "turnedAway": 8.357631243360764,
+     "uniqueVisitors": 1.3647344063956182,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:38:15.520Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Monday late-evening only",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      720,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 12:00-19:00",
+   "source": "https://evartlibrary.com/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 48.6875,
+     "restrictedVisits": 1.3125,
+     "turnedAway": 116.0,
+     "uniqueVisitors": 35.75,
+     "staffHours": 74.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 2.548692475237712,
+     "restrictedVisits": 1.1954775893619531,
+     "turnedAway": 13.870832707519762,
+     "uniqueVisitors": 2.04939015319192,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:38:15.675Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E4",
+   "metric": "restrictedVisits",
+   "value": "1.2 \u00b1 1.0",
+   "wall_s": 0.43,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 80,
+   "turned_away": "103.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:38:15.826Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E5",
+   "metric": "restrictedVisits",
+   "value": "1.3 \u00b1 1.2",
+   "wall_s": 0.43,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 74,
+   "turned_away": "116.0",
+   "agent": "dee"
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:38:17.676Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening hours",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:38:17.821Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:38:18.953Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Thu 13:00-21:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:38:19.094Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Thu 13:00-21:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 58.3125,
+     "restrictedVisits": 3.9375,
+     "turnedAway": 90.9375,
+     "uniqueVisitors": 44.625,
+     "staffHours": 76.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 2.5223996511258875,
+     "restrictedVisits": 1.0626225419530053,
+     "turnedAway": 11.340010288061176,
+     "uniqueVisitors": 2.276693508870558,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:38:19.254Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening hours",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 56.0625,
+     "restrictedVisits": 2.875,
+     "turnedAway": 88.0,
+     "uniqueVisitors": 42.0,
+     "staffHours": 85.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.8062391868188443,
+     "restrictedVisits": 1.2041594578792296,
+     "turnedAway": 6.356099432828281,
+     "uniqueVisitors": 1.5491933384829668,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:38:19.404Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "restrictedVisits",
+   "value": "3.9 \u00b1 1.1",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.97,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:38:19.559Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "restrictedVisits",
+   "value": "2.9 \u00b1 1.2",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.97,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:38:19.710Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E5"
+   ],
+   "seeds": 8,
+   "workers": 15,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:38:20.780Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E5"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.93,
+   "workers": 15,
+   "agent": "cy"
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:38:20.932Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "visits/week by residents who can't make current hours",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "E0": 0.0,
+     "E1": 1.875,
+     "SW": 3.375,
+     "OS": 1.875,
+     "E5": 0.5
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "E0": 0.0,
+     "E1": 4.125,
+     "SW": 6.5,
+     "OS": 4.125,
+     "E5": 2.25
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "E0": 0.0,
+     "E1": 5.625,
+     "SW": 7.0,
+     "OS": 5.625,
+     "E5": 3.5
+    }
+   ],
+   "finalists": [
+    {
+     "id": "E0",
+     "label": "Current practice",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "E1",
+     "label": "Your idea: Two evening extensions",
+     "role": "your idea",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Tue-Thu evening hours",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "E5",
+     "label": "Monday late-evening only",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T01:38:21.091Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      540,
+      990
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      540,
+      990
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Thu 13:00-21:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 58.3125,
+     "restrictedVisits": 3.9375,
+     "turnedAway": 90.9375,
+     "uniqueVisitors": 44.625,
+     "staffHours": 76.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 2.5223996511258875,
+     "restrictedVisits": 1.0626225419530053,
+     "turnedAway": 11.340010288061176,
+     "uniqueVisitors": 2.276693508870558,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T01:38:23.468Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "SW",
+   "label": "Sweep best of 6",
+   "summary": "Sweep best of 6: 3.9 \u00b1 1.1 vs 0.0 \u00b1 0.0 for current practice (visits/week by residents who can't make current hours). SW Sweep best of 6 wins because it raises visits/week from residents who cannot make current hours from 0.0 \u00b1 0.0 under current practice to 3.9 \u00b1 1.1, the highest of all options, while using 76 staff h/wk, only 1 h/wk above current practice and below E1\u2019s 85 h/wk. It also holds up best on held-out tests, leading in all three scenarios (3.375, 6.5, 7.0) versus E1/OS (1.875, 4.125, 5.625) and E5 (0.5, 2.25, 3.5).",
+   "assumptions": "The result depends on synthetic resident schedules, arrival patterns, and word-of-mouth rates used by the model defaults; no local source directly constrains those inputs. It also assumes the measured staff h/wk estimates are comparable across proposals.",
+   "pilot": "Run a 6-week pilot with Thursday evening hours only (13:00-21:00) at the library, and compare weekly visits by residents who previously could not attend during current hours against a matched pre-pilot baseline. Measure total visits, unique visitors, and staff hours each week, and note whether demand shifts from daytime to the added evening window.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  }
+ ]
+}

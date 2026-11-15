@@ -536,6 +536,13 @@ class LiveTrial(Trial):
                           f"flagged: they need more than the current {staff_hours(self.base_hours)} staff hours/week.", agent="ada")
             return None
         text = f"staff hours <= {fixed(cap, 0)}/week"
+        if ext["kind"] == "budget_cut":
+            text += " (interpreted: a budget cut read as no additional staff hours)"
+        elif ext["kind"] == "no_additional_staff_hours":
+            text += " (no additional staff hours)"
+        if self.constraint and self.constraint[0] == text:
+            self.log_exa("ada", q, "failure-guided", res, live, f"Confirms the existing constraint: {text} (quote: \"{ext['quote'][:160]}\")")
+            return ext["url"]
         self.log_exa("ada", q, "failure-guided", res, live, f"Adds constraint: {text} (quote: \"{ext['quote'][:160]}\")")
         before = [x for x in self.exps if x.get("result") and x["status"] == "done"]
         self.constraint = (text, lambda x, cap=cap: "hours" not in x["policy"] or staff_hours(x["policy"]["hours"]) <= cap)

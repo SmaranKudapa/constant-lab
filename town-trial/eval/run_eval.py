@@ -87,8 +87,10 @@ def analyse(rec: dict) -> dict | None:
         arm = ARMS.get(f["role"], f["role"])
         vals = [row[f["id"]] for row in table["table"]]
         x = exps.get(f["id"], {})
+        hours = (x.get("policy") or {}).get("hours")
         arms[arm] = {"id": f["id"], "label": f["label"], "feasible": f["feasible"], "held_out_mean": sum(vals) / len(vals), "held_out": vals,
-                     "search_mean": (x.get("result") or {}).get("mean", {}), "source": x.get("source")}
+                     "search_mean": (x.get("result") or {}).get("mean", {}), "source": x.get("source"),
+                     "staff_hours": sum((h[1] - h[0]) / 60 for h in hours if h) * 2 if hours else None}
     if "user" not in arms and "baseline" in arms and "your idea" in (arms["baseline"]["label"] or "").lower():
         arms["user"] = dict(arms["baseline"])  # the user's idea was current practice
     runs = {"agent": sum(1 for x in exps.values() if x["role"] == "revision" and x.get("result")),
@@ -104,6 +106,7 @@ def analyse(rec: dict) -> dict | None:
         "exa_calls": len(exa), "exa_live": sum(1 for e in exa if not e.get("fixture")),
         "verified_facts": sum(1 for e in ev if e["type"] == "MEMORY_WRITE" and e.get("agent") == "ada" and not str(e.get("source", "")).startswith("fixture")),
         "constraints": [e["constraint"] for e in ev if e["type"] == "CONSTRAINT"],
+        "constraint_sources": sorted({e["source"] for e in ev if e["type"] == "CONSTRAINT"}),
         "gaps": sum(1 for e in ev if e["type"] == "NOTE" and str(e.get("message", "")).startswith("Gap")),
         "scripted_fallbacks": sum(1 for e in ev if e["type"] == "NOTE" and "scripted step" in str(e.get("message", ""))),
         "memory_fallbacks": sum(1 for e in ev if e["type"] == "NOTE" and e.get("store") == "local-fallback"),
@@ -150,8 +153,25 @@ def summarize_compare() -> dict:
     return out
 
 
+def known_caps(rows: list[dict]) -> dict:
+    """Staffing caps found for each town in ANY evaluated trial (with their sources)."""
+    import re
+    caps = {}
+    for r in rows:
+        for c in r["constraints"]:
+            m = re.search(r"staff hours <= ([0-9.]+)", c)
+            if m:
+                caps.setdefault(r["city"], {"cap": float(m.group(1)), "sources": set()})["sources"].update(r["constraint_sources"])
+    return {k: {"cap": v["cap"], "sources": sorted(v["sources"])} for k, v in caps.items()}
+
+
 def summarize_ablation() -> dict:
     rows = [r for r in load("compare") if r["mode"] == "service"] + load("ablation")
+    caps = known_caps(rows)
+    for r in rows:  # judge every arm's agent pick against the constraints found for its town in any trial
+        a = r["arms"].get("agent")
+        cap = caps.get(r["city"], {}).get("cap")
+        r["agent_within_known_caps"] = None if not a or a.get("staff_hours") is None else (cap is None or a["staff_hours"] <= cap)
     arms = {}
     for r in rows:
         arms.setdefault(r["options"].get("exa_mode", "failure"), []).append(r)
@@ -164,9 +184,15 @@ def summarize_ablation() -> dict:
                     "trials_with_constraint": sum(1 for r in rs if r["constraints"]),
                     "gaps_mean": sum(r["gaps"] for r in rs) / n,
                     "agent_held_out_mean": (lambda v: sum(v) / len(v) if v else None)([r["arms"]["agent"]["held_out_mean"] for r in rs if "agent" in r["arms"]]),
-                    "agent_feasible": sum(1 for r in rs if "agent" in r["arms"] and r["arms"]["agent"]["feasible"])}
+                    "agent_feasible": sum(1 for r in rs if "agent" in r["arms"] and r["arms"]["agent"]["feasible"]),
+                    "agent_within_known_caps": sum(1 for r in rs if r.get("agent_within_known_caps")),
+                    "agent_held_out_mean_within_known_caps": (lambda v: sum(v) / len(v) if v else None)(
+                        [r["arms"]["agent"]["held_out_mean"] for r in rs if r.get("agent_within_known_caps")])}
     out = {"suite": "Exa ablation (service trials): none vs broad vs failure-guided, equal query budgets",
-           "arms": stats, "trials": rows, "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+           "arms": stats, "known_caps": caps,
+           "note": ("Agent picks are also judged against staffing caps found for the same town in any arm: an arm that never searched "
+                    "for the cap can propose schedules a real budget rules out, which inflates its held-out score."),
+           "trials": rows, "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     (OUT / "exa_ablation.json").write_text(json.dumps(out, indent=2))
     return out
 

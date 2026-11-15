@@ -1,0 +1,1728 @@
+{
+ "trial_id": "fc5fc94edf27",
+ "city": "Ely, MN",
+ "mode": "service",
+ "options": {
+  "exa_mode": "broad"
+ },
+ "tag": "ablation",
+ "version": "c4e3ddaf283c",
+ "wall_s": 87.4,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:46:22.581Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Evaluation arm: exa_mode=broad (same number of searches, generic queries not built from the failure).",
+   "agent": "ada"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:46:23.297Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Ely, MN library",
+   "found": 3,
+   "note": "3 prior facts from earlier trials: Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed; A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bullet",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:46:23.516Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:46:23.724Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:46:23.935Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:46:25.951Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN public library hours",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Ely library",
+     "url": "https://www.elylibrary.org/",
+     "passage": "Ely library | Library building at sunrise | Welcome to the Ely Public Library! We are located at 224 E Chapman St. in Ely MN. Our hours currently are: Monday - 9 am -6:30 pm Tuesday - 9 am - 6:30 pm Wednesday - 9 am - 6:30 pm Thursday - 9 am - 6:30 pm Friday - 9 am - 6:30 pm Saturday closed Sunday closed | | --- | --- | The library's wifi is available 24/7 in the parking lot (the password is posted on the door). ... Hours Mon - Fri: 9 am - 6:30 pm Sat. & Sun: closed Telephone 218-365-5140 Email [email protected] ADDRESS 224 E Chapman St Ely MN 55731",
+     "published": null
+    },
+    {
+     "title": "Ely Public Library",
+     "url": "https://exa.ai/library/place/3f7dqz5gg9m",
+     "passage": "Ely Public Library Ely Public Library is a library in Ely, MN, United States. Location - Address: 224 E Chapman St, Ely, MN 55731, United States - Area: Ely, Minnesota, United States - Coordinates: 47.90213, -91.863329 Details - Status: Open - Categories: Library - Rating: 4.5 out of 5 from 15 reviews Opening hours | Day | Hours | | --- | --- | | Monday | 9 AM\u20136:30 PM | | Tuesday | 9 AM\u20136:30 PM | | Wednesday | 9 AM\u20136:30 PM | | Thursday | 9 AM\u20136:30 PM | | Friday | 9 AM\u20136:30 PM | | Saturday | Closed | | Sunday | Closed | Contact - Phone: +12183655140 - Website: [http://www.elylibrary.org/](http:",
+     "published": "2026-09-14T04:03:48.000Z"
+    },
+    {
+     "title": "Policies",
+     "url": "http://www.elylibrary.org/policies.html",
+     "passage": "Here's our front desk - we handle checkouts, returns, and reference ... current address Hours Mon - Fri: 9 am - 6:30 pm Sat. & Sun: closed Telephone 218-365-5140 Email [email protected] ADDRESS 224 E Chapman St Ely MN 55731",
+     "published": null
+    }
+   ],
+   "used_for": "Baseline hours for the simulator: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed (quote: \"Our hours currently are: Monday - 9 am -6:30 pm Tuesday - 9 am - 6:30 pm Wednesday - 9 am - 6:30 pm Thursday - 9 am - 6:30 pm Friday - 9 am - 6:30 pm Saturday c\")",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: current library hours"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:46:26.582Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "kind": "fact",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "source": "https://www.elylibrary.org/",
+   "effective": null,
+   "supersedes": "fact-library-hours r1: Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "store": "past.dev",
+   "agent": "ada",
+   "say": "Saving the baseline to shared memory"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:46:26.822Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Residents' 'can't make current hours' flag is defined against the model's default hours (Mon-Sat 10:00-18:00); the baseline experiment uses the sourced hours.",
+   "agent": "dee"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:46:28.839Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "If Ely Public Library extends hours on two weekdays from 18:30 to 20:00, then evening access for residents who work during the day should increase over the next few weeks.",
+   "metric": "visits/week by residents who can't make current hours",
+   "constraint": "staff hours (unknown yet)",
+   "horizon": "1 week, 16 matched seeds",
+   "prompt": "Extend library hours two evenings a week to reach residents who work during the day",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:46:55.295Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-18:30, Tue 09:00-18:30, Wed 09:00-18:30, Thu 09:00-18:30, Fri 09:00-18:30, Sat closed, Sun closed",
+   "used_for": "baseline policy E0",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's fact, building runs"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:46:55.530Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:46:55.748Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:46:55.957Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E1",
+   "parent": "E0",
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "why": "Extending two weekday evenings keeps the same service but adds after-work access for daytime workers, matching the traceable mechanism in the idea.",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:46:58.019Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E1",
+   "ok": true,
+   "reason": "The proposal is within the supported service-hours action space, and the local sources only confirm current library hours and that an online notice channel exists. The specific staffing, budget, and demand claims behind the extended hours are not supported by the provided sources. Needs 101 staff hours/week vs 95 now.",
+   "ungrounded": [
+    "Opening the service on Tuesday and Thursday from 09:00 to 20:00 is feasible with available staffing and budget.",
+    "Residents are able to use the service during evening hours on those days."
+   ],
+   "scripted": false,
+   "note": "user's idea: always run",
+   "agent": "cy",
+   "say": "Checking E1's assumptions"
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:46:58.245Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:46:58.482Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": null,
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:46:58.752Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning E0 + E1 out to Modal"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:46:59.387Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "https://www.elylibrary.org/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 64.0,
+     "restrictedVisits": 5.1875,
+     "turnedAway": 45.3125,
+     "uniqueVisitors": 46.375,
+     "staffHours": 95.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.8618986725025255,
+     "restrictedVisits": 1.558578412100805,
+     "turnedAway": 8.40411605504509,
+     "uniqueVisitors": 1.1474609652039003,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:46:59.604Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Thu 09:00-20:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 66.0,
+     "restrictedVisits": 6.25,
+     "turnedAway": 30.3125,
+     "uniqueVisitors": 47.625,
+     "staffHours": 101.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.0954451150103321,
+     "restrictedVisits": 1.1254628677422756,
+     "turnedAway": 5.5343623541169285,
+     "uniqueVisitors": 0.7187952884282609,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:46:59.823Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E0",
+   "metric": "restrictedVisits",
+   "value": "5.2 \u00b1 1.6",
+   "wall_s": 0.42,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 95,
+   "turned_away": "45.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:47:00.053Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E1",
+   "metric": "restrictedVisits",
+   "value": "6.3 \u00b1 1.1",
+   "wall_s": 0.42,
+   "workers": 4,
+   "view": "E1",
+   "note": null,
+   "staff_hours": 101,
+   "turned_away": "30.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:47:01.995Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 still misses mainly day-workers (20.4 turned away/week) and families (5.2), with the busiest missed times on Monday 18:00-21:00 and Wednesday 19:00. The dominant reason is simply that the library is closed (24.6), so extending only Tue/Thu hours leaves the Monday evening gap mostly unsolved.",
+   "next_question": "Can the library add Monday evening hours within current staffing and budget?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:47:02.946Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-fc5fc94edf27-1",
+   "kind": "failure",
+   "claim": "E1: E1 still misses mainly day-workers (20.4 turned away/week) and families (5.2), with the busiest missed times on Monday 18:00-21:00 and Wednesday 19:00. The dominant reason is simply that the library is closed (24.6), so extending only Tue/Thu hours leaves the Monday evening gap mostly unsolved. Next: Can the library add Monday evening hours within current staffing and budget?",
+   "source": "trial:fc5fc94edf27",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:47:05.896Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN public library",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Ely library",
+     "url": "https://www.elylibrary.org/",
+     "passage": "Ely library | Library building at sunrise | Welcome to the Ely Public Library! We are located at 224 E Chapman St. in Ely MN. Our hours currently are: Monday - 9 am -6:30 pm Tuesday - 9 am - 6:30 pm Wednesday - 9 am - 6:30 pm Thursday - 9 am - 6:30 pm Friday - 9 am - 6:30 pm Saturday closed Sunday closed | | --- | --- | The library's wifi is available 24/7 in the parking lot (the password is posted on the door). Direct Link to Your Arrowhead Library Card Account (for renewals or placing holds) ... Hours Mon - Fri: 9 am - 6:30 pm Sat. & Sun: closed Telephone 218-365-5140 Email [email protected]",
+     "published": null
+    },
+    {
+     "title": "Ely Public Library",
+     "url": "https://exa.ai/library/place/3f7dqz5gg9m",
+     "passage": "Ely Public Library Ely Public Library is a library in Ely, MN, United States. Location - Address: 224 E Chapman St, Ely, MN 55731, United States - Area: Ely, Minnesota, United States - Coordinates: 47.90213, -91.863329 Details - Status: Open - Categories: Library - Rating: 4.5 out of 5 from 15 reviews Opening hours | Day | Hours | | --- | --- | | Monday | 9 AM\u20136:30 PM | | Tuesday | 9 AM\u20136:30 PM | | Wednesday | 9 AM\u20136:30 PM | | Thursday | 9 AM\u20136:30 PM | | Friday | 9 AM\u20136:30 PM | | Saturday | Closed | | Sunday | Closed | Contact - Phone: +12183655140 - Website: [http://www.elylibrary.org/](http:",
+     "published": "2026-09-14T04:03:48.000Z"
+    },
+    {
+     "title": "Policies",
+     "url": "http://www.elylibrary.org/policies.html",
+     "passage": "How Long Can I Keep Items? New Books: - 3 week loan period - can be renewed once if no one is waiting - no limit on number checked out - 10 cents per day fine if returned late Older Books: - 3 week loan period - can be renewed twice if no one is waiting - no limit on number checked out - 10 cents per day fine if returned late DVDs: - 7 day loan period - no renewals - limit of 4 per card - $1 per day fine if returned late Audiobooks: - 3 week loan period - can be renewed once if no one is waiting - no limit on number checked out - 10 cents per day fine if returned late Magazines: - 3 week loan ",
+     "published": null
+    }
+   ],
+   "used_for": "No staffing limit stated (no source states it). Gap logged.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:47:06.120Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are flagged: they need more than the current 95 staff hours/week.",
+   "agent": "ada"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:47:06.842Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:47:07.064Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:47:11.539Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Mon late, Wed shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1020
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-20:00, Wed 09:00-17:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:47:11.779Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E2",
+   "parent": "E1",
+   "change": "Mon 09:00-20:00, Wed 09:00-17:00",
+   "why": "Adds Monday evening access for the biggest turned-away slot (Mon 19:00/18:00) while keeping weekly open hours flat by shortening another weekday, so staff hours stay within the current envelope.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E2"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:47:15.092Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E2",
+   "ok": true,
+   "reason": "The proposal is consistent with the local library hours and the simulation\u2019s biggest unmet slots on Monday evening. The main unverified pieces are the expected redistribution of demand and the assumption that cutting Wednesday by two hours can fully offset the added Monday hours.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:47:15.311Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon late, Fri shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1170
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1080
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:30, Fri 09:00-18:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:47:15.532Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E3",
+   "parent": "E1",
+   "change": "Mon 09:00-19:30, Fri 09:00-18:00",
+   "why": "This shifts one hour of service to Monday evening to reach the day-worker peak in the trace, while trimming Friday slightly to avoid increasing total staff hours.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E3"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:47:17.732Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E3",
+   "ok": true,
+   "reason": "The proposal is consistent with the simulation trace and stays within supported service-hour changes. It does not rely on unsupported local demand or staffing claims.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:47:17.965Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Mon late, Wed shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1020
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-20:00, Wed 09:00-17:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:47:18.194Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon late, Fri shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1170
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1080
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:30, Fri 09:00-18:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:47:18.425Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E2",
+    "E3"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E2 + E3"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:47:19.029Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Mon late, Wed shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1020
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-20:00, Wed 09:00-17:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 63.6875,
+     "restrictedVisits": 5.0625,
+     "turnedAway": 36.625,
+     "uniqueVisitors": 46.0625,
+     "staffHours": 95.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.9224550276491081,
+     "restrictedVisits": 1.2893796958227628,
+     "turnedAway": 8.365604182205452,
+     "uniqueVisitors": 1.8062391868188443,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:47:19.251Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon late, Fri shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1170
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1080
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-19:30, Fri 09:00-18:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 62.6875,
+     "restrictedVisits": 4.9375,
+     "turnedAway": 36.8125,
+     "uniqueVisitors": 45.75,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.778341924377874,
+     "restrictedVisits": 1.181453906563152,
+     "turnedAway": 9.174012208406962,
+     "uniqueVisitors": 1.1832159566199232,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:47:19.472Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E2",
+   "metric": "restrictedVisits",
+   "value": "5.1 \u00b1 1.3",
+   "wall_s": 0.36,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 95,
+   "turned_away": "36.6",
+   "agent": "dee"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:47:19.683Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E3",
+   "metric": "restrictedVisits",
+   "value": "4.9 \u00b1 1.2",
+   "wall_s": 0.36,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 96,
+   "turned_away": "36.8",
+   "agent": "dee"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:47:21.834Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 helps only slightly: visits by residents who can't make current hours rise to 6.3, but day-workers are still the main missed cohort (20.4 turned away). The missed demand is concentrated on Monday evenings, especially 18:00-20:00, and the dominant reason is simply 'library closed' (24.6), with some 'closed while waiting' (5.7).",
+   "next_question": "Can the library add one late-evening weekly shift within current staffing?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:47:23.217Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-fc5fc94edf27-2",
+   "kind": "failure",
+   "claim": "E1: E1 helps only slightly: visits by residents who can't make current hours rise to 6.3, but day-workers are still the main missed cohort (20.4 turned away). The missed demand is concentrated on Monday evenings, especially 18:00-20:00, and the dominant reason is simply 'library closed' (24.6), with some 'closed while waiting' (5.7). Next: Can the library add one late-evening weekly shift within current staffing?",
+   "source": "trial:fc5fc94edf27",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:47:26.311Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Ely, MN library news",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Library visits top 41,000",
+     "url": "https://www.elyecho.com/article/4367,library-visits-top-41-000",
+     "passage": "Library visits top 41,000 Library visits top 41,000 04/04/2026 06:00 AM by Tom Coombe Ely\u2019s public library is a busy place, and one that appears to residents beyond the city limits. An annual report released last month showed that the facility had 41,105 visits in 2025, nearly identical to 2024 numbers showing 41,413. More than half of Ely\u2019s roughly 3,300 residents have library cards, but another 1,571 people from outside Ely\u2019s boundaries also hold cards. Total circulation was 67,498, almost the same as the 67,505 in 2024, but Ely residents make up just 31.2 percent of total circulation. The n",
+     "published": "2026-04-04T11:00:00.000Z"
+    },
+    {
+     "title": "Community calendar - November 7, 2026",
+     "url": "https://www.elyecho.com/article/5365,community-calendar-november-7-2026",
+     "passage": "Community calendar - November 7, 2026 Community calendar - November 7, 2026 11/07/2026 06:00 AM PLEASE NOTE: Your free event news can be posted on the Ely Echo newspaper\u2019s Community Calendar. Send your info to: [email protected]. At the Ely Public Library on Monday, Nov. 9 at 3 p.m. \u2013 Friends of the Library book club. The title to be discussed this month is Just Mercy by Bryan Stevenson. The Ely Chapter of the League of Minnesota Poets, \u2018Northern Pines Poets,\u2019 will hold its monthly meeting on Monday, Nov. 9, at 3 p.m., at Carbonation Ely, 229 E. Sheridan Street, (formerly the Pebble Spa). Memb",
+     "published": "2026-11-07T12:00:00.000Z"
+    },
+    {
+     "title": "Preschool Storytime - Ely Chamber & Tourism",
+     "url": "https://ely.org/events/preschool-storytime/",
+     "passage": "Preschool Storytime - Ely Chamber & Tourism Preschool Storytime Fridays at 10:30 am (except Holidays) \u2013 Preschool Storytime \u2013 for preschool ages with an adult. Bring your little ones on Friday mornings for some fun stories, fingerplays, and songs. We might even add a few words in sign language! Date : Nov 20 2026 Time : 10:30 am - 11:00 am Location : Ely Public Library : 224 E. Chapman Street Ely, MN 55731 Ely Regional Trailhead 15 S 4th Avenue W, Ely, MN 55731 (218) 365-6123 (+1-218-365-6123)",
+     "published": null
+    }
+   ],
+   "used_for": "No staffing limit stated (no source states it). Gap logged.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:47:26.980Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-staffing-cap",
+   "author": "ada",
+   "claim": "The library faced a budget cut that would reduce hours.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:47:27.203Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows an online channel exists in Ely, MN for reaching residents. I did not find explicit evidence in the provided sources for a public notice board or a school bulletin/newsletter channel, and I did not find evidence about employer or school outbound notices for public alerts.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:47:31.395Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue late, Fri shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1020
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Fri 09:00-17:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:47:31.636Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E4",
+   "parent": "E1",
+   "change": "Tue 09:00-20:00, Fri 09:00-17:00",
+   "why": "This adds one late-evening weekday for day-workers and families while keeping weekly staffing at 95 hours by trimming another weekday, and the E1 trace shows the main unmet demand is Monday evening (18:00\u201321:00).",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E4"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:47:34.910Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue late, Fri shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1020
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:00, Fri 09:00-17:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:47:35.227Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E4",
+   "ok": false,
+   "reason": "The proposal is testable, but it relies on an unverified staffing-hours constraint and on the simulation\u2019s Monday-evening shortfall as the main design signal. The rest is a reasonable mechanism claim that the next run can evaluate.",
+   "ungrounded": [
+    "The weekly staffing budget can stay at 95 hours by trimming another weekday."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:47:35.449Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Thu late, Mon shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1020
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-17:00, Thu 09:00-20:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:47:35.668Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E5",
+   "parent": "E1",
+   "change": "Mon 09:00-17:00, Thu 09:00-20:00",
+   "why": "This creates a single late-evening weekly shift within the current staffing cap, targeting the evening turned-away pattern seen in E1 while offsetting the extra hours with an earlier close on another weekday.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E5"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:47:38.249Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Thu late, Mon shorter",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1020
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1200
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Mon 09:00-17:00, Thu 09:00-20:00",
+   "source": "https://www.elylibrary.org/",
+   "status": "rejected",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:47:38.488Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E5",
+   "ok": false,
+   "reason": "The late-evening need is supported by the simulation trace, but the staffing-cap and hour-shift feasibility are not stated in any local source. The proposal is otherwise a testable scheduling change.",
+   "ungrounded": [
+    "Keeping Mon 09:00-17:00 and extending Thu to 20:00 can be done within the current staffing cap by shifting hours from another weekday."
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:47:40.787Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening extension",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:30, Thu 09:00-20:30 (single proposal, no feedback)",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:47:40.997Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:47:41.708Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 13:00-21:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:47:41.932Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 13:00-21:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 66.0,
+     "restrictedVisits": 6.375,
+     "turnedAway": 32.1875,
+     "uniqueVisitors": 47.6875,
+     "staffHours": 92.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.632993161855452,
+     "restrictedVisits": 1.02469507659596,
+     "turnedAway": 6.901388749133515,
+     "uniqueVisitors": 0.873212459828649,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:47:42.149Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening extension",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:30, Thu 09:00-20:30 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 67.0625,
+     "restrictedVisits": 7.125,
+     "turnedAway": 25.125,
+     "uniqueVisitors": 48.125,
+     "staffHours": 103.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.9287087810503355,
+     "restrictedVisits": 1.2041594578792296,
+     "turnedAway": 3.89657969677682,
+     "uniqueVisitors": 0.7187952884282609,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:47:42.369Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "restrictedVisits",
+   "value": "6.4 \u00b1 1.0",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.49,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:47:42.581Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "restrictedVisits",
+   "value": "7.1 \u00b1 1.2",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.49,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:47:42.794Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E2"
+   ],
+   "seeds": 8,
+   "workers": 15,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:47:43.535Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E2"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.5,
+   "workers": 15,
+   "agent": "cy"
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:47:43.848Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "visits/week by residents who can't make current hours",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "E0": 6.75,
+     "E1": 8.25,
+     "SW": 8.25,
+     "OS": 9.25,
+     "E2": 7.625
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "E0": 9.625,
+     "E1": 11.5,
+     "SW": 12.25,
+     "OS": 12.625,
+     "E2": 11.125
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "E0": 2.625,
+     "E1": 3.625,
+     "SW": 3.5,
+     "OS": 3.375,
+     "E2": 3.25
+    }
+   ],
+   "finalists": [
+    {
+     "id": "E0",
+     "label": "Current practice",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "E1",
+     "label": "Your idea: Two evening extensions",
+     "role": "your idea",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Tue-Thu evening extension",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "E2",
+     "label": "Mon late, Wed shorter",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:47:44.074Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening extension",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      540,
+      1230
+     ],
+     [
+      540,
+      1110
+     ],
+     null,
+     null
+    ]
+   },
+   "change": "Tue 09:00-20:30, Thu 09:00-20:30 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 67.0625,
+     "restrictedVisits": 7.125,
+     "turnedAway": 25.125,
+     "uniqueVisitors": 48.125,
+     "staffHours": 103.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.9287087810503355,
+     "restrictedVisits": 1.2041594578792296,
+     "turnedAway": 3.89657969677682,
+     "uniqueVisitors": 0.7187952884282609,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:47:46.548Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "OS",
+   "label": "One-shot: Tue-Thu evening extension",
+   "summary": "One-shot: Tue-Thu evening extension: 7.1 \u00b1 1.2 vs 5.2 \u00b1 1.6 for current practice (visits/week by residents who can't make current hours). OS (Tue 09:00-20:30, Thu 09:00-20:30) is the strongest option on the main metric: 7.1 \u00b1 1.2 visits/week for residents who can\u2019t make current hours, versus 5.2 \u00b1 1.6 for current practice and 6.4 \u00b1 1.0 for the closest lower-cost alternative. It also beats E1 (6.3 \u00b1 1.1) while using only 103 staff h/wk, and it is the top performer in the held-out A and B scenarios (9.25 and 12.625).",
+   "assumptions": "The ranking depends on synthetic resident schedules, arrival patterns, and word-of-mouth defaults; it also assumes staff hours can be absorbed at 103 h/wk and that the held-out scenarios are informative for the local town.",
+   "pilot": "Run a 4-week pilot with Tue/Thu evening extensions to 20:30, then measure visits/week from residents who previously could not attend, total staff hours used, and any queue/overcrowding at 18:30-20:30. Compare against the same 4-week baseline before opening hours change.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  }
+ ]
+}

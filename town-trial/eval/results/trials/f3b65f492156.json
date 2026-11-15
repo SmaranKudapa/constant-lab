@@ -1,0 +1,1881 @@
+{
+ "trial_id": "f3b65f492156",
+ "city": "Marfa, TX",
+ "mode": "service",
+ "options": {
+  "exa_mode": "none"
+ },
+ "tag": "ablation",
+ "version": "c4e3ddaf283c",
+ "wall_s": 62.3,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T01:44:34.453Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Evaluation arm: exa_mode=none (no Exa calls).",
+   "agent": "ada"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T01:44:35.237Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Marfa, TX library",
+   "found": 3,
+   "note": "3 prior facts from earlier trials: Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed; A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin chann",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T01:44:35.536Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T01:44:35.838Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T01:44:36.146Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T01:44:36.450Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no source states the Marfa, TX library's hours (no search results (Exa disabled: ablation arm)). Baseline uses the model default (Mon 10:00-18:00, Tue 10:00-18:00, Wed 10:00-18:00, Thu 10:00-18:00, Fri 10:00-18:00, Sat 10:00-18:00, Sun closed), labelled as an assumption.",
+   "agent": "ada"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T01:44:38.663Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "Change library hours on two weekdays to stay open until 20:00 for residents who work during the day; compare evening visits over the next 8 weeks.",
+   "metric": "visits/week by residents who can't make current hours",
+   "constraint": "staff hours (unknown yet)",
+   "horizon": "1 week, 16 matched seeds",
+   "prompt": "Extend library hours two evenings a week to reach residents who work during the day",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Writing the testable claim"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T01:44:38.988Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T01:44:39.294Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T01:44:39.593Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E1",
+   "parent": "E0",
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "why": "Extending two weekday hours directly tests whether later access increases use by people unavailable during standard daytime hours, as reflected in the current 10:00-18:00 schedule.",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T01:44:42.843Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E1",
+   "ok": true,
+   "reason": "The proposal is just a schedule, so the only supported assumptions are about how the timing may affect reach and the fact that the library\u2019s posted hours overlap only part of the proposed window. No real-world demand or staffing claims are stated in the sources. Needs 104 staff hours/week vs 96 now.",
+   "ungrounded": [],
+   "scripted": false,
+   "note": "user's idea: always run",
+   "agent": "cy",
+   "say": "Checking E1's assumptions"
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T01:44:43.149Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T01:44:43.444Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T01:44:43.734Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning E0 + E1 out to Modal"
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T01:44:44.843Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "none (current practice)",
+   "source": "model default (no local source)",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 55.375,
+     "restrictedVisits": 0.0,
+     "turnedAway": 92.625,
+     "uniqueVisitors": 46.6875,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 0.7187952884282609,
+     "restrictedVisits": 0.0,
+     "turnedAway": 5.66715684154468,
+     "uniqueVisitors": 0.47871355387816905,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T01:44:45.160Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 62.6875,
+     "restrictedVisits": 5.0625,
+     "turnedAway": 54.25,
+     "uniqueVisitors": 51.4375,
+     "staffHours": 104.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.6214705259938174,
+     "restrictedVisits": 1.2893796958227628,
+     "turnedAway": 6.787242935586339,
+     "uniqueVisitors": 1.2632629707758134,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T01:44:45.456Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E0",
+   "metric": "restrictedVisits",
+   "value": "0.0 \u00b1 0.0",
+   "wall_s": 0.8,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 96,
+   "turned_away": "92.6",
+   "agent": "dee"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T01:44:45.765Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E1",
+   "metric": "restrictedVisits",
+   "value": "5.1 \u00b1 1.3",
+   "wall_s": 0.8,
+   "workers": 4,
+   "view": "E1",
+   "note": null,
+   "staff_hours": 104,
+   "turned_away": "54.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T01:44:48.274Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 still misses mostly day-workers (40.2/week), then seniors (5.4), families (4.3), and students (2.5). Most unmet demand is because the library is closed (52.1), especially Mon 18:00\u201319:00, Wed 18:00, and Tue 20:00; a smaller share is \"closed while waiting\" (2.1).",
+   "next_question": "Can the library staff any additional evening hours on Mondays or Wednesdays?",
+   "entity": "Marfa Public Library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T01:44:49.397Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-f3b65f492156-1",
+   "kind": "failure",
+   "claim": "E1: E1 still misses mostly day-workers (40.2/week), then seniors (5.4), families (4.3), and students (2.5). Most unmet demand is because the library is closed (52.1), especially Mon 18:00\u201319:00, Wed 18:00, and Tue 20:00; a smaller share is \"closed while waiting\" (2.1). Next: Can the library staff any additional evening hours on Mondays or Wednesdays?",
+   "source": "trial:f3b65f492156",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T01:44:49.703Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "warn",
+   "message": "Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are flagged: they need more than the current 96 staff hours/week.",
+   "agent": "ada"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T01:44:50.487Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa Public Library Sunday opening hours: Sun closed.",
+    "ada: Marfa Public Library Monday opening hours: Mon 09:00-17:00.",
+    "ada: Marfa Public Library Friday opening hours: Fri 09:00-17:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T01:44:50.783Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "Marfa public meeting notice channel: an online city website channel."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T01:44:51.099Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa meeting notice channel: a public notice location at City Hall."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T01:44:54.441Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Monday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T01:44:54.765Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E2",
+   "parent": "E1",
+   "change": "Mon 10:00-19:00",
+   "why": "Adding one Monday evening hour directly targets the busiest turned-away slot at Mon 18:00 and the broader Monday evening overflow seen in the trace, which was limited by the library being closed.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E2"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T01:44:56.732Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E2",
+   "ok": true,
+   "reason": "The proposal is supported by the simulation trace showing Mon 18:00 and Mon 19:00 as the biggest turned-away slots and many losses due to the library being closed. It does not rely on unsupported real-world demand or staffing claims.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T01:44:57.036Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Wednesday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Wed 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T01:44:57.354Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E3",
+   "parent": "E1",
+   "change": "Wed 10:00-19:00",
+   "why": "Adding one Wednesday evening hour addresses the Wed 18:00 turned-away demand in the trace while staying within the library\u2019s existing weekday operating pattern.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E3"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T01:44:59.528Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E3",
+   "ok": true,
+   "reason": "This proposal is supported by the simulation trace showing Wed 18:00 turned-away demand. It does not rely on any unsupported real-world demand or staffing claim; the only town fact used is the published weekday hours.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T01:44:59.825Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Monday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T01:45:00.138Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Wednesday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Wed 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T01:45:00.457Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E2",
+    "E3"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E2 + E3"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T01:45:01.266Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Monday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 56.5625,
+     "restrictedVisits": 1.0,
+     "turnedAway": 86.125,
+     "uniqueVisitors": 47.4375,
+     "staffHours": 98.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.0307764064044151,
+     "restrictedVisits": 0.816496580927726,
+     "turnedAway": 9.604686356149273,
+     "uniqueVisitors": 0.963932916061417,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T01:45:01.586Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Wednesday to 7pm",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Wed 10:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 57.625,
+     "restrictedVisits": 1.625,
+     "turnedAway": 79.875,
+     "uniqueVisitors": 48.1875,
+     "staffHours": 98.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.1474609652039003,
+     "restrictedVisits": 0.9574271077563381,
+     "turnedAway": 5.714017850864661,
+     "uniqueVisitors": 1.1086778913041726,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T01:45:01.892Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E2",
+   "metric": "restrictedVisits",
+   "value": "1.0 \u00b1 0.8",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 98,
+   "turned_away": "86.1",
+   "agent": "dee"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T01:45:02.203Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E3",
+   "metric": "restrictedVisits",
+   "value": "1.6 \u00b1 1.0",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 98,
+   "turned_away": "79.9",
+   "agent": "dee"
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T01:45:03.840Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 improved access for residents who can\u2019t make current hours to 5.1 visits/week, but day-workers are still the main missed cohort (40.2 turned away). The busiest missed slots are Mon 18:00\u201319:00 and Wed 18:00, and the main reason is simply that the library is closed (52.1), not that people abandon the queue (2.1).",
+   "next_question": "What evening hours or schedule limits has the library board approved?",
+   "entity": "library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T01:45:05.031Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-f3b65f492156-2",
+   "kind": "failure",
+   "claim": "E1: E1 improved access for residents who can\u2019t make current hours to 5.1 visits/week, but day-workers are still the main missed cohort (40.2 turned away). The busiest missed slots are Mon 18:00\u201319:00 and Wed 18:00, and the main reason is simply that the library is closed (52.1), not that people abandon the queue (2.1). Next: What evening hours or schedule limits has the library board approved?",
+   "source": "trial:f3b65f492156",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T01:45:05.774Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa Public Library Sunday opening hours: Sun closed.",
+    "ada: Marfa Public Library Monday opening hours: Mon 09:00-17:00.",
+    "ada: Marfa Public Library Friday opening hours: Fri 09:00-17:00."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T01:45:06.076Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an online city website channel for public notices of meetings. No source provided explicitly shows a public notice board or school bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "Marfa public meeting notice channel: an online city website channel."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T01:45:06.399Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses its official website and a public notice location at City Hall for meeting notices. No source provided shows a school-style bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: Marfa meeting notice channel: a public notice location at City Hall."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T01:45:11.301Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue-Thu evening trial",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T01:45:11.598Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E4",
+   "parent": "E1",
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "why": "Extending the two evenings with the highest after-work demand should reduce the large Tuesday/Thursday evening turnaways in the trace, while staying close to the library's published weekday schedule.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E4"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T01:45:14.125Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E4",
+   "ok": true,
+   "reason": "The proposal is supported by the simulation trace showing evening turnaways and by the library's published weekday hours. The effect of adding Tue/Thu evening hours is a testable mechanism rather than an unsupported real-world claim.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T01:45:14.424Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Mon-Wed late close",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 09:00-18:30, Wed 09:00-18:30",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T01:45:14.725Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E5",
+   "parent": "E1",
+   "change": "Mon 09:00-18:30, Wed 09:00-18:30",
+   "why": "A smaller half-hour extension on the worst weekday evening slots targets the Monday and Wednesday 18:00 turnaways seen in the failure trace without adding a full extra hour.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E5"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T01:45:16.929Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E5",
+   "ok": true,
+   "reason": "The proposal stays within the supported service-hour actions and only relies on the simulation trace to choose Monday/Wednesday evening slots. It does not introduce unsupported real-world demand, staffing, or behavior inputs.",
+   "ungrounded": [],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T01:45:17.238Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue-Thu evening trial",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T01:45:17.552Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Mon-Wed late close",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 09:00-18:30, Wed 09:00-18:30",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T01:45:17.847Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E4",
+    "E5"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E4 + E5"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T01:45:18.675Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue-Thu evening trial",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 59.5625,
+     "restrictedVisits": 3.0,
+     "turnedAway": 68.75,
+     "uniqueVisitors": 49.1875,
+     "staffHours": 104.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.459166428707386,
+     "restrictedVisits": 1.1547005383792515,
+     "turnedAway": 5.916079783099616,
+     "uniqueVisitors": 1.1672617529928753,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T01:45:18.982Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Mon-Wed late close",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "hours": [
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1110
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Mon 09:00-18:30, Wed 09:00-18:30",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 57.9375,
+     "restrictedVisits": 1.5625,
+     "turnedAway": 77.25,
+     "uniqueVisitors": 48.125,
+     "staffHours": 102.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.181453906563152,
+     "restrictedVisits": 0.963932916061417,
+     "turnedAway": 10.617595459110944,
+     "uniqueVisitors": 1.2041594578792296,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T01:45:19.398Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E4",
+   "metric": "restrictedVisits",
+   "value": "3.0 \u00b1 1.2",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 104,
+   "turned_away": "68.8",
+   "agent": "dee"
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T01:45:19.695Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E5",
+   "metric": "restrictedVisits",
+   "value": "1.6 \u00b1 1.0",
+   "wall_s": 0.51,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "staff_hours": 102,
+   "turned_away": "77.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T01:45:21.811Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening hours",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T01:45:22.499Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T01:45:23.543Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Thu 13:00-21:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T01:45:23.920Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      780,
+      1260
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Thu 13:00-21:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 62.0625,
+     "restrictedVisits": 4.3125,
+     "turnedAway": 71.1875,
+     "uniqueVisitors": 51.1875,
+     "staffHours": 96.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.4361406616345072,
+     "restrictedVisits": 1.0781929326423914,
+     "turnedAway": 5.243646949722429,
+     "uniqueVisitors": 1.2230426539304888,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T01:45:24.312Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Tue-Thu evening hours",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      540,
+      1140
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 09:00-19:00, Thu 09:00-19:00 (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 59.5625,
+     "restrictedVisits": 3.0,
+     "turnedAway": 68.75,
+     "uniqueVisitors": 49.1875,
+     "staffHours": 104.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.459166428707386,
+     "restrictedVisits": 1.1547005383792515,
+     "turnedAway": 5.916079783099616,
+     "uniqueVisitors": 1.1672617529928753,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": false
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T01:45:24.779Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "restrictedVisits",
+   "value": "4.3 \u00b1 1.1",
+   "note": "best of 6 sweep configs",
+   "wall_s": 0.66,
+   "workers": 14,
+   "agent": "dee"
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T01:45:25.168Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "restrictedVisits",
+   "value": "3.0 \u00b1 1.2",
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "wall_s": 0.66,
+   "workers": 14,
+   "scripted": false,
+   "agent": "dee"
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T01:45:25.546Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E4"
+   ],
+   "seeds": 8,
+   "workers": 15,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T01:45:26.589Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E4"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 0.64,
+   "workers": 15,
+   "agent": "cy"
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T01:45:26.989Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "visits/week by residents who can't make current hours",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "E0": 0.0,
+     "E1": 7.875,
+     "SW": 5.875,
+     "OS": 5.125,
+     "E4": 5.125
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "E0": 0.0,
+     "E1": 4.875,
+     "SW": 3.875,
+     "OS": 3.0,
+     "E4": 3.0
+    },
+    {
+     "scenario": "Held-out C: busier library",
+     "E0": 0.0,
+     "E1": 3.125,
+     "SW": 2.375,
+     "OS": 1.75,
+     "E4": 1.75
+    }
+   ],
+   "finalists": [
+    {
+     "id": "E0",
+     "label": "Current practice",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "E1",
+     "label": "Your idea: Two evening extensions",
+     "role": "your idea",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Tue-Thu evening hours",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "E4",
+     "label": "Tue-Thu evening trial",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T01:45:27.381Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening extensions",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "hours": [
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1200
+     ],
+     [
+      600,
+      1080
+     ],
+     [
+      600,
+      1080
+     ],
+     null
+    ]
+   },
+   "change": "Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "visits": 62.6875,
+     "restrictedVisits": 5.0625,
+     "turnedAway": 54.25,
+     "uniqueVisitors": 51.4375,
+     "staffHours": 104.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    },
+    "sd": {
+     "visits": 1.6214705259938174,
+     "restrictedVisits": 1.2893796958227628,
+     "turnedAway": 6.787242935586339,
+     "uniqueVisitors": 1.2632629707758134,
+     "staffHours": 0.0,
+     "awarePct": 0.0,
+     "familiesAwarePct": 0.0
+    }
+   },
+   "best": true
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T01:45:29.996Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "E1",
+   "label": "Your idea: Two evening extensions",
+   "summary": "Your idea: Two evening extensions: 5.1 \u00b1 1.3 vs 0.0 \u00b1 0.0 for current practice (visits/week by residents who can't make current hours). E1 wins because it produces the most visits from residents who cannot make current hours: 5.1 \u00b1 1.3 versus 0.0 \u00b1 0.0 for current practice, and it also beats the other options on the held-out tests in every scenario (7.875 vs 5.875 vs 5.125 vs 5.125 in A; 4.875 vs 3.875 vs 3.0 vs 3.0 in B; 3.125 vs 2.375 vs 1.75 vs 1.75 in C). It does cost only 8 more staff hours per week than current practice (104 vs 96), which is the best tradeoff among the top performers.",
+   "assumptions": "The result depends on the synthetic resident schedules, arrival patterns, and word-of-mouth rates supplied by the model defaults. It also assumes the measured staff hours are accurate and that adding two evening extensions on Tuesday and Thursday is operationally feasible without changing other behavior.",
+   "pilot": "Run a 4-week pilot with Tuesday and Thursday evening hours extended to 8:00 pm, and measure visits from residents who previously could not attend, total visits, and staff hours used. Compare against the same 4-week period on the current schedule, and record whether the extra evening traffic comes from the target group rather than shifting existing daytime visits.",
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  }
+ ]
+}
