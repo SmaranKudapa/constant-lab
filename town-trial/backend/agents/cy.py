@@ -1,14 +1,14 @@
-"""Cy, the reviewer: checks causal assumptions and reads failure traces.
+"""Hephaestus, the reviewer: checks causal assumptions and reads failure traces.
 
 Hard constraints (staff hours, supported actions) are checked in code before
-Cy sees a proposal. Cy judges what code can't: whether the proposal's
+Hephaestus sees a proposal. Hephaestus judges what code can't: whether the proposal's
 reasoning relies on real-world inputs that no local source supports.
 """
 from __future__ import annotations
 
 from agents.llm import LLM, strict
 
-SYSTEM = ("You are Cy, the reviewer in a team testing local policy ideas in a simulated town. "
+SYSTEM = ("You are Hephaestus, the reviewer in a team testing local policy ideas in a simulated town. "
           "Two kinds of evidence are legitimate: (1) the team's own simulation results and failure traces, which are valid grounds for "
           "choosing what to try next; (2) local sources about the real town. "
           "Reject a proposal only if it is outside the supported actions, or if its reasoning changes or assumes a real-world MODEL INPUT "
@@ -21,7 +21,7 @@ class Cy:
         self.llm = llm
 
     def review(self, mode: str, proposal: str, evidence: str, constraints: str, trace: str = "") -> dict:
-        """Cy classifies each assumption; code decides: reject only if an assumption is an unsupported real-world input."""
+        """Hephaestus classifies each assumption; code decides: reject only if an assumption is an unsupported real-world input."""
         schema = strict({
             "assumptions": {"type": "array", "items": strict({
                 "assumption": {"type": "string"},

@@ -35,7 +35,7 @@ export function stepText(e) {
 function whyNot(x, best, P, events) {
   if (x.status === "rejected") {
     const r = [...events].reverse().find((e) => e.type === "REVIEW" && e.exp === x.id && !e.ok);
-    return `Rejected by ${r && r.by === "code" ? "a rule checked in code" : "Cy"}: ${r ? r.reason : "failed review"}`;
+    return `Rejected by ${r && r.by === "code" ? "a rule checked in code" : "Hephaestus"}: ${r ? r.reason : "failed review"}`;
   }
   if (x.status === "infeasible") {
     const c = [...events].reverse().find((e) => e.type === "CONSTRAINT");
@@ -43,7 +43,7 @@ function whyNot(x, best, P, events) {
   }
   if (!x.result) return `Never ran (${x.status}).`;
   const v = metricOf(x, P), bv = metricOf(best, P);
-  const lead = x.role === "baseline" ? "Current practice." : x.role === "sweep" ? `Yardstick: the best of ${(x.tried || []).length || "several"} standard options Dee tried automatically, with no reasoning.` : x.role === "oneshot" ? "One-shot LLM guess with no feedback." : "";
+  const lead = x.role === "baseline" ? "Current practice." : x.role === "sweep" ? `Yardstick: the best of ${(x.tried || []).length || "several"} standard options Hermes tried automatically, with no reasoning.` : x.role === "oneshot" ? "One-shot LLM guess with no feedback." : "";
   return `${lead} Scored ${fmtMetric(v, P)}${P.unit || ""} vs ${fmtMetric(bv, P)}${P.unit || ""} for ${best.id}.`.trim();
 }
 
@@ -75,7 +75,7 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
   }
   const ta = best.result.mean.turnedAway;
   if (ta !== undefined) out.tiles.push({ label: "Turned away / week", value: ta, text: ta.toFixed(1), sub: base && base.result && base.result.mean.turnedAway !== undefined ? `was ${base.result.mean.turnedAway.toFixed(1)}` : "", good: !(base && base.result) || ta <= base.result.mean.turnedAway });
-  // What the policy is, and why it wins (Bo's brief; older briefs fall back to the summary)
+  // What the policy is, and why it wins (Athena's brief; older briefs fall back to the summary)
   out.what = (brief && brief.what) || `${best.label}: ${best.change}.`;
   out.reasoning = (brief && brief.reasoning) || (brief && brief.summary) || "";
 

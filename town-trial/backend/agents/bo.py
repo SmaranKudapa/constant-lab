@@ -1,7 +1,7 @@
-"""Bo, the designer: turns the idea into supported actions and proposes revisions.
+"""Athena, the designer: turns the idea into supported actions and proposes revisions.
 
 All outputs are JSON (structured outputs). Actions are validated in code
-(policy.validate_action); an invalid action is rejected and Bo retries once
+(policy.validate_action); an invalid action is rejected and Athena retries once
 with the error, after which the orchestrator falls back to a scripted step.
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ ACTIONS_HELP = {
     "perception": ("Supported action: choose notice channels from online (library website/social), board (paper flyers at the cafe, library and town hall), "
                    "bulletin (school family bulletin). The notice about new library hours goes out on the chosen channels."),
 }
-SYSTEM = ("You are Bo, the policy designer in a team testing local policy ideas in a simulated town. "
+SYSTEM = ("You are Athena, the policy designer in a team testing local policy ideas in a simulated town. "
           "You may only propose the supported actions. Never change model inputs such as demand, open rates or behaviour; "
           "those come only from local sources. Keep proposals concrete and different from what was already tried.")
 
@@ -118,7 +118,7 @@ def town_help(town: str) -> str:
 
 
 def frame(llm: LLM, city: str, prompt: str, town: str, kinds: list, facility_ids: list) -> dict:
-    """Bo turns any question into: what to measure, for whom, at which place, any budget limit the user stated, and the user's own idea."""
+    """Athena turns any question into: what to measure, for whom, at which place, any budget limit the user stated, and the user's own idea."""
     schema = strict({
         "trial_type": {"type": "string", "enum": ["perception", "service", "town"],
                        "description": "perception = whether people will hear about / know about / find out about something (an announcement, "

@@ -95,7 +95,7 @@ def to_minutes(t: str) -> int:
 
 
 def hours_from_action(action: dict) -> list:
-    """Bo's action schema {"hours_changes": [{day, open, close}]} -> full week of [open, close] minutes."""
+    """Athena's action schema {"hours_changes": [{day, open, close}]} -> full week of [open, close] minutes."""
     return hours_with([(c["day"], None if c.get("open") is None else to_minutes(c["open"]),
                         None if c.get("close") is None else to_minutes(c["close"])) for c in action.get("hours_changes", [])])
 
@@ -112,7 +112,7 @@ _HHMM = __import__("re").compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 
 
 def apply_changes(base: list, changes: list[dict]) -> list:
-    """Apply Bo's hours_changes [{day, open, close}] to a full week of hours."""
+    """Apply Athena's hours_changes [{day, open, close}] to a full week of hours."""
     h = [list(x) if x else None for x in base]
     for c in changes:
         h[c["day"]] = None if c.get("open") is None else [to_minutes(c["open"]), to_minutes(c["close"])]
@@ -120,7 +120,7 @@ def apply_changes(base: list, changes: list[dict]) -> list:
 
 
 def validate_action(mode: str, action: dict) -> str | None:
-    """Return an error message if Bo's action is outside the supported schema, else None. Checked in code, never by the LLM."""
+    """Return an error message if Athena's action is outside the supported schema, else None. Checked in code, never by the LLM."""
     if mode == "service":
         changes = action.get("hours_changes") or []
         if not changes:
@@ -159,7 +159,7 @@ TOWN_CHANNELS = ["online", "board", "bulletin", "newspaper", "mailer"]
 
 
 def validate_town_action(action: dict, facilities: dict, kinds: list[str], places: set[str]) -> str | None:
-    """Error message if Bo's town action is outside the supported schema, else None. Checked in code, never by the LLM."""
+    """Error message if Athena's town action is outside the supported schema, else None. Checked in code, never by the LLM."""
     changes = action.get("facility_changes") or []
     adds = action.get("new_facilities") or []
     chans = action.get("channels") or []
@@ -200,7 +200,7 @@ def validate_town_action(action: dict, facilities: dict, kinds: list[str], place
 
 
 def town_policy(action: dict, facilities: dict, defaults: dict, target: str | None) -> dict:
-    """Bo's town action -> simulator policy (web/js/townsim.js)."""
+    """Athena's town action -> simulator policy (web/js/townsim.js)."""
     pol: dict = {"target": target, "facilities": {}, "add": [], "channels": sorted(set(action.get("channels") or []))}
     for c in action.get("facility_changes") or []:
         f = facilities[c["facility"]]

@@ -18,6 +18,7 @@ import { createHover } from "./hover.js";
 import { createSky } from "./sky.js";
 import { openAudienceGraph } from "./graphs.js";
 import { createRitual } from "./ritual.js";
+import { sfx, isMuted, setMuted } from "./audio.js";
 
 let PIX = 3;              // render at 1/3 resolution, scale up with nearest-neighbour (the PX button switches to full resolution)
 try { if (localStorage.getItem("tt-pix") === "off") PIX = 1; } catch (e) { /* storage blocked */ }
@@ -91,7 +92,15 @@ for (const spec of RESEARCHERS) {
 
 const celebration = createCelebration({ scene, heavenY: HEAVEN_Y });
 const hover = createHover(scene);
-const ritual = createRitual(scene, { altarWorld: heaven.altarWorld });
+const ritual = createRitual(scene, { altarWorld: heaven.altarWorld, getBuildings: () => (town ? town.buildings : []),
+  onFire: () => sfx.whoosh(), onImpact: () => sfx.boom(), onBounce: (s) => sfx.thud(s) });
+// Sound: the ♪ button mutes everything; every button and chip clicks
+const soundBtn = document.getElementById("toggle-sound");
+const showSound = () => { soundBtn.classList.toggle("active", !isMuted()); soundBtn.classList.toggle("muted", isMuted()); soundBtn.title = isMuted() ? "Sound off (click to turn on)" : "Sound on (click to mute)"; };
+soundBtn.addEventListener("click", () => { setMuted(!isMuted()); showSound(); });
+showSound();
+document.addEventListener("click", (e) => { if (e.target.closest(".btn, .chip, .tab, .rp-tab, .sel-x, .rp-x")) sfx.click(); }, true);
+const AGENT_PITCH = { exa: 0, bo: 2, cy: -3, dee: 5, eli: 7, treasurer: -5 };
 // A policy starts running: the god lays a scroll on the altar, then a beam hits the town with a shockwave.
 // From the research loop the god walks to the altar first; when the user switches experiments it happens at once.
 let pendingRitual = null;
@@ -148,6 +157,7 @@ function emit(type, fields) {
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
   if (type === "TOWN_PROFILE") { townProfile = fields; updateStats(); }
+  if (fields.agent && AGENT_PITCH[fields.agent] !== undefined) sfx.blip(AGENT_PITCH[fields.agent]);
   if (type === "RUN_START") policyRitual(fields.agent || "dee");
   if (fields.agent && STATUS[type]) setStatus(fields.say || STATUS[type], true);
   if (type === "BRIEF" && research && research.id && !sessionTrials.some((p) => p.trial === research.id)) sessionTrials.push({ trial: research.id, city: town.name });
@@ -291,6 +301,7 @@ function winningPlace() {
 function celebrate() {
   const b = winningPlace();
   cheering = true;
+  sfx.fanfare();
   celebration.start({ target: { x: b.x, z: b.z }, townGroup: town.group, angels: Object.values(researchers) });
   for (const r of Object.values(researchers)) r.cheer = true;
   flyTo(new THREE.Vector3(b.x + 55, 62, b.z + 75), new THREE.Vector3(b.x * 0.5, 4, b.z * 0.5), 2.2);
@@ -310,7 +321,7 @@ function screenOf(p) {
   const v = new THREE.Vector3(p.x, 4, p.z).project(camera);
   return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight };
 }
-// Lesson Forge: one row per finished trial in this page session (how much the gods improved on today's practice, how
+// Learning Forge: one row per finished trial in this page session (how much the gods improved on today's practice, how
 // far they beat the auto-tried options, and which earlier trials' lessons they read). Kept in memory only.
 const forgeLog = [];
 function forgeEntry() {
@@ -330,6 +341,8 @@ function finishTrial() {
   summaryDone = true;
   const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
   remember(sum);
+  if (sum.fail) sfx.fail(); else sfx.chime();
+  setTimeout(() => sfx.coin(), 900);  // a new gold ingot at the Learning Forge
   try { forgeLog.push(forgeEntry()); heaven.setForgeLevel(forgeLog.length); if (researchers.cy) researchers.cy.moveTo(heaven.stations.forge.stand); } catch (e) { console.warn("forge", e); }
   openSummary(sum, screenOf(winningPlace()), endCelebration);
 }
@@ -618,11 +631,11 @@ function showLoading(title, sub) { $("ld-title").textContent = title; $("ld-sub"
 function hideLoading() { $("loading").classList.add("hidden"); }
 
 // Status chip next to the trial badge: a spinner and what the gods are doing now; a tick when the trial is done.
-const STATUS = { CLAIM: "Bo is writing the testable claim", FRAME: "Bo framed the question", EXA: "Exa Dude is searching", TOWN_PROFILE: "Exa Dude is researching the town",
+const STATUS = { CLAIM: "Athena is writing the testable claim", FRAME: "Athena framed the question", EXA: "Exa Dude is searching", TOWN_PROFILE: "Exa Dude is researching the town",
   COMPARABLE: "Exa Dude found a similar town", MEMORY_WRITE: "Past Dev is saving to memory", MEMORY_READ: "Reading shared memory", AUDIENCE: "Past Dev is updating audiences",
-  PROPOSE: "Bo is proposing a change", REVIEW: "Cy is reviewing", BUDGET_CHECK: "Treasurer is costing it", RUN_START: "Dee is running experiments on Modal",
-  RUN_DONE: "Results are in", FAILURE: "Cy is reading the failure trace", CONSTRAINT: "A new constraint was found", CHAIN: "Cy is recording the research chain",
-  HELD_OUT: "Testing on unseen towns", VOICES: "Asking residents how it lands", PILOT: "Bo wrote a pilot proposal" };
+  PROPOSE: "Athena is proposing a change", REVIEW: "Hephaestus is reviewing", BUDGET_CHECK: "Apollo is costing it", RUN_START: "Hermes is running experiments on Modal",
+  RUN_DONE: "Results are in", FAILURE: "Hephaestus is reading the failure trace", CONSTRAINT: "A new constraint was found", CHAIN: "Hephaestus is recording the research chain",
+  HELD_OUT: "Testing on unseen towns", VOICES: "Asking residents how it lands", PILOT: "Athena wrote a pilot proposal" };
 function setStatus(text, busy = true, error = false) {
   const c = $("status-chip");
   $("status-text").textContent = text;
@@ -653,7 +666,7 @@ async function loadProfile(name) {
   } catch (err) { if (profileFor === name) { profileState = "error"; updateStats(); } }
 }
 // No published budget total: size one from the population (typical US municipal spending per resident, higher in bigger
-// cities). Shown only in the top bar; the gods and the Treasurer never use it as a verified figure.
+// cities). Shown only in the top bar; the gods and the Apollo never use it as a verified figure.
 function estBudget(pop) {
   if (!pop) return 0;
   const perResident = pop >= 100000 ? 2200 : pop >= 25000 ? 1600 : pop >= 5000 ? 1200 : 900;
@@ -706,6 +719,7 @@ async function enterTown(name, real = true) {
   const sp = townSpec;
   setBanner(!!window.TOWN_TRIAL_API && !liveDisabled);
   updateStats();
+  sfx.build();
   if (townNote) toast(townNote, 7000, true);  // real map data failed: say so (the town is synthetic)
 }
 
@@ -743,7 +757,7 @@ function startTrial(prompt) {
     mode, prompt, town, residents, emit, heaven, researchers,
     onChange: () => renderPanels(true),
     onView: (x) => { startReplay(x); renderPanels(true); },
-    setBusy: (b) => b && setStatus("Dee is fanning experiments out to Modal", true),
+    setBusy: (b) => b && setStatus("Hermes is fanning experiments out to Modal", true),
   });
   afterTrialStart();
 }

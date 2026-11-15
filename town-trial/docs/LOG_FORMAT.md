@@ -27,9 +27,9 @@ Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 
 | `COMPARABLE` | `town, intervention, outcome, worked` (`yes`/`no`/`mixed`/`unknown`)`, cost_funding, similarity, may_not_transfer, modellable, source, published, quote` | A similar town found by Exa Dude (quote-checked against the source; no place check since it is another town). |
 | `PILOT` | `from_town, idea, why_not_simulated, source` | A similar-town idea the simulator can't express: a pilot proposal with no score. |
 | `CHAIN` | `round, failure, question, fact_type, source, changed_idea, new_result, improved` | One research round: failure → question → source → changed idea → new result. Up to 3 rounds per trial. |
-| `BUDGET_CHECK` | `exp, items[{item, kind (ongoing/one-time), amount, basis}], ongoing_delta, one_time, summary, scope, final, status` (`pending`/`funded`/`gap`/`unverified`)`, funding_source, gap_usd, appropriation_or_unspent, restricted, confirm[], reason, source` | Treasurer. Line items are computed in code (change vs current practice). `final: true` is the funding check for the recommendation: it reads only sourced budget documents; with none, `status: unverified` (decided in code). |
+| `BUDGET_CHECK` | `exp, items[{item, kind (ongoing/one-time), amount, basis}], ongoing_delta, one_time, summary, scope, final, status` (`pending`/`funded`/`gap`/`unverified`)`, funding_source, gap_usd, appropriation_or_unspent, restricted, confirm[], reason, source` | Apollo. Line items are computed in code (change vs current practice). `final: true` is the funding check for the recommendation: it reads only sourced budget documents; with none, `status: unverified` (decided in code). |
 | `NOTE` | `level` (`info`/`warn`/`error`), `message` | A fallback, failure or stop, logged so nothing fails silently. |
-| `FRAME` | `trial_type` (`perception`/`service`/`town`; town is the default for broad goals and the fallback), `metric` (`visits`/`unique_visitors`/`visits_restricted`/`turned_away`/`awareness`/`net_cost`), `key, label, unit, direction` (`max`/`min`), `target, target_name, kind, cohort, days, budget_limit, budget_scope` | Town mode: how Bo framed the question. The Experiments tab ranks by `key` in `direction`. |
+| `FRAME` | `trial_type` (`perception`/`service`/`town`; town is the default for broad goals and the fallback), `metric` (`visits`/`unique_visitors`/`visits_restricted`/`turned_away`/`awareness`/`net_cost`), `key, label, unit, direction` (`max`/`min`), `target, target_name, kind, cohort, days, budget_limit, budget_scope` | Town mode: how Athena framed the question. The Experiments tab ranks by `key` in `direction`. |
 
 Optional fields on research events (backend):
 - `say`: the short line the researcher says while acting the event out.
@@ -39,7 +39,7 @@ Optional fields on research events (backend):
 - `wall_s, workers` on `RUN_DONE` / `HELD_OUT`: wall time of the fan-out and the number of workers.
 - `view` on `RUN_DONE`: experiment id the viewer should replay now (`BRIEF` replays `recommend`).
 - `budget` on `EXPERIMENT` (town mode): `{staff, running, revenue, campaign, net, staff_hours_week, wage}` in $/year for the places in `FRAME.budget_scope`; on `RUN_DONE` a text summary with the change vs current practice; on `BRIEF` the recommended policy's budget and `budget_delta`.
-- `assumptions` on `REVIEW`: Cy's classification of each assumption (`simulation_result`, `model_mechanism`, `local_source`, `channel_existence`, `unsupported_real_world_input`); code rejects only the last.
+- `assumptions` on `REVIEW`: Hephaestus's classification of each assumption (`simulation_result`, `model_mechanism`, `local_source`, `channel_existence`, `unsupported_real_world_input`); code rejects only the last.
 
 ## Town events (the run being watched)
 

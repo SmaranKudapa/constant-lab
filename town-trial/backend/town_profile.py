@@ -158,7 +158,7 @@ def build(city: str, ada, spec: dict | None, spec_wait=None) -> dict:
 
 
 def budget_docs(prof: dict | None) -> list[dict]:
-    """The profile's budget figures as statements Treasurer can cite."""
+    """The profile's budget figures as statements Apollo can cite."""
     b = (prof or {}).get("budget")
     if not b:
         return []

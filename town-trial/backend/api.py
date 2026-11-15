@@ -70,7 +70,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):
         city, prompt = req.city.strip(), req.prompt.strip()
-        # Live agents: the general town model (Bo frames the question). Without an LLM key: the scripted demo loop.
+        # Live agents: the general town model (Athena frames the question). Without an LLM key: the scripted demo loop.
         live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
         mode = "town" if live else ("perception" if classify(prompt) == "perception" else "service")
         options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
@@ -85,7 +85,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
             store.finish(trial_id, rejected="too many concurrent trials")
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")
         start(trial_id=trial_id, city=city, prompt=prompt, mode=mode, options=options)
-        P = {"key": "visits", "label": "(Bo is framing the question...)", "unit": ""} if mode == "town" else primary(mode)
+        P = {"key": "visits", "label": "(Athena is framing the question...)", "unit": ""} if mode == "town" else primary(mode)
         return {"trial_id": trial_id, "mode": mode, "trial_type": classify(prompt), "primary": P, "options": options, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/trials/{trial_id}/events")
