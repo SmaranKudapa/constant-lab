@@ -157,16 +157,35 @@ async function loadSpec(name) {
   if (!api) return null;
   const base = api.replace(/\/+$/, "");
   const t0 = performance.now();
-  while (performance.now() - t0 < 360000) {
-    const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}`);
-    if (!r.ok) throw new Error(`${r.status}`);
-    const d = await r.json();
+  let retries = 0, retryNext = false, last = "timed out";
+  const sub = (extra) => showLoading(`Building ${name}`, `${extra || "Fetching real map data from OpenStreetMap"} · ${Math.round((performance.now() - t0) / 1000)} s · a town's first visit can take a minute or two`);
+  // Network blips and failed builds are retried (up to 3 times) before the town falls back to synthetic.
+  while (performance.now() - t0 < 420000) {
+    let d = null;
+    try {
+      const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}${retryNext ? "&retry=1" : ""}`);
+      retryNext = false;
+      if (r.status === 400) throw Object.assign(new Error("not a valid town name"), { fatal: true });
+      if (!r.ok) throw new Error(`server ${r.status}`);
+      d = await r.json();
+    } catch (err) {
+      if (err.fatal || ++retries > 3) throw err;
+      last = err.message; sub("Reconnecting to the map service");
+      await new Promise((res) => setTimeout(res, 3000 * retries));
+      continue;
+    }
     if (d.status === "ready") return d.spec;
-    if (d.status === "error") throw new Error(d.error);
-    showLoading(`Building ${name}`, `Fetching real map data from OpenStreetMap · ${Math.round((performance.now() - t0) / 1000)} s · a town's first visit can take a minute`);
+    if (d.status === "error") {
+      if (/no place called/i.test(d.error || "")) throw Object.assign(new Error(`OpenStreetMap has no place called "${name}"`), { fatal: true });
+      if (++retries > 3) throw new Error(d.error);
+      last = d.error; retryNext = true; sub("Map servers are busy, trying again");
+      await new Promise((res) => setTimeout(res, 2000));
+      continue;
+    }
+    sub();
     await new Promise((res) => setTimeout(res, 3000));
   }
-  throw new Error("timed out");
+  throw new Error(last);
 }
 
 async function makeTown(name, real = false) {
@@ -174,7 +193,11 @@ async function makeTown(name, real = false) {
   townNote = "";
   if (real) {
     try { spec = await loadSpec(name); }
-    catch (err) { townNote = `Couldn't load real map data (${err.message}); this is a synthetic town.`; }
+    catch (err) {
+      townNote = err.fatal ? `${err.message}. Showing a synthetic town; check the spelling, or add the state (e.g. "Springfield, IL").`
+        : `The map services didn't respond after several tries, so this is a synthetic town. Try again in a minute.`;
+      console.warn("town build failed:", err.message);
+    }
   }
   townSpec = spec;
   if (town) {
