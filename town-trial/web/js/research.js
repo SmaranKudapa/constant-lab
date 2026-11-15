@@ -1,6 +1,7 @@
 // The research loop as seen from Heaven. In the demo the agents' words are
 // scripted, but every number comes from real batch runs of sim.js, and every
 // step is logged in the same event format the real backend will write.
+import { demoVoices } from "./voices.js";
 import { runBatch, hoursWith, hoursText, staffHours, BASELINE_HOURS, makeResidents } from "./sim.js";
 
 const H = (h, m = 0) => h * 60 + m;
@@ -238,6 +239,8 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       const best = feasible.sort((a, b) => b.result.mean[P.key] - a.result.mean[P.key])[0];
       best.best = true; onChange();
       const base = exps[0];
+      emit("VOICES", { agent: "eli", exp: best.id, base: base.id, scripted: true, voices: demoVoices({ town, residents, mode, best, base, days }),
+        note: "Scripted quotes from simulator numbers (each group's stance is computed from 4 matched seeds). They are not real residents." });
       emit("BRIEF", {
         agent: "bo", recommend: best.id, label: best.label,
         summary: `${best.label}: ${fmt(best)} vs ${fmt(base)} for current practice (${P.label}).`,

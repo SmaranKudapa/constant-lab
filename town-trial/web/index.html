@@ -6,6 +6,7 @@
 <title>Town Trial</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="results.css">
 <script type="importmap">
 { "imports": {
   "three": "./vendor/three/three.module.js",
@@ -54,6 +55,7 @@
       <button class="btn small active" id="view-town">TOWN</button>
       <button class="btn small" id="view-heaven">HEAVEN &#8593;</button>
     </div>
+    <div class="trials-wrap"><button class="btn small" id="trials-btn" title="Results of past trials">TRIALS</button><div id="trials-menu" class="panel hidden"></div></div>
     <button class="btn small" id="toggle-panel" title="Show/hide the side panel">PANEL</button>
   </div>
 
@@ -93,6 +95,8 @@
 </section>
 
 <div id="toast" class="hidden"></div>
+<div id="celebrate-banner" class="hidden"><span>BEST POLICY FOUND!</span></div>
+<div id="results" class="hidden"></div>
 <script src="config.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>

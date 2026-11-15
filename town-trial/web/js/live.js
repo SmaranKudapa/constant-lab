@@ -8,7 +8,7 @@
 
 const STATION = {
   EXA: "lookout", CONSTRAINT: "lookout",
-  MEMORY_WRITE: "archive", MEMORY_READ: "archive", AUDIENCE: "archive",
+  MEMORY_WRITE: "archive", MEMORY_READ: "archive", AUDIENCE: "archive", VOICES: "archive",
   CLAIM: "drafting", PROPOSE: "drafting", BRIEF: "drafting",
   REVIEW: "court", FAILURE: "court", HELD_OUT: "court",
   RUN_START: "portal", RUN_DONE: "portal",

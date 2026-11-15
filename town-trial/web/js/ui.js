@@ -1,10 +1,10 @@
 // DOM rendering for the side panel: log, experiments, audiences/live stats, selection.
 import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
-const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
-const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
+export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+export const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+export const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
+export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
 // The reasoning behind one experiment, rebuilt from the event log: every step that names it, in order,
 // with the agent who took the step. Works the same in demo and live mode.
@@ -67,6 +67,7 @@ export function entryHTML(e, residentsById) {
     case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
     case "TURNED_AWAY": body = `${esc(e.name)} turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
+    case "VOICES": body = `How residents would react to <b>${esc(e.exp)}</b> (${e.scripted ? "scripted" : "LLM-written"}, not real people):` + (e.voices || []).map((v) => `<div class="src"><b>${esc(v.role)}</b> (${esc(v.label)}, ${esc(v.stance)}: ${v.before} → ${v.after} ${esc(v.unit)}): "${esc(v.quote)}"</div>`).join(""); break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }
@@ -74,10 +75,10 @@ export function entryHTML(e, residentsById) {
   return `<div class="${cls}"><div class="head"><span class="type">${e.type.replace("_", " ")}</span><span class="who">${esc(who)}</span><span class="when">${esc(e.clock || "")}</span></div>${body}</div>`;
 }
 
-const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${s}$${(a / 1e3).toFixed(1)}k` : `${s}$${a.toFixed(0)}`; };
+export const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${s}$${(a / 1e3).toFixed(1)}k` : `${s}$${a.toFixed(0)}`; };
 // Primary metric of an experiment: a simulator mean, or the net annual budget for budget questions.
-const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
-const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
+export const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
+export const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
 
 export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new Set()) {
   if (!exps.length) return `<p class="note">Run a trial to see experiments. Each one records its parent, the change, the source that caused it, and results over matched seeds.</p>`;

@@ -9,6 +9,10 @@ import { createResearch, classify } from "./research.js";
 import { createLive } from "./live.js";
 import * as UI from "./ui.js";
 import { box } from "./voxel.js";
+import { buildSummary } from "./summary.js";
+import { openSummary, closeSummary, remember, initHistory } from "./popup.js";
+import { createCelebration } from "./celebrate.js";
+import { ANGEL_SCALE } from "./people.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -59,12 +63,15 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
+let trialPrompt = "", briefAt = 0, summaryDone = true, cheering = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
   const st = heaven.stations[spec.station];
   researchers[spec.id] = new Researcher({ ...spec, home: { ...st.stand }, y: HEAVEN_Y }, scene);
 }
+
+const celebration = createCelebration({ scene, heavenY: HEAVEN_Y });
 
 // selection marker
 const marker = new THREE.Group();
@@ -78,6 +85,7 @@ function emit(type, fields) {
   const e = { seq: events.length + 1, t: new Date().toISOString(), type, clock: model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : "", ...fields };
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
+  if (type === "BRIEF" && research !== undefined) { briefAt = performance.now(); if (fields.recommend && fields.recommend !== "none") celebrate(); }
   const log = $("log");
   log.insertAdjacentHTML("afterbegin", UI.entryHTML(e));
   while (log.children.length > 250) log.lastElementChild.remove();
@@ -123,6 +131,7 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
+  endCelebration(); summaryDone = true;
   $("log").innerHTML = "";
   startReplay(null);
   buildLabels();
@@ -180,6 +189,40 @@ function refreshIcons() {
   }
 }
 
+// ---------- celebration + results ----------
+function winningPlace() {
+  const P = research && research.primary;
+  return (P && P.target && town.byId[P.target]) || town.byId.library || town.byId.plaza || { x: 0, z: 0 };
+}
+function celebrate() {
+  const b = winningPlace();
+  cheering = true;
+  celebration.start({ target: { x: b.x, z: b.z }, townGroup: town.group, angels: Object.values(researchers) });
+  for (const r of Object.values(researchers)) r.cheer = true;
+  flyTo(new THREE.Vector3(b.x + 55, 62, b.z + 75), new THREE.Vector3(b.x * 0.5, 4, b.z * 0.5), 2.2);
+  setView("town");
+  const ban = $("celebrate-banner");
+  ban.classList.remove("hidden");
+  ban.firstElementChild.style.animation = "none"; void ban.offsetWidth; ban.firstElementChild.style.animation = "";
+  setTimeout(() => ban.classList.add("hidden"), 2900);
+}
+function endCelebration() {
+  cheering = false;
+  celebration.clear();
+  for (const r of Object.values(researchers)) r.cheer = false;
+  $("celebrate-banner").classList.add("hidden");
+}
+function screenOf(p) {
+  const v = new THREE.Vector3(p.x, 4, p.z).project(camera);
+  return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight };
+}
+function finishTrial() {
+  summaryDone = true;
+  const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
+  remember(sum);
+  openSummary(sum, screenOf(winningPlace()));
+}
+
 // ---------- day / night ----------
 const DAY = new THREE.Color(0x8fd3ff), DUSK = new THREE.Color(0xff9f7a), NIGHT = new THREE.Color(0x1d1b45);
 function lighting() {
@@ -229,9 +272,9 @@ function buildLabels() {
   add("NOTICE BOARD", () => new THREE.Vector3(pl.boardPos.x, 4.2, pl.boardPos.z), "lbl sign");
   for (const st of Object.values(heaven.stations)) add(st.label, () => new THREE.Vector3(st.x, st.labelY, st.z), "lbl sign");
   for (const r of Object.values(researchers)) {
-    const L = add("", () => new THREE.Vector3(r.pos.x, HEAVEN_Y + 3.2, r.pos.z), "bubble");
+    const L = add("", () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE + 0.6, r.pos.z), "bubble");
     L.update = () => { L.el.style.display = r.bubble ? "" : "none"; if (r.bubble) L.el.textContent = `${r.spec.name}: ${r.bubble}`; };
-    const N = add(r.spec.name.toUpperCase(), () => new THREE.Vector3(r.pos.x, HEAVEN_Y + 2.5, r.pos.z), "lbl");
+    const N = add(r.spec.name.toUpperCase(), () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE, r.pos.z), "lbl");
     N.update = () => { N.el.style.display = r.bubble ? "none" : ""; };
   }
   const sel = add("", () => selectedPos() || new THREE.Vector3(0, -999, 0), "lbl sign");
@@ -285,7 +328,7 @@ function select(pick) {
 function selectedPos() {
   if (!selected) return null;
   if (selected.kind === "resident") { const v = views[selected.id]; return v.mesh.visible ? new THREE.Vector3(v.pos.x, 2.6, v.pos.z) : null; }
-  if (selected.kind === "researcher") { const r = researchers[selected.id]; return new THREE.Vector3(r.pos.x, HEAVEN_Y, r.pos.z); }
+  if (selected.kind === "researcher") { const r = researchers[selected.id]; return new THREE.Vector3(r.pos.x, r.y, r.pos.z); }
   if (selected.kind === "building") { const b = town.byId[selected.id]; return new THREE.Vector3(b.x, 0, b.z); }
   if (selected.kind === "station") { const s = heaven.stations[selected.id]; return new THREE.Vector3(s.x, HEAVEN_Y, s.z); }
   return null;
@@ -393,6 +436,7 @@ $("prompt-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const prompt = $("prompt-input").value.trim();
   if (!prompt) { toast("Type a policy idea first, or pick an example."); return; }
+  trialPrompt = prompt;
   startTrial(prompt);
 });
 // Live mode: the backend (Modal) runs the research loop when TOWN_TRIAL_API is set.
@@ -446,6 +490,9 @@ function offerDemo(err, prompt) {
 }
 function beginTrial(m) {
   mode = m;
+  endCelebration();
+  closeSummary();
+  briefAt = 0; summaryDone = false;
   openWhy.clear();
   events = [];
   $("log").innerHTML = "";
@@ -485,6 +532,9 @@ function frame() {
     v.update(speed > 0 ? dt : 0);
   }
   for (const r of Object.values(researchers)) r.update(dt);
+  for (const v of Object.values(views)) v.cheer = cheering;
+  celebration.update(dt);
+  if (!summaryDone && briefAt && research && research.done() && performance.now() - briefAt > (cheering ? 3800 : 1200)) finishTrial();
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
   heaven.update(dt, t);
   lighting();
@@ -500,7 +550,7 @@ function frame() {
   }
   const sp = selectedPos();
   marker.visible = !!sp;
-  if (sp) { marker.position.set(sp.x, sp.y > HEAVEN_Y - 5 ? HEAVEN_Y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
+  if (sp) { marker.position.set(sp.x, sp.y > 5 ? sp.y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
   controls.update();
   if (inTown) { $("clock").textContent = model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : ""; renderPanels(); }
   renderer.render(scene, camera);
@@ -511,6 +561,8 @@ function frame() {
 // Debug handle for tests and the console
 window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, fingerprint: () => townFingerprint(town, residents) };
 
+initHistory();
+
 // ---------- boot ----------
 (async function boot() {
   await Promise.all([document.fonts.load('8px "Press Start 2P"'), document.fonts.load('12px "Silkscreen"')]).catch(() => {});
@@ -520,7 +572,7 @@ window.__townTrial = { select: (p) => select(p), get residents() { return reside
   const city = params.get("city");
   if (city) {
     await enterTown(city);
-    if (params.get("prompt")) { $("prompt-input").value = params.get("prompt"); startTrial(params.get("prompt")); }
+    if (params.get("prompt")) { $("prompt-input").value = trialPrompt = params.get("prompt"); startTrial(params.get("prompt")); }
     if (params.get("view") === "heaven") { HEAVEN_VIEW(); setView("heaven"); }
     if (params.get("speed")) { const b = document.querySelector(`[data-speed="${params.get("speed")}"]`); if (b) b.click(); }
   } else {
