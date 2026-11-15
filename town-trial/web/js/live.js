@@ -56,7 +56,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   }
 
   function animate(e) {
-    const r = e.agent && researchers[e.agent];
+    const r = e.agent && researchers[e.agent === "ada" ? "exa" : e.agent]; // older logs and memory use "ada"
     if (!r) return;
     const st = STATION[e.type];
     if (st) r.moveTo(heaven.stations[st].stand);

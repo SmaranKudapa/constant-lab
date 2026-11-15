@@ -6,7 +6,7 @@ annual net cost = 52 x (staff hours x wage + sum over places of open hours x run
 
 Inputs and where they come from:
 - staff hours, open hours and fee revenue per week: the simulator (web/js/townsim.js).
-- wage per staff hour and running cost per open hour: sourced figures when Ada finds them (quoted from a
+- wage per staff hour and running cost per open hour: sourced figures when Exa Dude finds them (quoted from a
   local source, checked in code), otherwise the labelled defaults below.
 - scale: real population / residents in the sample (from the town spec); 1 if the population is unknown.
 """

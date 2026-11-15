@@ -3,8 +3,8 @@ import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 import { roleOf } from "./voices.js";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-export const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
-export const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
+export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Treasurer (Budget god)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+export const AGENT_COLOR = { exa: "#59c2ff", ada: "#59c2ff", treasurer: "#e8c24a", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
 export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
 // The reasoning behind one experiment, rebuilt from the event log: every step that names it, in order,

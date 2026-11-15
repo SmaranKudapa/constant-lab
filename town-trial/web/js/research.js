@@ -65,16 +65,16 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     act(() => emit("CLAIM", { agent: "bo", claim: `In ${city}, opening the library until 21:00 on Tue and Thu increases weekly visits by residents who cannot use current hours.`, metric: P.label, constraint: "staff hours (unknown yet)", horizon: "1 week, 16 matched seeds", prompt }));
     say("eli", "Recalling memory for this town", "archive");
     act(() => emit("MEMORY_READ", { agent: "eli", query: `${city} library`, found: 0, note: "No prior facts for this town. Starting fresh." }));
-    say("ada", "Searching: current library hours", "lookout");
+    say("exa", "Searching: current library hours", "lookout");
     act(() => {
-      exa("ada", `${city} public library opening hours`, "broad", [{ title: `${city} Public Library: hours and locations (FIXTURE)`, url: "fixture://library-hours", passage: "Mon-Sat 10:00-18:00. Closed Sunday." }], "Baseline hours for the simulator");
+      exa("exa", `${city} public library opening hours`, "broad", [{ title: `${city} Public Library: hours and locations (FIXTURE)`, url: "fixture://library-hours", passage: "Mon-Sat 10:00-18:00. Closed Sunday." }], "Baseline hours for the simulator");
       heaven.drop(heaven.stations.lookout, town.byId.library, 3, 0x59c2ff);
     });
-    say("ada", "Saving the baseline to shared memory", "archive");
-    act(() => emit("MEMORY_WRITE", { agent: "ada", source_id: "fact-library-hours", kind: "fact", claim: "Library open Mon-Sat 10:00-18:00, closed Sun", effective: "2026-09-01", source: "fixture://library-hours" }));
-    say("bo", "Reading Ada's fact, building runs", "archive");
+    say("exa", "Saving the baseline to shared memory", "archive");
+    act(() => emit("MEMORY_WRITE", { agent: "exa", source_id: "fact-library-hours", kind: "fact", claim: "Library open Mon-Sat 10:00-18:00, closed Sun", effective: "2026-09-01", source: "fixture://library-hours" }));
+    say("bo", "Reading Exa Dude's fact, building runs", "archive");
     act(() => {
-      emit("MEMORY_READ", { agent: "bo", source_id: "fact-library-hours", author: "ada", claim: "Library open Mon-Sat 10:00-18:00, closed Sun", used_for: "baseline policy E0" });
+      emit("MEMORY_READ", { agent: "bo", source_id: "fact-library-hours", author: "exa", claim: "Library open Mon-Sat 10:00-18:00, closed Sun", used_for: "baseline policy E0" });
       E0 = exp({ id: "E0", label: "Current hours", role: "baseline", parent: null, policy: { hours: BASELINE_HOURS }, change: "none (current practice)" });
       E1 = exp({ id: "E1", label: "Your idea: Tue/Thu until 21:00", role: "user", parent: "E0", policy: { hours: proposal }, change: hoursText(proposal) });
       emit("PROPOSE", { agent: "bo", exp: "E1", parent: "E0", change: E1.change, why: "The user's proposal, translated into supported actions (open/close times)." });
@@ -96,20 +96,20 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     });
     say("cy", "E1 works, but can we staff it?", "court");
     act(() => emit("FAILURE", { agent: "cy", exp: "E1", trace: `E1 beats E0 (${fmt(E1)} vs ${fmt(E0)}), but uses ${staffHours(E1.policy.hours)} staff hours vs ${staffHours(E0.policy.hours)}. The ranking depends on an input nobody has checked.`, next_question: "Is extra evening staffing allowed this fiscal year?" }));
-    say("ada", "Failure-guided search: staffing", "lookout");
+    say("exa", "Failure-guided search: staffing", "lookout");
     act(() => {
-      exa("ada", `${city} library board meeting minutes staffing budget evening hours 2026`, "failure-guided", [{ title: `${city} Library Board minutes, Oct 2026 (FIXTURE)`, url: "fixture://board-minutes", passage: "No additional staff hours approved for FY2027. Schedule changes must stay within current staffing." }], "Adds constraint: staff hours <= current (96/week)");
+      exa("exa", `${city} library board meeting minutes staffing budget evening hours 2026`, "failure-guided", [{ title: `${city} Library Board minutes, Oct 2026 (FIXTURE)`, url: "fixture://board-minutes", passage: "No additional staff hours approved for FY2027. Schedule changes must stay within current staffing." }], "Adds constraint: staff hours <= current (96/week)");
       heaven.drop(heaven.stations.lookout, town.byId.townhall, 3, 0x59c2ff);
     });
     act(() => {
       constraint = { text: "staff hours <= 96/week", ok: (x) => staffHours(x.policy.hours) <= 96 };
-      emit("CONSTRAINT", { agent: "ada", constraint: constraint.text, source: "fixture://board-minutes", previous: "unknown", changes: ["E1 is now infeasible"] });
-      emit("MEMORY_WRITE", { agent: "ada", source_id: "fact-staffing-cap", kind: "constraint", claim: "No new staff hours in FY2027", effective: "2026-10-14", supersedes: null, source: "fixture://board-minutes" });
+      emit("CONSTRAINT", { agent: "exa", constraint: constraint.text, source: "fixture://board-minutes", previous: "unknown", changes: ["E1 is now infeasible"] });
+      emit("MEMORY_WRITE", { agent: "exa", source_id: "fact-staffing-cap", kind: "constraint", claim: "No new staff hours in FY2027", effective: "2026-10-14", supersedes: null, source: "fixture://board-minutes" });
       E1.status = "infeasible"; onChange();
     });
     say("bo", "Reading the cap, rethinking", "archive");
     act(() => {
-      emit("MEMORY_READ", { agent: "bo", source_id: "fact-staffing-cap", author: "ada", claim: "No new staff hours in FY2027", used_for: "revision must keep staff hours at 96" });
+      emit("MEMORY_READ", { agent: "bo", source_id: "fact-staffing-cap", author: "exa", claim: "No new staff hours in FY2027", used_for: "revision must keep staff hours at 96" });
       E2 = exp({ id: "E2", label: "Assume evening demand doubles", role: "revision", parent: "E1", policy: { hours: proposal }, change: "E1 + assume 2x evening demand" });
       emit("PROPOSE", { agent: "bo", exp: "E2", parent: "E1", change: E2.change, why: "A blog post says evening hours doubled visits elsewhere." });
     });
@@ -166,9 +166,9 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       emit("AUDIENCE", { agent: "eli", op: "replace_audience", slug: "working-parents", kind: "rule", rule: "cohort = families", members: residents.filter((r) => r.cohort === "families").length });
       emit("MEMORY_WRITE", { agent: "eli", source_id: "notice-library-hours", kind: "notice", claim: "New library hours notice", audience: "heard-library-notice", note: "Only residents in this audience can recall the notice." });
     });
-    say("ada", "Searching: how this town gets news", "lookout");
+    say("exa", "Searching: how this town gets news", "lookout");
     act(() => {
-      exa("ada", `${city} library hours change announcement`, "broad", [{ title: `${city} Library news page (FIXTURE)`, url: "fixture://library-news", passage: "Hours updates are posted on the website and social media." }], "Baseline channel: online post");
+      exa("exa", `${city} library hours change announcement`, "broad", [{ title: `${city} Library news page (FIXTURE)`, url: "fixture://library-news", passage: "Hours updates are posted on the website and social media." }], "Baseline channel: online post");
       heaven.drop(heaven.stations.lookout, town.byId.library, 3, 0x59c2ff);
       P0 = exp({ id: "P0", label: "Online post only", role: "baseline", parent: null, policy: { channels: ["online"] }, change: "website + social post" });
     });
@@ -177,19 +177,19 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     act(() => { run(P0); emit("RUN_DONE", { agent: "dee", exp: "P0", metric: P.key, value: fmt(P0), overall: P0.result.mean.awarePct.toFixed(0) + "%" }); onView(P0); });
     say("cy", "Who did the notice miss?", "court");
     act(() => emit("FAILURE", { agent: "cy", exp: "P0", trace: `Only ${fmt(P0)} of working parents heard. Most parents are offline during the day and learn by word of mouth, if at all.`, next_question: "What channel reaches parents during the school run?" }));
-    say("ada", "Failure-guided search: school channels", "lookout");
+    say("exa", "Failure-guided search: school channels", "lookout");
     act(() => {
-      exa("ada", `${city} elementary school weekly family bulletin newsletter`, "failure-guided", [{ title: `${city} Elementary: Friday family folder (FIXTURE)`, url: "fixture://school-bulletin", passage: "A weekly bulletin goes home with every student on Fridays and by email to families." }], "New channel: school bulletin reaches families at drop-off/pickup");
-      emit("MEMORY_WRITE", { agent: "ada", source_id: "fact-school-bulletin", kind: "fact", claim: "School sends a weekly family bulletin", source: "fixture://school-bulletin" });
+      exa("exa", `${city} elementary school weekly family bulletin newsletter`, "failure-guided", [{ title: `${city} Elementary: Friday family folder (FIXTURE)`, url: "fixture://school-bulletin", passage: "A weekly bulletin goes home with every student on Fridays and by email to families." }], "New channel: school bulletin reaches families at drop-off/pickup");
+      emit("MEMORY_WRITE", { agent: "exa", source_id: "fact-school-bulletin", kind: "fact", claim: "School sends a weekly family bulletin", source: "fixture://school-bulletin" });
       heaven.drop(heaven.stations.lookout, town.byId.school, 3, 0x59c2ff);
     });
-    say("bo", "Using Ada's find: two revisions", "archive");
+    say("bo", "Using Exa Dude's find: two revisions", "archive");
     act(() => {
-      emit("MEMORY_READ", { agent: "bo", source_id: "fact-school-bulletin", author: "ada", claim: "School sends a weekly family bulletin", used_for: "revision P2" });
+      emit("MEMORY_READ", { agent: "bo", source_id: "fact-school-bulletin", author: "exa", claim: "School sends a weekly family bulletin", used_for: "revision P2" });
       P1 = exp({ id: "P1", label: "+ flyers at cafe, library, town hall", role: "revision", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + paper flyers at the cafe, library and town hall" });
       P2 = exp({ id: "P2", label: "+ school bulletin", role: "revision", parent: "P0", policy: { channels: ["online", "bulletin"] }, change: "online + school bulletin", source: "fixture://school-bulletin" });
       emit("PROPOSE", { agent: "bo", exp: "P1", parent: "P0", change: P1.change, why: "Paper flyers where offline residents already go." });
-      emit("PROPOSE", { agent: "bo", exp: "P2", parent: "P0", change: P2.change, why: "Reaches parents at drop-off, per Ada's source." });
+      emit("PROPOSE", { agent: "bo", exp: "P2", parent: "P0", change: P2.change, why: "Reaches parents at drop-off, per Exa Dude's source." });
       emit("REVIEW", { agent: "cy", exp: "P1", ok: true, reason: "Supported channel." });
       emit("REVIEW", { agent: "cy", exp: "P2", ok: true, reason: "Supported channel; source is local." });
     });

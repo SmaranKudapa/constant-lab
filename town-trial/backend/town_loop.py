@@ -8,7 +8,7 @@ fallbacks) and changes what is being decided:
 - Policies can change any public place (hours, capacity, fee, closing), open a new place next to an existing
   one, and send a notice through outreach channels. Actions are validated in code.
 - Every experiment gets an annual budget (backend/budget.py): staff, running costs, fee revenue, campaign.
-  Budget limits from the user's question or from sources Ada finds are constraints checked in code.
+  Budget limits from the user's question or from sources Exa Dude finds are constraints checked in code.
 """
 from __future__ import annotations
 
@@ -155,7 +155,7 @@ class TownTrial(LiveTrial):
         self.constraint = (f"{text} [{why}]", lambda x, cap=cap: (x.get("budget") or self.budget_of(self.est_mean(x["policy"]), x["policy"]))["net"] <= cap)
         before = [x for x in self.exps if x.get("result") and x["status"] == "done"]
         broken = [x for x in before if not self.feasible(x)]
-        self.emit("CONSTRAINT", agent="ada" if source.startswith("http") else "bo", constraint=self.constraint[0], source=source, previous="none",
+        self.emit("CONSTRAINT", agent="exa" if source.startswith("http") else "bo", constraint=self.constraint[0], source=source, previous="none",
                   changes=[f"{x['id']} is now infeasible" for x in broken] or ["no existing experiment breaks it"])
         for x in broken:
             self.set(x, status="infeasible")
@@ -254,7 +254,7 @@ class TownTrial(LiveTrial):
     def start(self) -> None:
         self.memory.ensure_agents()
         if self.exa_mode != "failure":
-            self.note(f"Evaluation arm: exa_mode={self.exa_mode}.", level="info", agent="ada")
+            self.note(f"Evaluation arm: exa_mode={self.exa_mode}.", level="info", agent="exa")
         self.recall_town()
         self.load_info()
         if not self.fac:
@@ -347,7 +347,7 @@ class TownTrial(LiveTrial):
         return out
 
     def hours_from_memory(self, f: dict) -> dict | None:
-        """Hours for this place verified by Ada in an earlier trial of this town (past.dev / local memory), if any."""
+        """Hours for this place verified by Exa Dude in an earlier trial of this town (past.dev / local memory), if any."""
         import re
         ids = [f"fact-hours-{f['id']}"] + (["fact-library-hours"] if f["kind"] == "library" else [])
         for sid in ids:
@@ -364,25 +364,25 @@ class TownTrial(LiveTrial):
                 elif re.search(rf"{name} closed", rec["claim"]):
                     found += 1
             if found == 7 and any(hours):
-                return {"hours": hours, "source": rec["source"], "claim": rec["claim"], "author": rec.get("author") or "ada", "source_id": sid}
+                return {"hours": hours, "source": rec["source"], "claim": rec["claim"], "author": rec.get("author") or "exa", "source_id": sid}
         return None
 
     def sourced_inputs(self) -> None:
-        """Ada: the target place's real hours, and budget figures (wage, budget, cuts) for the town or place."""
+        """Exa Dude: the target place's real hours, and budget figures (wage, budget, cuts) for the town or place."""
         self.base_source = "OpenStreetMap" if self.spec else "model default"
         if self.awareness:
             self.eli_audiences()
             q = f"{self.city} library news how are hours changes announced"
-            res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_news, "Searching: how this town gets news")
+            res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_news, "Searching: how this town gets news")
             self.apply_channels(q, res, live, "How does the town announce changes?") if res else None
         if self.target:
             f = self.fac[self.target]
             q = f"{f['name']} {self.city} opening hours"
-            res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_hours, f"Searching: {f['name']} hours")
+            res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).library_hours, f"Searching: {f['name']} hours")
             ext, how = (None, "fixture")
             if live and res:
-                ext, err = self.attempt("ada", "place hours", lambda e: extract_place_hours(self.ada, f["name"], self.city, res))
-                how = err or ("no source states it" if ext is None else "unverified quote" if ext.get("unverified") else "verified quote")
+                ext, err = self.attempt("exa", "place hours", lambda e: extract_place_hours(self.ada, f["name"], self.city, res))
+                how = err or ("no source states it" if ext is None else (ext.get("check") or "unverified quote") if ext.get("unverified") else "verified quote")
                 if ext and ext.get("unverified"):
                     ext = None
             hours = None
@@ -402,32 +402,32 @@ class TownTrial(LiveTrial):
                 self.base_source = ext["url"]
                 hs = ", ".join(f"{DAYS[d]} {_hm(x[0])}-{_hm(x[1])}" if x else f"{DAYS[d]} closed" for d, x in enumerate(hours))
                 if mem:
-                    self.log_exa("ada", q, "broad", res, live, f"This search did not state {f['name']}'s hours ({how}); using the hours verified in an "
+                    self.log_exa("exa", q, "broad", res, live, f"This search did not state {f['name']}'s hours ({how}); using the hours verified in an "
                                  f"earlier trial and recalled from shared memory: {hs}", say=f"Searching: {f['name']} hours")
                     self.emit("MEMORY_READ", agent="bo", source_id=mem["source_id"], author=mem["author"], claim=mem["claim"],
                               used_for="baseline policy E0 (hours from an earlier trial)", store=self.memory.last_store)
                 else:
-                    self.log_exa("ada", q, "broad", res, live, f"Current hours of {f['name']}: {hs} (quote: \"{ext['quote'][:140]}\")", say=f"Searching: {f['name']} hours")
-                    self.remember("ada", f"fact-hours-{self.target}", f"{f['name']} hours: {hs}", "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
-                    self.read("bo", f"fact-hours-{self.target}", "baseline policy E0", say="Reading Ada's fact, building runs")
-                self.evidence.append({"claim": f"{f['name']} hours: {hs}", "url": ext["url"], "author": "ada"})
+                    self.log_exa("exa", q, "broad", res, live, f"Current hours of {f['name']}: {hs} (quote: \"{ext['quote'][:140]}\")", say=f"Searching: {f['name']} hours")
+                    self.remember("exa", f"fact-hours-{self.target}", f"{f['name']} hours: {hs}", "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
+                    self.read("bo", f"fact-hours-{self.target}", "baseline policy E0", say="Reading Exa Dude's fact, building runs")
+                self.evidence.append({"claim": f"{f['name']} hours: {hs}", "url": ext["url"], "author": "exa"})
             else:
-                self.log_exa("ada", q, "broad", res, live, f"No usable hours for {f['name']} ({how}); keeping {f['hoursSource']} hours.", say=f"Searching: {f['name']} hours")
+                self.log_exa("exa", q, "broad", res, live, f"No usable hours for {f['name']} ({how}); keeping {f['hoursSource']} hours.", say=f"Searching: {f['name']} hours")
                 if live:
-                    self.note(f"Gap: no source states {f['name']}'s hours ({how}). Using {f['hoursSource']} hours, labelled.", agent="ada")
+                    self.note(f"Gap: no source states {f['name']}'s hours ({how}). Using {f['hoursSource']} hours, labelled.", agent="exa")
         # budget figures (wage / budget / cuts)
         topic = KIND_LABEL.get(self.fac[self.target]["kind"], "city") if self.target else "city"
         q = f"{self.city} {topic} budget staff wages"
-        res, live = self.search("ada", q, "broad", __import__("agents.fixtures", fromlist=["x"]).board_minutes, "Searching: the town budget")
+        res, live = self.search("exa", q, "broad", __import__("agents.fixtures", fromlist=["x"]).board_minutes, "Searching: the town budget")
         if live and res:
-            ext, err = self.attempt("ada", "budget", lambda e: extract_budget(self.ada, self.city, f"{topic} budget, staffing and wages", res))
+            ext, err = self.attempt("exa", "budget", lambda e: extract_budget(self.ada, self.city, f"{topic} budget, staffing and wages", res))
             if ext and not ext.get("unverified"):
                 self.use_budget_fact(ext, q, res, "broad")
             else:
-                self.log_exa("ada", q, "broad", res, live, f"No budget figure stated ({err or ('unverified quote' if ext else 'no source states it')}); "
+                self.log_exa("exa", q, "broad", res, live, f"No budget figure stated ({err or ((ext.get('check') or 'unverified quote') if ext else 'no source states it')}); "
                              f"using the labelled default wage ${self.wage:g}/staff hour.", say="Searching: the town budget")
         else:
-            self.log_exa("ada", q, "broad", res, live, "Budget search unavailable; using labelled defaults.", say="Searching: the town budget")
+            self.log_exa("exa", q, "broad", res, live, "Budget search unavailable; using labelled defaults.", say="Searching: the town budget")
 
     def applies_here(self, text: str) -> bool:
         """Does a sourced budget statement concern the budget this trial is about (the target place, its kind, or the town's general budget)?"""
@@ -456,9 +456,9 @@ class TownTrial(LiveTrial):
                 self.pending_limit = None
         else:
             used = "Context for the brief (not a model input)"
-        self.log_exa("ada", q, kind, res, True, f"{used} (quote: \"{ext['quote'][:140]}\")", say="Searching: the town budget")
-        self.evidence.append({"claim": what, "url": ext["url"], "author": "ada"})
-        self.remember("ada", f"fact-budget-{k}", what, "constraint" if k in ("budget_cut", "no_additional_staff_hours", "staff_hours_cap") else "fact",
+        self.log_exa("exa", q, kind, res, True, f"{used} (quote: \"{ext['quote'][:140]}\"; {ext.get('check', 'quote checked')}{', published ' + ext['published'] if ext.get('published') else ''})", say="Searching: the town budget")
+        self.evidence.append({"claim": what, "url": ext["url"], "author": "exa"})
+        self.remember("exa", f"fact-budget-{k}", what, "constraint" if k in ("budget_cut", "no_additional_staff_hours", "staff_hours_cap") else "fact",
                       ext["url"], query=q, effective=self.published(res, ext["url"]))
 
     def round(self, rnd: int, best: dict) -> dict:
@@ -477,21 +477,21 @@ class TownTrial(LiveTrial):
             if self.exa_mode == "broad":
                 q = [f"{city} news", f"{city} city services"][rnd % 2]
             from agents import fixtures
-            res, live = self.search("ada", q, "failure-guided", fixtures.school_bulletin if self.awareness else fixtures.board_minutes, "Failure-guided search")
+            res, live = self.search("exa", q, "failure-guided", fixtures.school_bulletin if self.awareness else fixtures.board_minutes, "Failure-guided search")
             if self.awareness:
                 source = self.apply_channels(q, res, live, fail["next_question"]) if res else None
             elif live and res:
-                ext, e2 = self.attempt("ada", "budget", lambda e: extract_budget(self.ada, city, fail["next_question"], res))
+                ext, e2 = self.attempt("exa", "budget", lambda e: extract_budget(self.ada, city, fail["next_question"], res))
                 if ext and not ext.get("unverified"):
                     self.use_budget_fact(ext, q, res, "failure-guided")
                     source = ext["url"]
                 else:
-                    self.log_exa("ada", q, "failure-guided", res, live, f"Nothing stated that changes the inputs or limits ({e2 or 'no source states it'}). Gap logged.")
+                    self.log_exa("exa", q, "failure-guided", res, live, f"Nothing stated that changes the inputs or limits ({e2 or 'no source states it'}). Gap logged.")
             elif res:
                 fx = __import__("agents.fixtures", fromlist=["x"]).FIXTURE_EXTRACT.get(res[0]["url"]) or {}
-                self.log_exa("ada", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
+                self.log_exa("exa", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
         for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]:
-            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Ada's finds")
+            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
         self.cy_recall()
         focus = (f"Target place: {self.target} ({self.fac[self.target]['name']}). Every proposal must change this place (or open/close a place "
                  f"of its kind, or add outreach about it); changes elsewhere do not answer the question.\n" if self.target else "")

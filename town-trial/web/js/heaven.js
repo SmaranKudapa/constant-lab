@@ -5,7 +5,7 @@ import { box, mat } from "./voxel.js";
 export const HEAVEN_Y = 72;
 
 export const RESEARCHERS = [
-  { id: "ada", name: "Ada", role: "Researcher", does: "Searches the web with Exa for local facts and comparable policies.", robe: 0x59c2ff, skin: 0xf1c7a5, hair: 0x2b1d14, station: "lookout" },
+  { id: "exa", name: "Exa Dude", role: "Research god", does: "Searches the web with Exa for local facts, budget records and similar towns, and checks every claim against its source passage, place and date.", robe: 0x59c2ff, skin: 0xf1c7a5, hair: 0x2b1d14, station: "lookout" },
   { id: "bo", name: "Bo", role: "Designer", does: "Turns the idea into allowed policy actions and proposes revisions.", robe: 0xffd34d, skin: 0xb07a55, hair: 0x1b1530, station: "drafting" },
   { id: "cy", name: "Cy", role: "Reviewer", does: "Checks causal assumptions and blocks unsupported changes.", robe: 0xff9f43, skin: 0xd9a07a, hair: 0xb3412f, station: "court" },
   { id: "dee", name: "Dee", role: "Runner", does: "Fans experiments out to Modal workers and collects results.", robe: 0x5be37d, skin: 0x8a5a3c, hair: 0x5a3a22, station: "portal" },

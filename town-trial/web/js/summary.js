@@ -82,7 +82,7 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
     seen.add(s.seq);
     (byAgent[s.agent || "system"] ||= []).push(s);
   }
-  out.why = ["ada", "bo", "cy", "dee", "eli", "system"].filter((a) => byAgent[a]).map((a) => ({ agent: a, steps: byAgent[a].sort((p, q) => p.seq - q.seq) }));
+  out.why = ["exa", "ada", "treasurer", "bo", "cy", "dee", "eli", "system"].filter((a) => byAgent[a]).map((a) => ({ agent: a, steps: byAgent[a].sort((p, q) => p.seq - q.seq) }));
   out.sources = [...new Set(out.why.flatMap((g) => g.steps.flatMap((s) => s.sources)).filter((u) => /^https?:\/\//.test(u || "")))].slice(0, 4);
   out.chain = chain.map((x) => ({ id: x.id, label: x.label }));
   if (voicesEv && voicesEv.exp === best.id) out.voices = { scripted: !!voicesEv.scripted, note: voicesEv.note, list: voicesEv.voices };

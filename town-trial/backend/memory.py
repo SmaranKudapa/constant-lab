@@ -5,7 +5,7 @@ Three classes with the same interface:
   (ada, bo, cy, dee, eli) and per resident; facts are ingested with a stable source id
   (`<town>:<source_id>`; re-sending it replaces the prior revision), timestamp (effective
   date), label and metadata (author, source URL, query, trial). Reads are recalls as the
-  reading agent, so a read of Ada's fact by Bo is a real cross-agent handoff.
+  reading agent, so a read of Exa Dude's fact by Bo is a real cross-agent handoff.
 - LocalMemory: the same reads and writes in a dict-like store (dict or modal.Dict).
 - ResilientMemory: past.dev first; on any error, logs it and uses LocalMemory
   (events then say `store: local-fallback`).
@@ -18,7 +18,7 @@ import re
 import time
 from datetime import datetime, timezone
 
-AGENTS = {"ada": "researcher (Exa)", "bo": "designer", "cy": "reviewer", "dee": "runner", "eli": "archivist"}
+AGENTS = {"exa": "research god (Exa search)", "bo": "designer", "cy": "reviewer", "dee": "runner", "eli": "archivist"}
 
 
 def town_key(city: str) -> str:

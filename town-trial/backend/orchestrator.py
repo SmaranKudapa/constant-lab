@@ -71,6 +71,9 @@ class Trial:
         try:
             self.spec = get_spec(self.city, towns)
             sp = self.spec
+            if getattr(self, "ada", None):  # Exa Dude's place check: town, county, state from the geocoded name
+                parts = [p.strip().lower() for p in sp["display_name"].split(",")[:3] if p.strip()]
+                self.ada.place_terms = [p.replace(" county", "") if p.endswith(" county") else p for p in parts]
             named = sum(1 for p in sp["places"] if p.get("named"))
             pop = int(sp["population"]) if sp.get("population") else "unknown"
             self.emit("NOTE", agent="eli", level="info", say="Loading the real town",
@@ -148,12 +151,12 @@ class Trial:
                   metric=P["label"], constraint="staff hours (unknown yet)", horizon=f"1 week, {SEEDS} matched seeds", prompt=self.prompt)
         self.emit("MEMORY_READ", agent="eli", say="Recalling memory for this town", query=f"{city} library", found=0,
                   note="No prior facts for this town. Starting fresh.", store="scripted")
-        self.exa("ada", f"{city} public library opening hours", "broad", fixtures.library_hours(city), "Baseline hours for the simulator",
+        self.exa("exa", f"{city} public library opening hours", "broad", fixtures.library_hours(city), "Baseline hours for the simulator",
                  say="Searching: current library hours")
-        self.emit("MEMORY_WRITE", agent="ada", say="Saving the baseline to shared memory", source_id="fact-library-hours", kind="fact",
+        self.emit("MEMORY_WRITE", agent="exa", say="Saving the baseline to shared memory", source_id="fact-library-hours", kind="fact",
                   claim="Library open Mon-Sat 10:00-18:00, closed Sun", effective="2026-09-01", supersedes=None,
                   source="fixture://library-hours", store="scripted")
-        self.emit("MEMORY_READ", agent="bo", say="Reading Ada's fact, building runs", source_id="fact-library-hours", author="ada",
+        self.emit("MEMORY_READ", agent="bo", say="Reading Exa Dude's fact, building runs", source_id="fact-library-hours", author="exa",
                   claim="Library open Mon-Sat 10:00-18:00, closed Sun", used_for="baseline policy E0", store="scripted")
         E0 = self.exp(id="E0", label="Current hours", role="baseline", policy={"hours": BASELINE_HOURS}, change="none (current practice)")
         E1 = self.exp(id="E1", label="Your idea: Tue/Thu until 21:00", role="user", parent="E0", policy={"hours": proposal}, change=hours_text(proposal))
@@ -171,17 +174,17 @@ class Trial:
                   trace=f"E1 beats E0 ({self.fmt(E1)} vs {self.fmt(E0)}), but uses {staff_hours(E1['policy']['hours'])} staff hours vs "
                         f"{staff_hours(E0['policy']['hours'])}. The ranking depends on an input nobody has checked.",
                   next_question="Is extra evening staffing allowed this fiscal year?")
-        self.exa("ada", f"{city} library board meeting minutes staffing budget evening hours 2026", "failure-guided", fixtures.board_minutes(city),
+        self.exa("exa", f"{city} library board meeting minutes staffing budget evening hours 2026", "failure-guided", fixtures.board_minutes(city),
                  "Adds constraint: staff hours <= current (96/week)", say="Failure-guided search: staffing")
         cap = staff_hours(BASELINE_HOURS)
         self.constraint = (f"staff hours <= {cap}/week", lambda x: staff_hours(x["policy"]["hours"]) <= cap)
-        self.emit("CONSTRAINT", agent="ada", scripted=True, constraint=self.constraint[0], source="fixture://board-minutes", previous="unknown",
+        self.emit("CONSTRAINT", agent="exa", scripted=True, constraint=self.constraint[0], source="fixture://board-minutes", previous="unknown",
                   changes=["E1 is now infeasible"])
-        self.emit("MEMORY_WRITE", agent="ada", source_id="fact-staffing-cap", kind="constraint", claim="No new staff hours in FY2027",
+        self.emit("MEMORY_WRITE", agent="exa", source_id="fact-staffing-cap", kind="constraint", claim="No new staff hours in FY2027",
                   effective="2026-10-14", supersedes=None, source="fixture://board-minutes", store="scripted")
         self.set(E1, status="infeasible")
 
-        self.emit("MEMORY_READ", agent="bo", say="Reading the cap, rethinking", source_id="fact-staffing-cap", author="ada",
+        self.emit("MEMORY_READ", agent="bo", say="Reading the cap, rethinking", source_id="fact-staffing-cap", author="exa",
                   claim="No new staff hours in FY2027", used_for=f"revision must keep staff hours at {cap}", store="scripted")
         E2 = self.exp(id="E2", label="Assume evening demand doubles", role="revision", parent="E1", policy={"hours": proposal}, change="E1 + assume 2x evening demand")
         self.emit("PROPOSE", agent="bo", scripted=True, exp="E2", parent="E1", change=E2["change"], why="A blog post says evening hours doubled visits elsewhere.")
@@ -243,7 +246,7 @@ class Trial:
                   members=info["byCohort"].get("families", 0), store="scripted")
         self.emit("MEMORY_WRITE", agent="eli", source_id="notice-library-hours", kind="notice", claim="New library hours notice",
                   audience="heard-library-notice", note="Only residents in this audience can recall the notice.", store="scripted")
-        self.exa("ada", f"{city} library hours change announcement", "broad", fixtures.library_news(city), "Baseline channel: online post",
+        self.exa("exa", f"{city} library hours change announcement", "broad", fixtures.library_news(city), "Baseline channel: online post",
                  say="Searching: how this town gets news")
         P0 = self.exp(id="P0", label="Online post only", role="baseline", policy={"channels": ["online"]}, change="website + social post")
         out = self.run([P0], say="Running P0 on Modal")
@@ -252,17 +255,17 @@ class Trial:
         self.emit("FAILURE", agent="cy", say="Who did the notice miss?", scripted=True, exp="P0",
                   trace=f"Only {self.fmt(P0)} of working parents heard. Most parents are offline during the day and learn by word of mouth, if at all.",
                   next_question="What channel reaches parents during the school run?")
-        self.exa("ada", f"{city} elementary school weekly family bulletin newsletter", "failure-guided", fixtures.school_bulletin(city),
+        self.exa("exa", f"{city} elementary school weekly family bulletin newsletter", "failure-guided", fixtures.school_bulletin(city),
                  "New channel: school bulletin reaches families at drop-off/pickup", say="Failure-guided search: school channels")
-        self.emit("MEMORY_WRITE", agent="ada", source_id="fact-school-bulletin", kind="fact", claim="School sends a weekly family bulletin",
+        self.emit("MEMORY_WRITE", agent="exa", source_id="fact-school-bulletin", kind="fact", claim="School sends a weekly family bulletin",
                   source="fixture://school-bulletin", supersedes=None, store="scripted")
-        self.emit("MEMORY_READ", agent="bo", say="Using Ada's find: two revisions", source_id="fact-school-bulletin", author="ada",
+        self.emit("MEMORY_READ", agent="bo", say="Using Exa Dude's find: two revisions", source_id="fact-school-bulletin", author="exa",
                   claim="School sends a weekly family bulletin", used_for="revision P2", store="scripted")
         P1 = self.exp(id="P1", label="+ flyers at cafe, library, town hall", role="revision", parent="P0", policy={"channels": ["online", "board"]}, change="online + paper flyers at the cafe, library and town hall")
         P2 = self.exp(id="P2", label="+ school bulletin", role="revision", parent="P0", policy={"channels": ["online", "bulletin"]}, change="online + school bulletin",
                       source="fixture://school-bulletin")
         self.emit("PROPOSE", agent="bo", scripted=True, exp="P1", parent="P0", change=P1["change"], why="Paper notice for residents who don't use the website.")
-        self.emit("PROPOSE", agent="bo", scripted=True, exp="P2", parent="P0", change=P2["change"], why="Reaches parents at drop-off, per Ada's source.")
+        self.emit("PROPOSE", agent="bo", scripted=True, exp="P2", parent="P0", change=P2["change"], why="Reaches parents at drop-off, per Exa Dude's source.")
         self.emit("REVIEW", agent="cy", scripted=True, exp="P1", ok=True, reason="Supported channel.")
         self.emit("REVIEW", agent="cy", scripted=True, exp="P2", ok=True, reason="Supported channel; source is local.")
         P3 = self.exp(id="P3", label="Assume 90% open the email", role="revision", parent="P2", policy={"channels": ["online", "bulletin"]}, change="P2 + assume 90% open rate")
