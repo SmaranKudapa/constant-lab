@@ -14,7 +14,6 @@ Read these first, in order:
 - **Frontend changes.** Keep them minimal and additive: a new `town-trial/web/js/live.js` plus a small hook in `main.js` that uses the backend when `window.TOWN_TRIAL_API` is set and falls back to demo mode otherwise. Demo mode must keep working with no backend.
 - **One simulator.** `town-trial/web/js/sim.js` is the single source of truth for simulation numbers. Run it with Node inside Modal workers. Don't port it to Python. If you must change it, keep `node town-trial/tests/sim_check.mjs` passing.
 - **Honesty is a judging criterion.** Never present a fixture or synthetic number as real. Label synthetic runs. Log failures and rejections. Every Exa-derived input carries its source URL.
-- The old Tao-constants code (`constant_lab/`, `server/`, root `web/`, `docs/FRAMEWORK.md`, `docs/SPONSOR_PLAN.md`) is from an abandoned direction. Reuse ideas, but don't build on it.
 
 ## Infrastructure (all already set up by the team)
 
