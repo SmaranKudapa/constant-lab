@@ -68,6 +68,7 @@ class Trial:
     def load_town(self, towns) -> None:
         """Use the real town (OSM + Census) if it can be loaded; otherwise the synthetic town, and say so."""
         from towns import get_spec
+        self.towns = towns
         try:
             self.spec = get_spec(self.city, towns)
             sp = self.spec

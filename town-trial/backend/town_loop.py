@@ -22,6 +22,7 @@ from policy import DAYS, H, apply_changes, describe_town, fixed, town_policy, va
 from research_loop import LiveTrial
 from agents import comparables as CMP
 from agents import treasurer as TR
+import town_profile as TP
 
 KIND_LABEL = {"library": "library", "clinic": "clinic", "pharmacy": "pharmacy", "community": "community centre", "sports": "sports ground",
               "park": "park", "post_office": "post office", "townhall": "town hall"}
@@ -266,6 +267,7 @@ class TownTrial(LiveTrial):
             self.note("This town has no mapped public places the model supports (library, clinic, pharmacy, community centre, sports, park, "
                       "post office, town hall); only outreach and new places can be tested.", agent="eli")
         self.base_policy = {"target": None}
+        self.town_profile()
         fr = self.frame()
         if fr is None:
             return
@@ -442,6 +444,46 @@ class TownTrial(LiveTrial):
         else:
             self.log_exa("exa", q, "broad", res, live, "Budget search unavailable; using labelled defaults.", say="Searching: the town budget")
 
+    # ---------- town profile (Exa Dude) ----------
+    def town_profile(self) -> None:
+        """Budget documents, channels and place roles for this town: cached per town, built on the first live visit
+        with its own small search budget (3 Exa calls) so the research loop keeps its budget."""
+        cache = getattr(self, "towns", None)
+        prof = TP.cached(self.city, cache) if cache is not None else None
+        fresh = False
+        if not prof and self.ada.available and self.exa_mode == "failure":
+            from agents.ada import Ada
+            from agents.llm import LLM, Budget
+            pb = Budget(exa=3, llm=3)
+            pada = Ada(pb, LLM(pb))
+            pada.place_terms = list(self.ada.place_terms)
+            prof, fresh = TP.build(self.city, pada, self.spec), True
+            if cache is not None:
+                try:
+                    cache[TP._key(self.city)] = prof
+                except Exception as ex:
+                    self.note(f"Couldn't cache the town profile ({type(ex).__name__}).", level="info", agent="eli")
+        if not prof:
+            self.note("No town profile: Exa search is unavailable, so the town's budget documents and channels are unknown (labelled defaults).", agent="exa")
+            return
+        self.profile = prof
+        if fresh:
+            for s in prof["searches"]:
+                self.emit("EXA", agent="exa", say="Researching the town", query=s["query"], search="town profile", results=s.get("results", []),
+                          used_for="Town profile: budget documents, local channels, roles and addresses of places" + (f" (error: {s['error']})" if s.get("error") else ""))
+        docs = TP.budget_docs(prof)
+        self.budget_docs += docs
+        for d in docs[:3]:
+            self.evidence.append({"claim": d["statement"], "url": d["url"], "author": "exa"})
+        for c in prof["channels"][:4]:
+            self.evidence.append({"claim": f"Local channel: {c['name']} ({c['kind']})", "url": c["url"], "author": "exa"})
+        b = prof.get("budget") or {}
+        self.emit("TOWN_PROFILE", agent="exa", say="Town profile ready", cached=not fresh, built=prof["built"], budget=b or None,
+                  channels=prof["channels"], places=prof["places"], exa_only_places=prof["exa_only_places"], sources=prof["sources"], missing=prof["missing"])
+        if b:
+            self.remember("exa", "fact-town-budget", f"{b.get('fiscal_year') or 'Current'} budget: {b.get('total_kind')} "
+                          + (f"${b['total_budget_usd']:,.0f}" if b.get("total_budget_usd") else "(total not stated)"), "fact", b["url"], effective=b.get("published"))
+
     # ---------- similar towns (Exa Dude) ----------
     def similar_towns(self, q: str, kind: str, say: str) -> list[dict]:
         """Search for other towns that tried something for this goal; keep quote-checked cases; unmodellable ideas become pilots."""
@@ -484,7 +526,7 @@ class TownTrial(LiveTrial):
 
     def treasurer_final(self, best: dict, base: dict) -> dict:
         li = TR.line_items(best["budget"], base["budget"], best["policy"], self.scope_label)
-        for sid in [s for s in list(self.written) if s.startswith("fact-budget")][:3]:  # Treasurer reads Exa Dude's budget facts from shared memory
+        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]:  # Treasurer reads Exa Dude's budget facts from shared memory
             self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records")
         fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, self.budget_docs))
         if err:

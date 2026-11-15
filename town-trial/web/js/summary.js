@@ -99,6 +99,8 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
   const fund = [...events].reverse().find((e) => e.type === "BUDGET_CHECK" && e.final && e.exp === best.id);
   out.funding = fund ? { status: fund.status, source: fund.funding_source, gap: fund.gap_usd, kind: fund.appropriation_or_unspent, restricted: fund.restricted,
     confirm: fund.confirm || [], reason: fund.reason, url: fund.source, summary: fund.summary, items: fund.items || [] } : null;
+  const prof = [...events].reverse().find((e) => e.type === "TOWN_PROFILE");
+  out.townBudget = prof && prof.budget ? { year: prof.budget.fiscal_year, total: prof.budget.total_budget_usd, kind: prof.budget.total_kind, url: prof.budget.url, published: prof.budget.published } : null;
   out.others = exps.filter((x) => x !== best).map((x) => ({ id: x.id, label: x.label, role: ROLE[x.role] || x.role, status: x.status,
     text: x.result ? fmtMetric(metricOf(x, P), P) + (P.key === "budget.net" ? "" : P.unit || "") : "-", why: whyNot(x, best, P, events) }));
   return out;

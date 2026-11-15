@@ -68,7 +68,7 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
-let trialType = null, trialPrompt = "", briefAt = 0, doneAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
+let townProfile = null, trialType = null, trialPrompt = "", briefAt = 0, doneAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
@@ -91,6 +91,7 @@ function emit(type, fields) {
   const e = { seq: events.length + 1, t: new Date().toISOString(), type, clock: model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : "", ...fields };
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
+  if (type === "TOWN_PROFILE") townProfile = fields;
   if (type === "VOICES") voicesFor = { exp: fields.exp, byCohort: Object.fromEntries((fields.voices || []).map((v) => [v.cohort, v])) };
   if (fields.resident && (type === "VISIT" || type === "TURNED_AWAY" || type === "LEARN")) residentSay(fields.resident, type === "TURNED_AWAY" ? "turned" : type === "LEARN" ? "heard" : fields.restricted ? "restricted" : "visit");
   if (type === "BRIEF" && research !== undefined) { briefAt = performance.now(); if (fields.recommend && fields.recommend !== "none") celebrate(); }
@@ -139,7 +140,7 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
-  endCelebration(); summaryDone = true; hover.set(null);
+  endCelebration(); summaryDone = true; hover.set(null); townProfile = null;
   $("mode-badge").classList.add("hidden");
   $("log").innerHTML = "";
   startReplay(null);
@@ -411,7 +412,7 @@ function renderSelected() {
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
-  else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events);
+  else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events, townProfile);
   if (el._html !== html) { const top = el.scrollTop; el.innerHTML = html; el._html = html; el.scrollTop = top; }
 }
 $("selected").addEventListener("click", (e) => { if (e.target.closest("[data-close]")) select(null); });

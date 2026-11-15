@@ -20,7 +20,8 @@ function policyHTML(s) {
     h += `<section class="rp-sec rp-fund" style="border-left-color:${col}"><h4 class="rp-h" style="color:${col}">FUNDING · ${F.status === "unverified" ? "BUDGET UNVERIFIED" : esc(String(F.status).toUpperCase())} <span class="rp-who">TREASURER</span></h4>
       <p class="rp-lead">${esc(F.summary || "")}${F.source && F.source !== "none identified" ? ` · from ${esc(F.source)}` : ""}${F.gap ? ` · gap ${esc(fmtUsd(F.gap))}/yr` : ""}</p>
       <p class="rp-dim">${esc(F.reason || "")}${F.url ? ` ${link(F.url)}` : ""}</p>
-      ${F.confirm.length ? `<p class="rp-dim"><b>The town must confirm:</b> ${esc(F.confirm.join("; "))}</p>` : ""}</section>`;
+      ${F.confirm.length ? `<p class="rp-dim"><b>The town must confirm:</b> ${esc(F.confirm.join("; "))}</p>` : ""}
+      ${s.townBudget ? `<p class="rp-dim"><b>Town budget:</b> ${esc(s.townBudget.year || "current year")} ${esc(s.townBudget.kind)}${typeof s.townBudget.total === "number" ? ` ${esc(fmtUsd(s.townBudget.total))}` : ""} · ${link(s.townBudget.url)}${s.townBudget.published ? ` (${esc(s.townBudget.published)})` : ""}</p>` : ""}</section>`;
   }
   if (s.sources && s.sources.length) h += `<div class="rp-src rp-small">Sources: ${s.sources.map((u) => link(u)).join(" · ")}</div>`;
   return h;
