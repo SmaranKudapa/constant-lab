@@ -659,8 +659,10 @@ function frame() {
   for (const r of Object.values(researchers)) r.update(dt);
   for (const v of Object.values(views)) v.cheer = cheering;
   celebration.update(dt);
-  if (!summaryDone && briefAt && research && research.done()) {  // finished: let the celebration play for 3 s, then show the results
-    if (!doneAt) { doneAt = performance.now(); $("mode-badge").classList.add("hidden"); }
+  // The best policy is found when the brief arrives: let the celebration play for 3 s, then show the results. Don't wait for
+  // the backend to finish: follow-up steps after the brief (e.g. past.dev recall checks) can take a while and don't change the result.
+  if (!summaryDone && briefAt && research) {
+    if (!doneAt) { doneAt = briefAt; $("mode-badge").classList.add("hidden"); }
     if (performance.now() - doneAt >= 3000) finishTrial();
   }
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
