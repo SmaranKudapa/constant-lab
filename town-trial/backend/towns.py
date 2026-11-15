@@ -86,25 +86,33 @@ def geocode(city: str) -> dict:
 
 
 def fetch_places(lat: float, lon: float, radius: int) -> list[dict]:
+    """Main Overpass server at full size, then a smaller area (dense cities like Berkeley can time out), then the mirrors.
+    Worst case stays under ~5 minutes so the browser's wait doesn't run out first."""
+    small = min(radius, 1200)
+    tries = [(OVERPASS[0], radius, 90), (OVERPASS[0], small, 60)] + [(u, small, 55) for u in OVERPASS[1:]]
+    last = None
+    for url, r, to in tries:
+        try:
+            return _overpass(url, lat, lon, r, to)
+        except Exception as ex:  # try a smaller area / the next mirror
+            last = ex
+    raise RuntimeError(f"Overpass failed: {last}")
+
+
+def _overpass(url: str, lat: float, lon: float, radius: int, timeout: float) -> list[dict]:
     a = f"around:{radius},{lat},{lon}"
-    q = (f"[out:json][timeout:150];("
+    q = (f"[out:json][timeout:{int(timeout) - 5}];("
          f'nwr({a})[amenity~"^(library|school|kindergarten|college|clinic|doctors|hospital|dentist|pharmacy|community_centre|social_centre|'
          f'arts_centre|townhall|post_office|police|fire_station|place_of_worship|restaurant|cafe|fast_food|pub|bar|bank|swimming_pool)$"];'
          f'nwr({a})[leisure~"^(park|playground|garden|sports_centre|swimming_pool|pitch|fitness_centre|stadium)$"];'
          f"nwr({a})[shop];nwr({a})[office];way({a})[building~\"^(office|commercial|industrial)$\"];"
          f'way({a})[highway~"^(primary|secondary|tertiary|residential|unclassified|living_street)$"][name];'
          f");out tags center;")
-    last = None
-    for url in OVERPASS:
-        try:
-            res = _get(url, data={"data": q}, timeout=170)
-            remark = str(res.get("remark") or "")
-            if "error" in remark.lower() or "timed out" in remark.lower():  # Overpass reports query timeouts as HTTP 200 + remark
-                raise RuntimeError(f"Overpass remark: {remark[:160]}")
-            return res.get("elements", [])
-        except Exception as ex:  # try the mirror
-            last = ex
-    raise RuntimeError(f"Overpass failed: {last}")
+    res = _get(url, data={"data": q}, timeout=timeout)
+    remark = str(res.get("remark") or "")
+    if "error" in remark.lower() or "timed out" in remark.lower():  # Overpass reports query timeouts as HTTP 200 + remark
+        raise RuntimeError(f"Overpass remark: {remark[:160]}")
+    return res.get("elements", [])
 
 
 STATE_FIPS = {"Alabama": "01", "Alaska": "02", "Arizona": "04", "Arkansas": "05", "California": "06", "Colorado": "08", "Connecticut": "09",
@@ -339,8 +347,8 @@ def lookup(city: str, cache, start_build) -> dict:
             cache[norm_key(city)] = spec
         return {"status": "ready", "spec": spec}
     st = cache.get(status_key(city), None) or {}
-    fresh = time.time() - st.get("t", 0) < 300
-    if st.get("state") == "error" and fresh:
+    fresh = time.time() - st.get("t", 0) < 420
+    if st.get("state") == "error" and time.time() - st.get("t", 0) < 45:  # map servers are flaky: retry soon after a failure
         return {"status": "error", "error": st["error"]}
     if st.get("state") != "building" or not fresh:
         cache[status_key(city)] = {"state": "building", "t": time.time()}

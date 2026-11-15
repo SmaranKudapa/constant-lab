@@ -132,7 +132,7 @@ async function loadSpec(name) {
   if (!api) return null;
   const base = api.replace(/\/+$/, "");
   const t0 = performance.now();
-  while (performance.now() - t0 < 240000) {
+  while (performance.now() - t0 < 360000) {
     const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}`);
     if (!r.ok) throw new Error(`${r.status}`);
     const d = await r.json();
