@@ -188,7 +188,7 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
-  endCelebration(); summaryDone = true; hover.set(null); townProfile = null; profileFor = ""; profileState = null;
+  endCelebration(); summaryDone = true; hover.set(null);
   $("status-chip").classList.add("hidden");
   $("mode-badge").classList.add("hidden"); renderBanner();
   $("log").innerHTML = "";
@@ -592,12 +592,19 @@ async function loadProfile(name) {
       if (!r.ok) throw new Error(`${r.status}`);
       const d = await r.json();
       if (profileFor !== name) return;
-      if (d.status === "ready") { if (!townProfile) townProfile = d.profile; profileState = "ready"; updateStats(); return; }
+      if (d.status === "ready") { if (!townProfile || !townProfile.budget) townProfile = d.profile; profileState = "ready"; updateStats(); return; }
       if (d.status === "error") throw new Error(d.error);
       await new Promise((res) => setTimeout(res, 4000));
     }
     if (profileFor === name) { profileState = "slow"; updateStats(); }
   } catch (err) { if (profileFor === name) { profileState = "error"; updateStats(); } }
+}
+// No published budget total: size one from the population (typical US municipal spending per resident, higher in bigger
+// cities). Shown only in the top bar; the gods and the Treasurer never use it as a verified figure.
+function estBudget(pop) {
+  if (!pop) return 0;
+  const perResident = pop >= 100000 ? 2200 : pop >= 25000 ? 1600 : pop >= 5000 ? 1200 : 900;
+  return Math.round(pop * perResident);
 }
 function updateStats() {
   const pop = townSpec && townSpec.population;
@@ -607,12 +614,13 @@ function updateStats() {
   $("st-sim").parentElement.title = `${residents.length} simulated residents` + (pop ? `, each standing for about ${Math.round(pop / residents.length).toLocaleString()} real people` : "");
   const b = townProfile && townProfile.budget;
   const searching = !b && !townProfile && profileState === "building";
-  $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : b ? "no total" : searching ? "searching…" : !townSpec ? "synthetic" : "not found";
+  const est = estBudget(pop);
+  $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : searching ? "searching…" : !townSpec ? "synthetic" : est ? `$${shortNum(est)}` : "-";
   $("st-bud").classList.toggle("searching", searching);
   $("st-bud").parentElement.title = b ? `${b.fiscal_year || "Current"} ${b.total_kind} (source: ${b.url})`
     : searching ? "Exa Dude is looking for this town's budget document"
     : !townSpec ? "Synthetic town: no real budget"
-    : profileState === "error" ? "Exa Dude couldn't reach a budget source for this town" : "Exa Dude found no budget document with a verifiable total for this town";
+    : est ? `No published budget total found; ${shortNum(est)} is calculated from the population (${Math.round(pop).toLocaleString()} × typical per-resident municipal spending)` : "No population to size a budget from";
   $("town-stats").classList.remove("hidden");
 }
 
@@ -629,7 +637,11 @@ $("city-form").addEventListener("submit", async (e) => {
   await enterTown(name);
 });
 async function enterTown(name, real = true) {
-  if (real && window.TOWN_TRIAL_API) showLoading(`Building ${name}`, "Fetching real map data from OpenStreetMap");
+  townProfile = null; profileFor = ""; profileState = null;
+  if (real && window.TOWN_TRIAL_API) {
+    showLoading(`Building ${name}`, "Fetching real map data from OpenStreetMap");
+    loadProfile(name);  // the town budget is looked up while the map is being built
+  }
   try { await makeTown(name, real); } finally { hideLoading(); }
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
@@ -641,7 +653,6 @@ async function enterTown(name, real = true) {
   setBanner(!!window.TOWN_TRIAL_API && !liveDisabled);
   updateStats();
   if (townNote) toast(townNote, 7000, true);  // real map data failed: say so (the town is synthetic)
-  if (townSpec) loadProfile(name);
 }
 
 // Prompt

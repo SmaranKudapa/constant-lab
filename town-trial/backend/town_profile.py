@@ -65,8 +65,9 @@ def cached(city: str, cache) -> dict | None:
     return p if p and p.get("version") == PROFILE_VERSION else None
 
 
-def build(city: str, ada, spec: dict | None) -> dict:
-    """Run the profile searches (3 Exa calls, 3 LLM extractions) and keep only checked facts."""
+def build(city: str, ada, spec: dict | None, spec_wait=None) -> dict:
+    """Run the profile searches (3 Exa calls, 3 LLM extractions) and keep only checked facts.
+    spec_wait: when the map is still being built, a callable that waits for it (used only to match places to the map)."""
     prof = {"version": PROFILE_VERSION, "city": city, "built": time.strftime("%Y-%m-%d"), "budget": None, "channels": [], "places": [],
             "exa_only_places": [], "sources": [], "missing": [], "searches": []}
 
@@ -137,6 +138,8 @@ def build(city: str, ada, spec: dict | None) -> dict:
         try:
             out = ada.llm.json("town_places", PLACES, ada.SYSTEM, f"From the sources, list public places in {city} (library, town/city hall, schools, "
                                f"community centre, parks) with their role and street address if stated. Quote each.\n\n{ada._sources(res)}")
+            if spec is None and spec_wait:
+                spec = spec_wait()
             osm = [(p.get("name") or "").lower() for p in (spec or {}).get("places", [])]
             for p in out.get("places", [])[:10]:
                 chk = ada._checked({"found": True, **p}, res)
@@ -193,8 +196,19 @@ def build_into(city: str, cache) -> None:
             return
         from agents.ada import Ada
         from agents.llm import LLM, Budget
-        from towns import norm_key
+        from towns import norm_key, status_key
         spec = cache.get(norm_key(city), None)
+
+        def spec_wait():  # the map is being built at the same time: wait for it (only the place matching needs it)
+            t0 = time.time()
+            while time.time() - t0 < 300:
+                sp = cache.get(norm_key(city), None)
+                if sp:
+                    return sp
+                if (cache.get(status_key(city), None) or {}).get("state") == "error":
+                    return None
+                time.sleep(3)
+            return None
         pb = Budget(exa=4, llm=4)
         ada = Ada(pb, LLM(pb))
         if not ada.available:
@@ -202,7 +216,9 @@ def build_into(city: str, cache) -> None:
         if spec and spec.get("display_name"):  # place check: town, county, state from the geocoded name
             parts = [p.strip().lower() for p in spec["display_name"].split(",")[:3] if p.strip()]
             ada.place_terms = [p.replace(" county", "") if p.endswith(" county") else p for p in parts]
-        cache[_key(city)] = build(city, ada, spec)
+        else:  # map not built yet: sources must at least name the town
+            ada.place_terms = [city.split(",")[0].strip().lower()]
+        cache[_key(city)] = build(city, ada, spec, spec_wait)
         cache[_status_key(city)] = {"state": "ready", "t": time.time()}
     except Exception as ex:
         cache[_status_key(city)] = {"state": "error", "t": time.time(), "error": f"{type(ex).__name__}: {str(ex)[:160]}"}
