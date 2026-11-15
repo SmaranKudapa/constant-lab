@@ -62,7 +62,7 @@ def boom(*a, **k):
 LLM.json = boom
 Ada.search = boom
 
-# Bo must use what his memory reads return: capture the context passed to his revise step (then fail it, as above).
+# Athena must use what his memory reads return: capture the context passed to his revise step (then fail it, as above).
 from agents import bo as _bo_mod  # noqa: E402
 from agents.bo import Bo  # noqa: E402
 _bo_ctx: list = []
@@ -98,7 +98,7 @@ for mode, prompt in (("service", "Keep the library open two late evenings"), ("p
     check(f"live fallback {mode}: Exa fell back to labelled fixtures", exa and all(e["fixture"] for e in exa), str(len(exa)))
     check(f"live fallback {mode}: brief written, scripted", types["BRIEF"] == 1 and next(e for e in evs if e["type"] == "BRIEF")["scripted"])
     check(f"live fallback {mode}: fallbacks logged", types["NOTE"] >= 3, str(types["NOTE"]))
-    check(f"live fallback {mode}: Bo's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
+    check(f"live fallback {mode}: Athena's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
 
 # Town mode (general model) on a real-town spec with Exa and the LLM failing: framing falls back, every experiment is costed.
 import json as _json  # noqa: E402
@@ -109,7 +109,7 @@ store = EventStore({})
 store.create("t3", {})
 tt = TownTrial(store, "t3", "Evart, MI", "Extend library hours two evenings a week", "town", runner, memory=LocalMemory({}))
 tt.spec = _spec
-# offline, Exa Dude writes nothing in town mode, so seed one of his facts as if this trial had written it (Bo reads this trial's writes)
+# offline, Exa Dude writes nothing in town mode, so seed one of his facts as if this trial had written it (Athena reads this trial's writes)
 tt.memory.ingest("exa", "Evart, MI", "fact-budget-hourly_wage", "Library staff wage FY2026: $17.50/hour", "fact", "https://example.org/evart-budget")
 tt.written.add("fact-budget-hourly_wage")
 try:
@@ -120,7 +120,7 @@ evs, done = store.read("t3")
 exps = {e["id"]: e for e in evs if e["type"] == "EXPERIMENT"}
 check("town fallback: finishes", done and not err, err or "")
 check("town fallback: framed + briefed", any(e["type"] == "FRAME" for e in evs) and any(e["type"] == "BRIEF" for e in evs))
-check("town fallback: Bo's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
+check("town fallback: Athena's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
 _v = [e for e in evs if e["type"] == "VOICES"]
 check("town fallback: resident voices before the brief, one per group, labelled", len(_v) == 1 and _v[0]["scripted"] and len(_v[0]["voices"]) >= 5
       and all(v["stance"] in ("helped", "hurt", "unchanged") and v["quote"] and v["role"] for v in _v[0]["voices"])
@@ -128,18 +128,18 @@ check("town fallback: resident voices before the brief, one per group, labelled"
 _b = [e for e in evs if e["type"] == "BRIEF"]
 check("town fallback: brief explains what the policy does and why it wins", bool(_b) and bool(_b[-1].get("what")) and bool(_b[-1].get("reasoning")), (_b[-1].get("reasoning") or "")[:120] if _b else "")
 _bc = [e for e in evs if e["type"] == "BUDGET_CHECK"]
-check("town fallback: Treasurer costs proposals and checks the winner's funding (unverified without budget documents)",
+check("town fallback: Apollo costs proposals and checks the winner's funding (unverified without budget documents)",
       any(not e["final"] for e in _bc) and any(e["final"] and e["status"] == "unverified" and e["confirm"] for e in _bc)
       and all(isinstance(e["items"], list) and e["items"] for e in _bc), f"{len(_bc)} checks")
 _ch = [e for e in evs if e["type"] == "CHAIN"]
 check("town fallback: each research round records failure -> question -> source -> changed idea -> new result",
       len(_ch) >= 1 and all(k in _ch[0] for k in ("failure", "question", "source", "changed_idea", "new_result")), f"{len(_ch)} rounds")
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
-check("town fallback: Bo saves what won and Cy saves its failure notes for later trials",
+check("town fallback: Athena saves what won and Hephaestus saves its failure notes for later trials",
       any(e["type"] == "MEMORY_WRITE" and e["source_id"] == "lesson-t3" and e["agent"] == "bo" for e in evs)
       and any(e["type"] == "MEMORY_WRITE" and e["source_id"] == "cy-notes-t3" and e["agent"] == "cy" for e in evs))
 
-# A later trial in the same browser session lists t3: Bo and Cy read its lessons from shared memory and use them
+# A later trial in the same browser session lists t3: Athena and Hephaestus read its lessons from shared memory and use them
 _bo_ctx.clear()
 store.create("t4", {})
 t4 = TownTrial(store, "t4", "Evart, MI", "Open the library on Sundays", "town", runner, memory=tt.memory, options={"prior": [{"trial": "t3", "city": "Evart, MI"}]})
@@ -151,9 +151,9 @@ except Exception as ex:
 evs4, _ = store.read("t4")
 _lr = [e for e in evs4 if e["type"] == "MEMORY_READ" and e.get("source_id") in ("lesson-t3", "cy-notes-t3")]
 _win = next((e["claim"] for e in _lr if e["source_id"] == "lesson-t3"), "")
-check("session learning: Bo reads what won and Cy reads its notes from the earlier trial (written by Bo / Cy)",
+check("session learning: Athena reads what won and Hephaestus reads its notes from the earlier trial (written by Athena / Hephaestus)",
       not err4 and {(e["agent"], e["author"]) for e in _lr} == {("bo", "bo"), ("cy", "cy")}, err4 or str(len(_lr)))
-check("session learning: Bo's revision prompt contains the earlier trial's lesson", bool(_win) and any(_win in c for c in _bo_ctx), f"{len(_bo_ctx)} prompts")
+check("session learning: Athena's revision prompt contains the earlier trial's lesson", bool(_win) and any(_win in c for c in _bo_ctx), f"{len(_bo_ctx)} prompts")
 # the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
 e0 = exps["E0"]
 est = tt.budget_of(tt.est_mean(e0["policy"]), e0["policy"])

@@ -2,10 +2,10 @@
 
 Same event log as the scripted port (orchestrator.Trial), with these rules:
 - Exa Dude's Exa calls run on every trial: a broad baseline search, then failure-guided
-  searches built from Cy's next_question + town + the entity that would know.
+  searches built from Hephaestus's next_question + town + the entity that would know.
 - Extracted values must be quoted from a returned passage (checked in code).
   Nothing found -> the gap is logged and the input is labelled as an assumption.
-- Bo's actions are JSON validated in code; invalid twice -> labelled scripted step.
+- Athena's actions are JSON validated in code; invalid twice -> labelled scripted step.
 - Constraints (staff hours) are checked in code, never by the LLM.
 - Exa failure -> labelled FIXTURE evidence, dependent experiments get source "fixture".
 """
@@ -38,8 +38,8 @@ class LiveTrial(Trial):
         # searches, but generic town/library queries; "none" = no Exa calls (gaps logged, model defaults used).
         self.exa_mode = (options or {}).get("exa_mode", "failure")
         self.prior = list((options or {}).get("prior") or [])  # earlier trials in this browser session: [{trial, city}]
-        self.session_lessons: list[dict] = []                  # what Bo and Cy read back about them (from shared memory)
-        self.fail_notes: list[str] = []                        # Cy's failure notes in this trial (saved at the end for later trials)
+        self.session_lessons: list[dict] = []                  # what Athena and Hephaestus read back about them (from shared memory)
+        self.fail_notes: list[str] = []                        # Hephaestus's failure notes in this trial (saved at the end for later trials)
         self.budget = budget or Budget()
         self.llm = LLM(self.budget)
         self.ada, self.bo, self.cy = Ada(self.budget, self.llm), Bo(self.llm), Cy(self.llm)
@@ -219,7 +219,7 @@ class LiveTrial(Trial):
         return self.constraint is None or self.constraint[1](x)
 
     def review(self, x: dict, why: str, trace: str = "") -> bool:
-        """Code checks first (constraint), then Cy. Rejections are kept in the log."""
+        """Code checks first (constraint), then Hephaestus. Rejections are kept in the log."""
         if not self.feasible(x):
             self.set(x, status="rejected")
             self.emit("REVIEW", agent="cy", exp=x["id"], ok=False, by="code",
@@ -455,7 +455,7 @@ class LiveTrial(Trial):
         return {**out, **_action(mode, out)}
 
     def cy_recall(self) -> None:
-        """Cy recalls the town's evidence (written by Exa Dude) before reviewing; recalled facts join the review context."""
+        """Hephaestus recalls the town's evidence (written by Exa Dude) before reviewing; recalled facts join the review context."""
         facts = self.memory.recall("cy", self.city, "library facts constraints sources", kinds=("fact", "constraint"))
         known = {e["claim"] for e in self.evidence}
         for f in facts:
@@ -469,7 +469,7 @@ class LiveTrial(Trial):
                       note="No facts recalled yet; reviewing against the trace only.", store=self.memory.last_store)
 
     def cy_check_user(self, x: dict, why: str) -> None:
-        """The user's idea is always run (it's what they asked); Cy flags concerns but doesn't block it."""
+        """The user's idea is always run (it's what they asked); Hephaestus flags concerns but doesn't block it."""
         out, err = self.attempt("cy", "review", lambda e: self.cy.review(self.mode, f"{x['id']} (the user's own idea): {x['change']}",
                                                                           self.evidence_text(), self.constraints_text()))
         if err:
@@ -481,7 +481,7 @@ class LiveTrial(Trial):
 
     def round(self, rnd: int, best: dict) -> dict:
         mode, city = self.mode, self.city
-        # 1. Cy reads the failure trace
+        # 1. Hephaestus reads the failure trace
         fail, err = self.attempt("cy", "failure", lambda e: self.cy.failure(mode, city, self.results_text(), self.trace_text(best), self.constraints_text()))
         if err:
             self.fallback_note("cy", "Reading the failure trace", err)
@@ -512,9 +512,9 @@ class LiveTrial(Trial):
         else:
             self.note("Exa budget used up; no failure-guided search this round.", agent="exa")
 
-        # 3. Bo revises, reading Exa Dude's facts from memory
+        # 3. Athena revises, reading Exa Dude's facts from memory
         bo_mem = [f for sid in ("fact-staffing-cap", "fact-school-bulletin", "fact-notice-board", "fact-notice-channels") if sid in self.written
-                  and (f := self.read("bo", sid, f"Bo's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
+                  and (f := self.read("bo", sid, f"Athena's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
         self.cy_recall()
         context = (f"Current practice: {describe_hours(self.base_hours) if mode == 'service' else ', '.join(self.base_policy['channels'])}\n"
                    f"Results so far: {self.results_text()}\nFailure trace: {self.trace_text(best)}\nReviewer's question: {fail['next_question']}\n"
@@ -537,7 +537,7 @@ class LiveTrial(Trial):
         for p in props:
             pol = self.policy_of(_action(mode, p))
             if any(x["policy"] == pol for x in self.exps):
-                self.note(f"Bo's proposal '{p['label']}' repeats an earlier experiment; skipped.", agent="bo")
+                self.note(f"Athena's proposal '{p['label']}' repeats an earlier experiment; skipped.", agent="bo")
                 continue
             x = self.exp(id=self.next_id(), label=p["label"][:60], role="revision", parent=best["id"], policy=pol, change=self.change_of(pol),
                          source=p.get("evidence_url") or source)

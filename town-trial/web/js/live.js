@@ -60,7 +60,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   function animate(e) {
     const r = e.agent && researchers[e.agent === "ada" ? "exa" : e.agent]; // older logs and memory use "ada"
     if (!r) return;
-    // Saving or reading a trial's lessons (what won, Cy's failure notes) happens at the Lesson Forge
+    // Saving or reading a trial's lessons (what won, Hephaestus's failure notes) happens at the Lesson Forge
     const lesson = (e.type === "MEMORY_READ" || e.type === "MEMORY_WRITE") && /^(lesson|cy-notes)-/.test(e.source_id || "") || (e.type === "NOTE" && /earlier trial/i.test(e.message || ""));
     const st = lesson ? "forge" : STATION[e.type];
     if (st) r.moveTo(heaven.stations[st].stand);
@@ -71,7 +71,7 @@ export async function createLive({ api, city, prompt, emit, heaven, researchers,
   }
 
   function apply(e) {
-    if (e.type === "FRAME") {  // Bo framed the question: the metric the Experiments tab ranks by
+    if (e.type === "FRAME") {  // Athena framed the question: the metric the Experiments tab ranks by
       Object.assign(primary, { key: e.key, label: e.label, unit: e.unit || "", target: e.target, direction: e.direction });
       live.days = e.days || live.days;
       live.awareness = e.metric === "awareness";

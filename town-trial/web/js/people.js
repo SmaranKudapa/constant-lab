@@ -183,7 +183,7 @@ export class Resident {
 
 // A researcher in Olympus: an angel (wings, halo, twice human size) who walks between stations,
 // and during a celebration flies circles over the town.
-export const ANGEL_SCALE = 4;
+export const ANGEL_SCALE = 2;
 export class Researcher {
   constructor(spec, scene) {
     this.spec = spec;

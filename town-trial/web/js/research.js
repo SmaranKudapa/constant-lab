@@ -53,7 +53,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
   };
   const fmt = (x) => x.result ? `${x.result.mean[P.key].toFixed(1)}${P.unit} ± ${x.result.sd[P.key].toFixed(1)}` : "-";
   const exa = (agent, query, kind, results, usedFor) => emit("EXA", { agent, query, search: kind, results, used_for: usedFor });
-  // Treasurer (demo): line items from the policy in code; no budget document in the demo, so funding stays unverified.
+  // Apollo (demo): line items from the policy in code; no budget document in the demo, so funding stays unverified.
   const WAGE = 25, CH_COST = { online: 0, board: 50, bulletin: 0 };
   const treasurer = (x, final = false) => {
     const items = [];

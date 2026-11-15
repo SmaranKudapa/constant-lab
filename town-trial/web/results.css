@@ -243,3 +243,10 @@
 .fg-bar.g i { background: var(--green); }
 .fg-bar.a i { background: #d9773a; }
 .fg-lesson { font-size: 11px; padding: 4px 6px; background: rgba(255, 255, 255, .04); border-left: 2px solid var(--hi); }
+
+/* ---------- TRIALS / PX / PANEL: full top-bar height, like every other top-bar panel ---------- */
+#topbar .trials-wrap { align-self: stretch; display: flex; }
+#topbar #trials-btn, #topbar #toggle-pix, #topbar #toggle-sound, #topbar #toggle-panel { height: auto; align-self: stretch; padding-left: 14px; padding-right: 14px; }
+#topbar .trials-wrap #trials-btn { height: 100%; }
+#toggle-sound.muted { text-decoration: line-through; opacity: .7; }
+#topbar #toggle-sound { font-family: "Segoe UI Symbol", "Apple Symbols", system-ui, sans-serif; font-size: 20px; line-height: 1; }

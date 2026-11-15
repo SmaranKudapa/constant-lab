@@ -4,7 +4,7 @@ Each case is extracted with structured outputs and kept only if its quote appear
 (the same quote check as local facts; no place check, since these pages are about other towns). Cases record
 the intervention, outcome, cost/funding if stated, the source and its date, why the town is similar and why the
 result may not transfer. Whether the idea can be expressed with the simulator's supported actions is decided by
-the model and used only to route it: supported ideas go to Bo; the rest become pilot proposals with no score.
+the model and used only to route it: supported ideas go to Athena; the rest become pilot proposals with no score.
 """
 from __future__ import annotations
 

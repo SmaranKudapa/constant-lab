@@ -1,11 +1,11 @@
-"""Treasurer, the budget god: what a proposal costs and whether the town can plausibly pay for it.
+"""Apollo, the budget god: what a proposal costs and whether the town can plausibly pay for it.
 
 - Line items are computed in code from the simulator outputs and budget.py (staff, operations, fee revenue,
   outreach materials, space), split into ongoing ($/yr) and one-time costs, as the change versus current practice.
 - The funding check reads only sourced budget documents (Exa Dude's verified budget facts and the town profile).
   It names a plausible funding source or a gap, and says whether a figure is an appropriation or money actually
   unspent and whether it is restricted. With no budget document the status is "unverified" (decided in code, no LLM),
-  with what the town must confirm. Treasurer advises; it never changes the town's budget or the simulation.
+  with what the town must confirm. Apollo advises; it never changes the town's budget or the simulation.
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ SCHEMA = strict({
     "reason": {"type": "string", "description": "one or two sentences of reasoning, citing the document"},
     "source_url": {"type": ["string", "null"]},
 })
-SYSTEM = ("You are Treasurer, the budget god in a team testing local policy ideas. You check whether a town can plausibly pay for a "
+SYSTEM = ("You are Apollo, the budget god in a team testing local policy ideas. You check whether a town can plausibly pay for a "
           "proposal using ONLY the budget documents given. Never assume money is available: an appropriation is not unspent money, and "
           "restricted funds cannot pay for other things. If the documents do not settle it, say unverified. You advise; you do not "
           "change the budget.")

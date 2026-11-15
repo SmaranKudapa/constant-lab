@@ -1,1 +1,1 @@
-"""Research agents: Exa Dude (Exa search), Bo (designer), Cy (reviewer), Dee (runner), Past Dev (past.dev memory and audiences; agent id "eli"), Treasurer (budgets)."""
+"""Research agents: Exa Dude (Exa search), Athena (designer), Hephaestus (reviewer), Hermes (runner), Past Dev (past.dev memory and audiences; agent id "eli"), Apollo (budgets)."""

@@ -2,7 +2,7 @@
 
 Builds on research_loop.LiveTrial (Exa search, grounded extraction, past.dev memory, reviews, labelled
 fallbacks) and changes what is being decided:
-- Bo frames the question first: which metric (visits, unique visitors, visits by people who can't make the
+- Athena frames the question first: which metric (visits, unique visitors, visits by people who can't make the
   current hours, turned away, awareness, net cost), for which place / kind of place / resident group, and any
   budget limit the user stated. Ideas no supported action can test get a research brief, not a number.
 - Policies can change any public place (hours, capacity, fee, closing), open a new place next to an existing
@@ -51,7 +51,7 @@ class TownTrial(LiveTrial):
         self.base_budget = None
         self.awareness = False
         self.cases: list[dict] = []        # verified similar-town cases (Exa Dude)
-        self.budget_docs: list[dict] = []  # verified budget statements for Treasurer
+        self.budget_docs: list[dict] = []  # verified budget statements for Apollo
         self.max_rounds = 3                # research rounds, capped so a live trial stays short
 
     # ---------- the town ----------
@@ -312,20 +312,20 @@ class TownTrial(LiveTrial):
 
     # ---------- learning across trials (this browser session only) ----------
     def learn_from_session(self) -> None:
-        """Bo reads the winning policies and Cy reads its own failure notes from earlier trials of this session, from shared
+        """Athena reads the winning policies and Hephaestus reads its own failure notes from earlier trials of this session, from shared
         memory (written there at the end of each trial). Only trials the page lists are read, so a reload starts fresh."""
         if not self.prior:
             return
         for p in self.prior:
-            win = self.read("bo", f"lesson-{p['trial']}", "Bo's proposals: what won in an earlier trial this session", say="Recalling earlier trials",
+            win = self.read("bo", f"lesson-{p['trial']}", "Athena's proposals: what won in an earlier trial this session", say="Recalling earlier trials",
                             city=p["city"])
-            notes = self.read("cy", f"cy-notes-{p['trial']}", "Cy's failure analysis: its notes from an earlier trial this session",
+            notes = self.read("cy", f"cy-notes-{p['trial']}", "Hephaestus's failure analysis: its notes from an earlier trial this session",
                               say="Recalling my earlier failure notes", city=p["city"])
             if win or notes:
                 self.session_lessons.append({"trial": p["trial"], "city": p["city"], "win": win and win["claim"], "notes": notes and notes["claim"],
                                              "author_win": win and win["author"], "author_notes": notes and notes["author"]})
         n = len(self.session_lessons)
-        self.note(f"Learning from {n} earlier trial{'s' if n != 1 else ''} this session: Bo starts from what won, Cy from what failed."
+        self.note(f"Learning from {n} earlier trial{'s' if n != 1 else ''} this session: Athena starts from what won, Hephaestus from what failed."
                   if n else "No lessons from earlier trials this session were found in shared memory yet.", level="info", agent="cy" if n else "eli")
 
     def lessons_text(self, who: str) -> str:
@@ -335,7 +335,7 @@ class TownTrial(LiveTrial):
             if who == "bo" and l["win"]:
                 rows.append(f"{l['win']} (in {l['city']}; written by {l['author_win']})")
             if l["notes"]:
-                rows.append(f"Cy's failure notes from that trial: {l['notes']} (written by {l['author_notes']})")
+                rows.append(f"Hephaestus's failure notes from that trial: {l['notes']} (written by {l['author_notes']})")
         if not rows:
             return ""
         head = ("\nEarlier trials this session (from shared memory; build on what worked, avoid repeating what failed): " if who == "bo"
@@ -343,7 +343,7 @@ class TownTrial(LiveTrial):
         return head + " | ".join(rows) + "\n"
 
     def save_lessons(self, best: dict | None, base: dict) -> None:
-        """At the end of a trial: Bo saves what won, Cy saves its failure notes, for later trials in this session."""
+        """At the end of a trial: Athena saves what won, Hephaestus saves its failure notes, for later trials in this session."""
         try:
             if best:
                 self.remember("bo", f"lesson-{self.id}", f"Earlier trial \"{self.prompt}\" in {self.city}: the best policy was {best['label']} "
@@ -367,7 +367,7 @@ class TownTrial(LiveTrial):
                    "user_idea": {"label": "Two late evenings", "facility_changes": [{"facility": tgt, "hours_changes": [{"day": 1, "open": "10:00", "close": "21:00"},
                                  {"day": 3, "open": "10:00", "close": "21:00"}], "capacity": None, "fee": None, "close": False}] if tgt else [],
                                  "new_facilities": [], "channels": [], "why": "Scripted default idea.", "evidence_url": None, "scripted": True}}
-        # Town trials (broad goals, the default type) always get a simulation when any proxy is measurable: if Bo found no direct
+        # Town trials (broad goals, the default type) always get a simulation when any proxy is measurable: if Athena found no direct
         # lever ("make school more accessible": schools aren't a modelled place), ask once more for the closest measurable proxy.
         if not err and not out.get("representable") and out.get("trial_type", "town") == "town":
             proxy_prompt = (f"{self.prompt}\n(This is a town trial. There may be no direct lever for it; choose the closest measurable proxy with "
@@ -378,14 +378,14 @@ class TownTrial(LiveTrial):
             if out2 and out2.get("representable"):
                 self.note(f"No direct lever for this goal in the town model; testing the closest measurable proxy instead: {out2['claim']}", agent="bo")
                 out = {**out2, "trial_type": "town"}
-        # Perception questions ("Will people know about the Walgreens closing?") are measured by awareness. Bo decides; code
-        # enforces it when Bo or the keyword check says the question is clearly about who hears / knows.
+        # Perception questions ("Will people know about the Walgreens closing?") are measured by awareness. Athena decides; code
+        # enforces it when Athena or the keyword check says the question is clearly about who hears / knows.
         from policy import strong_perception
         if out.get("metric") != "awareness" and (out.get("trial_type") == "perception" or strong_perception(self.prompt)):
-            why = "Bo marked it a perception question" if out.get("trial_type") == "perception" else "the question asks whether people will hear or know about something"
-            self.note(f"Framed as a perception trial (awareness), because {why}; Bo's metric was {out.get('metric')}.", agent="bo")
+            why = "Athena marked it a perception question" if out.get("trial_type") == "perception" else "the question asks whether people will hear or know about something"
+            self.note(f"Framed as a perception trial (awareness), because {why}; Athena's metric was {out.get('metric')}.", agent="bo")
             out["metric"], out["kind"], out["target"], out["representable"] = "awareness", None, out.get("target"), True
-        # perception / service / town (the default and the fallback for anything Bo or the keywords can't place)
+        # perception / service / town (the default and the fallback for anything Athena or the keywords can't place)
         tt = out.get("trial_type") if out.get("trial_type") in ("service", "town") else "town"
         self.trial_type = "perception" if out.get("metric") == "awareness" else tt
         self.set_metric(out)
@@ -577,7 +577,7 @@ class TownTrial(LiveTrial):
                                             "so no score is given.", source=c["url"])
         return got
 
-    # ---------- Treasurer ----------
+    # ---------- Apollo ----------
     def treasurer_check(self, x: dict) -> None:
         """Line-item cost of a proposal before it runs (pre-run estimate; fee revenue needs the run, so it is excluded here)."""
         base = self.base_budget or self.budget_of(self.est_mean(self.base_policy), self.base_policy)
@@ -592,7 +592,7 @@ class TownTrial(LiveTrial):
 
     def treasurer_final(self, best: dict, base: dict) -> dict:
         li = TR.line_items(best["budget"], base["budget"], best["policy"], self.scope_label)
-        # Treasurer reads Exa Dude's budget facts from shared memory; any sourced record not already in this trial's documents joins them
+        # Apollo reads Exa Dude's budget facts from shared memory; any sourced record not already in this trial's documents joins them
         recs = [f for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]
                 if (f := self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records"))]
         have = {(d["statement"], d["url"]) for d in self.budget_docs}
@@ -676,7 +676,7 @@ class TownTrial(LiveTrial):
                 fx = __import__("agents.fixtures", fromlist=["x"]).FIXTURE_EXTRACT.get(res[0]["url"]) or {}
                 self.log_exa("exa", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
         bo_mem = [f for sid in [s for s in list(self.written) if s.startswith(("fact-town-budget", "fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]
-                  if (f := self.read("bo", sid, f"Bo's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
+                  if (f := self.read("bo", sid, f"Athena's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
         self.cy_recall()
         focus = (f"Target place: {self.target} ({self.fac[self.target]['name']}). Every proposal must change this place (or open/close a place "
                  f"of its kind, or add outreach about it); changes elsewhere do not answer the question.\n" if self.target else "")
@@ -704,7 +704,7 @@ class TownTrial(LiveTrial):
                 continue
             pol = self.policy_of(self._action(p))
             if any(x["policy"] == pol for x in self.exps):
-                self.note(f"Bo's proposal '{p['label']}' repeats an earlier experiment; skipped.", agent="bo")
+                self.note(f"Athena's proposal '{p['label']}' repeats an earlier experiment; skipped.", agent="bo")
                 continue
             x = self.exp(id=self.next_id(), label=p["label"][:60], role="revision", parent=best["id"], policy=pol, change=self.change_of(pol),
                          source=p.get("evidence_url") or source)
@@ -799,7 +799,7 @@ class TownTrial(LiveTrial):
         tried = sorted(({"key": s["key"], "change": self.change_of(s["policy"]), "score": round(self.mval(out["results"][s["key"]]["mean"], s["policy"]), 2),
                          "value": self.fmt({"result": out["results"][s["key"]], "policy": s["policy"]}), "ok": s["ok"], "best": s is best} for s in sweep),
                        key=lambda t: -self.P["dir"] * t["score"])
-        explain = (f"A yardstick, not the gods' idea: Dee automatically tried {len(sweep)} standard options with no reasoning "
+        explain = (f"A yardstick, not the gods' idea: Hermes automatically tried {len(sweep)} standard options with no reasoning "
                    f"and kept the best one. If the gods' own proposals beat this, their reasoning added something.")
         SW = self.exp(id="SW", label=f"Best of {len(sweep)} auto-tried options", role="sweep", parent="E0", policy=best["policy"],
                       change=self.change_of(best["policy"]), tried=tried, explain=explain)

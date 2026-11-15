@@ -3,7 +3,7 @@
 // ripples out across the streets. Purely visual: it marks "a new policy is being run".
 import * as THREE from "three";
 
-export function createRitual(scene, { altarWorld }) {
+export function createRitual(scene, { altarWorld, getBuildings = () => [], onFire = () => {}, onImpact = () => {}, onBounce = () => {} }) {
   const add = (m) => (scene.add(m), m);
   const beamMat = new THREE.MeshBasicMaterial({ color: 0xbff6ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
   const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -27,25 +27,44 @@ export function createRitual(scene, { altarWorld }) {
   const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.5, 1.5), new THREE.MeshLambertMaterial({ color: 0xd94a5a })); scroll.add(ribbon);
   scroll.visible = false; add(scroll);
   const rag = { on: false, v: new THREE.Vector3(), w: new THREE.Vector3(), t: 0 };
+  // Collisions: buildings are boxes (x, z, w, d, h; roofs add a little). The scroll lands on roofs and bounces off walls.
+  const R = 0.9, ROOF = 1.2;
+  const solids = () => (getBuildings() || []).filter((b) => b && !b.outdoor && b.h > 0);
+  const inside = (b, x, z, r = R) => Math.abs(x - b.x) < b.w / 2 + r && Math.abs(z - b.z) < b.d / 2 + r;
+  const groundAt = (x, z) => { let y = 0; for (const b of solids()) if (inside(b, x, z, 0)) y = Math.max(y, b.h + ROOF); return y; };
+  const prev = new THREE.Vector3();
   function scrollUpdate(dt, down, landed) {
     if (!landed) {  // riding the beam
       scroll.visible = true; scroll.scale.setScalar(1);
-      scroll.position.copy(end); scroll.position.y += 1.5;
+      scroll.position.copy(end); scroll.position.y = Math.max(end.y + 1.5, groundAt(target.x, target.z) + 1.5);  // never through the roof
       scroll.rotation.x += dt * 6; scroll.rotation.y += dt * 3;
       return;
     }
     if (!rag.on) {  // impact: thrown off with a random tumble
       rag.on = true; rag.t = 0;
-      scroll.position.set(target.x, 1.5, target.z);  // starts from where the beam hits
+      scroll.position.set(target.x, groundAt(target.x, target.z) + 1.5, target.z);  // starts where the beam hits (on the roof if it hits a building)
       const a = Math.random() * Math.PI * 2;
       rag.v.set(Math.cos(a) * 7, 9, Math.sin(a) * 7);
       rag.w.set((Math.random() - 0.5) * 14, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 14);
     }
     rag.t += dt;
     rag.v.y -= 32 * dt;
+    prev.copy(scroll.position);
     scroll.position.addScaledVector(rag.v, dt);
-    if (scroll.position.y < 0.7) {  // bounce, losing energy, spin damped by the ground
-      scroll.position.y = 0.7;
+    const p = scroll.position;
+    for (const b of solids()) {
+      const top = b.h + ROOF;
+      if (!inside(b, p.x, p.z) || p.y > top + 0.7) continue;
+      if (prev.y >= top + 0.6) {  // came down onto the roof: land on it
+        p.y = top + 0.7;
+        if (Math.abs(rag.v.y) > 3) onBounce(Math.abs(rag.v.y) / 6);
+        rag.v.y = Math.abs(rag.v.y) * 0.38; rag.v.x *= 0.6; rag.v.z *= 0.6; rag.w.multiplyScalar(0.55);
+      } else if (!inside(b, prev.x, p.z)) { onBounce(Math.abs(rag.v.x) / 6); p.x = prev.x; rag.v.x *= -0.45; rag.w.multiplyScalar(0.7); }  // hit a wall side-on: bounce back
+      else { onBounce(Math.abs(rag.v.z) / 6); p.z = prev.z; rag.v.z *= -0.45; rag.w.multiplyScalar(0.7); }
+    }
+    if (p.y < 0.7) {  // bounce on the ground, losing energy, spin damped
+      p.y = 0.7;
+      if (Math.abs(rag.v.y) > 3) onBounce(Math.abs(rag.v.y) / 6);
       rag.v.y = Math.abs(rag.v.y) * 0.38; rag.v.x *= 0.6; rag.v.z *= 0.6; rag.w.multiplyScalar(0.55);
     }
     scroll.rotation.x += rag.w.x * dt; scroll.rotation.y += rag.w.y * dt; scroll.rotation.z += rag.w.z * dt;
@@ -60,7 +79,7 @@ export function createRitual(scene, { altarWorld }) {
     get shake() { return shake; },
     get scroll() { return scroll; },  // for tests
     // Fire the beam from the altar to a point in town; delay lets the scroll land first.
-    fire(to, delay = 0.35) { target.set(to.x, 0, to.z); t = -delay; rag.on = false; scroll.visible = false; },
+    fire(to, delay = 0.35) { target.set(to.x, 0, to.z); t = -delay; rag.on = false; scroll.visible = false; setTimeout(onFire, Math.max(0, delay * 1000)); },
     update(dt) {
       shake = Math.max(0, shake - dt * 2.2);
       if (t === -1 && !beam.visible) return;
@@ -81,7 +100,7 @@ export function createRitual(scene, { altarWorld }) {
       const fade = hit < 0 ? 1 : Math.max(0, 1 - hit / 1.6);
       beamMat.opacity = 0.55 * fade; coreMat.opacity = 0.95 * fade;
       if (hit >= 0) {
-        if (hit < 0.05 && shake < 0.5) shake = 0.9;
+        if (hit < 0.05 && shake < 0.5) { shake = 0.9; onImpact(); }
         rings.forEach((r, k) => {
           const u = Math.max(0, hit - k * 0.18) / 1.5;
           r.visible = u > 0 && u < 1;

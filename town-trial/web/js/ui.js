@@ -3,7 +3,7 @@ import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 import { roleOf } from "./voices.js";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Treasurer (Budget god)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Past Dev (Memory god)" };
+export const AGENTS = { exa: "Exa Dude (Research god)", ada: "Exa Dude (Research god)", treasurer: "Apollo (Budget god)", bo: "Athena (Designer)", cy: "Hephaestus (Reviewer)", dee: "Hermes (Runner)", eli: "Past Dev (Memory god)" };
 export const AGENT_COLOR = { exa: "#59c2ff", ada: "#59c2ff", treasurer: "#e8c24a", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
 export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
@@ -101,9 +101,9 @@ export const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return 
 export const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
 export const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
 
-// The sweep is a yardstick: Dee tries a handful of standard options with no reasoning and keeps the best. Show every option
+// The sweep is a yardstick: Hermes tries a handful of standard options with no reasoning and keeps the best. Show every option
 // it tried, ranked, so "Best of 6 auto-tried options" is readable at a glance.
-export const SWEEP_EXPLAIN = "A yardstick, not the gods' idea: Dee automatically tried a few standard options with no reasoning and kept the best one. If the gods' own proposals beat this, their reasoning added something.";
+export const SWEEP_EXPLAIN = "A yardstick, not the gods' idea: Hermes automatically tried a few standard options with no reasoning and kept the best one. If the gods' own proposals beat this, their reasoning added something.";
 export function triedHTML(tried, explain, compact = false) {
   if (!tried || !tried.length) return "";
   const max = Math.max(1e-9, ...tried.map((t) => Math.abs(t.score)));
@@ -247,7 +247,7 @@ export function researcherHTML(spec, events) {
   <div class="note">${esc(spec.does)}</div><h5>LOG</h5>${mine.length ? mine.map((e) => entryHTML(e)).join("") : `<p class="note">Waiting for a trial.</p>`}`;
 }
 
-// Lesson Forge (Cy): how the gods improved trial by trial in this session, and the lessons they carried forward.
+// Lesson Forge (Hephaestus): how the gods improved trial by trial in this session, and the lessons they carried forward.
 export function forgeHTML(log, events) {
   const pct = (v) => (v === null || v === undefined || !isFinite(v) ? "-" : `${v >= 0 ? "+" : ""}${Math.round(v)}%`);
   const bar = (v, max, cls) => `<span class="fg-bar ${cls}"><i style="width:${v === null || !isFinite(v) ? 0 : Math.max(3, Math.min(100, (100 * Math.max(0, v)) / max))}%"></i></span>`;
@@ -264,8 +264,8 @@ export function forgeHTML(log, events) {
       ${r.lessons.map((l) => `<div class="fg-lesson"><b>${esc(AGENTS[l.by] || l.by)}</b> read <b>${esc(AGENTS[l.author] || l.author)}</b>'s note: ${esc(String(l.claim || "").slice(0, 220))}</div>`).join("")}
     </div>`).join("");
   const live = events.filter((e) => (e.type === "MEMORY_READ" || e.type === "MEMORY_WRITE") && /^(lesson|cy-notes)-/.test(e.source_id || "")).slice(-8).reverse();
-  return `<h3><span>Lesson Forge · Cy</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>
-  <div class="note">After every trial, Bo saves what won and Cy saves what failed to past.dev. The next trial in this session reads them back before proposing, so the gods start from what they learned. One gold ingot per finished trial. Reloading the page starts fresh.</div>
+  return `<h3><span>Lesson Forge · Hephaestus</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>
+  <div class="note">After every trial, Athena saves what won and Hephaestus saves what failed to past.dev. The next trial in this session reads them back before proposing, so the gods start from what they learned. One gold ingot per finished trial. Reloading the page starts fresh.</div>
   ${log.length ? `<h5>TRIALS THIS SESSION</h5><p class="fg-dim">Gain of the best policy over today's practice, and of the gods' best idea over the auto-tried options (the yardstick), on each trial's own metric.</p>${rows}` : `<p class="note">No finished trials yet. Run one, then another: the second one learns from the first.</p>`}
   ${live.length ? `<h5>THIS TRIAL'S LESSONS</h5>${live.map((e) => entryHTML(e)).join("")}` : ""}`;
 }
