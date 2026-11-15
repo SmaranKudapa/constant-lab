@@ -15,6 +15,7 @@ import { createCelebration } from "./celebrate.js";
 import { ANGEL_SCALE } from "./people.js";
 import { roleOf, reaction } from "./voices.js";
 import { createHover } from "./hover.js";
+import { createSky } from "./sky.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -50,6 +51,7 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left: -90, right: 90, top: 90, bottom: -90, near: 10, far: 300 });
 scene.add(sun);
+const skyDome = createSky(scene, { sun, hemi });
 
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -246,20 +248,15 @@ function residentSay(id, kind) {
 }
 
 // ---------- day / night ----------
-const DAY = new THREE.Color(0x8fd3ff), DUSK = new THREE.Color(0xff9f7a), NIGHT = new THREE.Color(0x1d1b45);
 function lighting() {
-  const m = model ? (model.state.tick % TICKS_PER_DAY) * 10 : 12 * 60;
-  const h = m / 60;
-  const dl = THREE.MathUtils.clamp(Math.min((h - 5.5) / 2, (20.5 - h) / 2), 0, 1);
-  const duskAmt = 1 - Math.abs(dl - 0.5) * 2;
-  sky.copy(NIGHT).lerp(DAY, dl).lerp(DUSK, duskAmt * 0.35);
-  scene.fog.color.copy(sky);
-  sun.intensity = 0.15 + 2.1 * dl;
-  hemi.intensity = 0.35 + 0.8 * dl;
-  const ang = ((h - 6) / 12) * Math.PI;
-  sun.position.set(Math.cos(ang) * 120, 40 + Math.sin(Math.max(0, ang)) * 100, 40);
-  windowMat.emissiveIntensity = (1 - dl) * 0.9;
-  lampMat.emissiveIntensity = (1 - dl) * 1.2;
+  // Smooth clock between simulator ticks so the sun glides instead of stepping every 10 minutes
+  const m = model ? (model.state.tick % TICKS_PER_DAY) * 10 + Math.min(1, tickAcc / TICK_SEC) * 10 : 12 * 60;
+  const h = params.has("hour") ? +params.get("hour") : (m / 60) % 24; // ?hour=18.5 pins the time of day (screenshots, testing)
+  const night = skyDome.update(h, camera, scene.fog);
+  scene.background = null;
+  const dl = 1 - night;
+  windowMat.emissiveIntensity = night * 0.95;
+  lampMat.emissiveIntensity = Math.min(1, night * 1.4) * 1.3;
   const open = model && town ? model.isOpen(Math.floor(model.state.tick / TICKS_PER_DAY) % 7, m) : false;
   libraryWindowMat.emissiveIntensity = open ? 0.35 + (1 - dl) * 0.9 : 0;
   libraryOpen = open;
