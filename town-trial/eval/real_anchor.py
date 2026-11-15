@@ -50,6 +50,20 @@ def main():
                       "unique_before": b["uniqueVisitors"], "unique_after": a["uniqueVisitors"],
                       "turned_away_before": b["turnedAway"], "turned_away_after": a["turnedAway"]})
     sim_pct = sum(x["change_pct"] for x in towns) / len(towns)
+    # The general town model (v2): same schedules at the library, latent demand, people who don't know the hours get turned away.
+    tj = []
+    for t in TOWNS:
+        for name, hours in (("before", BEFORE), ("after", AFTER)):
+            tj.append({"key": f"{t}|{name}", "city": t, "mode": "town", "policy": {"target": "library", "facilities": {"library": {"hours": hours}}},
+                       "seeds": SEEDS, "days": 7})
+    tout = runner.run(tj)["results"]
+    town_rows = []
+    for t in TOWNS:
+        b, a = tout[f"{t}|before"]["mean"], tout[f"{t}|after"]["mean"]
+        town_rows.append({"town": t, "library_visits_before": b["visits.f.library"], "library_visits_after": a["visits.f.library"],
+                          "change_pct": 100 * (a["visits.f.library"] / b["visits.f.library"] - 1),
+                          "turned_away_before": b.get("turnedAway.f.library", 0), "turned_away_after": a.get("turnedAway.f.library", 0)})
+    town_pct = sum(x["change_pct"] for x in town_rows) / len(town_rows)
     real_net = 100 * ((1 + REAL["treated_yoy_pct"] / 100) / (1 + REAL["control_yoy_pct"] / 100) - 1)
     res = {
         "case": "Toronto Public Library, 8 branches, July 2024: Monday service + extra mornings and evenings",
@@ -62,7 +76,10 @@ def main():
                               "note": "Our inference from TPL's band table; TPL did not publish per-branch schedules in these sources."},
         "simulated": {"towns": towns, "seeds": SEEDS, "mean_change_pct": round(sim_pct, 1),
                       "range_pct": [round(min(x["change_pct"] for x in towns), 1), round(max(x["change_pct"] for x in towns), 1)]},
-        "comparison": {"sim_minus_real_pct_points": round(sim_pct - real_net, 1)},
+        "simulated_town_model": {"towns": town_rows, "seeds": SEEDS, "mean_change_pct": round(town_pct, 1),
+                                 "range_pct": [round(min(x["change_pct"] for x in town_rows), 1), round(max(x["change_pct"] for x in town_rows), 1)],
+                                 "note": "General town model (web/js/townsim.js): wants accumulate when places are closed (latent demand). Not tuned to this case."},
+        "comparison": {"sim_minus_real_pct_points": round(sim_pct - real_net, 1), "town_model_minus_real_pct_points": round(town_pct - real_net, 1)},
         "caveats": ["Synthetic towns of 72 residents with model-default schedules; residents' interest caps weekly visits at 0-2.",
                     "The real figure includes effects the model lacks (new awareness, programmes, seasonality beyond the control).",
                     "Comparison is of relative change only; no calibration to Toronto was done."],
@@ -72,6 +89,7 @@ def main():
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(res, indent=2))
     print(json.dumps({"real_net_pct": res["real"]["net_effect_pct_vs_control"], "sim_mean_pct": res["simulated"]["mean_change_pct"],
+                      "town_model_mean_pct": town_pct, "town_model_range": res["simulated_town_model"]["range_pct"],
                       "sim_range": res["simulated"]["range_pct"], "towns": [(x["town"], round(x["change_pct"], 1)) for x in towns]}, indent=1))
 
 

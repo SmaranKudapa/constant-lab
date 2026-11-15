@@ -5,6 +5,43 @@ for every agent and arm). Every number below comes from a saved run: raw event l
 `results/trials/`, summaries in `results/*.json`. Small samples (4 towns per cell); read the
 numbers as indications, not significance tests.
 
+## v2: real towns and the general town model (measured 2026-11-15, after the v1 results below)
+
+Live trials now run on the **real town** (OpenStreetMap places, names and street names; population from OSM) with the
+**general town model** (`web/js/townsim.js`: every public place, latent demand, fees, budgets), and Bo frames each question
+(metric, place, resident group, budget limit). Same 4 towns and the same two questions as v1. Raw logs: `results/trials/`
+(tag `town`); summary: `results/compare_town.json`.
+
+| town | question | metric Bo chose | current | your idea | sweep | one-shot | agent | best on held-out |
+|---|---|---|---|---|---|---|---|---|
+| Ely, MN | notice | % of working parents who heard the notice within 3 days | 0.0 | 21.6 | 92.1 | 21.6 | 55.2 | sweep |
+| Evart, MI | notice | % of working parents who heard the notice within 3 days | 0.0 | - | 92.6 | 87.3 | 86.0 | sweep |
+| Hood River, OR | notice | % of working parents who heard the notice within 3 days | 0.0 | 20.7 | 92.8 | 89.2 | 89.2 | sweep |
+| Marfa, TX | notice | % of working parents who heard the notice within 3 days | 0.0 | 26.1 | 92.5 | 27.6 | 54.4 | sweep |
+| Ely, MN | library hours | visits/week by day workers to libraries | 3.6 | 6.0 | 9.3 | 4.9 | 9.5 | agent |
+| Evart, MI | library hours | residents (of the sample) who visit libraries in a week | 22.9 | 30.9 | 37.9 | 29.8 | 31.1 | sweep |
+| Hood River, OR | library hours | residents (of the sample) who visit libraries in a week | 40.4 | 45.3 | 51.0 | 47.4 | 53.5 | agent |
+| Marfa, TX | library hours | visits/week by day workers to libraries | 1.7 | 4.0 | 7.5 | 4.3 | 9.5 | agent |
+
+- **Library hours:** the iterative agent's pick is best on the held-out scenarios in **3 of 4 towns**
+  (v1: 2 of 4); the sweep in 1. Bo framed the question two ways (visits by day workers, or unique
+  library visitors), so compare within a row, not averages across rows.
+- **Notice:** the 6-config sweep wins every town (it includes mailer and all-channel combinations, ~92% of working parents
+  within 3 days); the agent reaches 71% on average and the one-shot 56%. Cy rejected
+  7 of Bo's outreach proposals over unsourced claims about how residents read notices, which kept the agent cautious.
+- Every experiment carries an annual budget (see the Experiments tab and `budgets` in the JSON); no trial in this set had a
+  budget limit, so none were marked infeasible.
+
+**Real-data anchor, v2 model:** the Toronto schedule change (40 h -> 62 h band) now gives **+24.9%** library visits
+(range 23.2-29.5% over 6 towns), against the real **+51.9%** and the v1 model's +4.2%.
+Latent demand (wants that build up while a place is closed) closes about half of the gap without tuning to this case.
+It still under-predicts, so magnitudes remain indications, not forecasts.
+
+**Not re-run on v2:** the Exa ablation and the Modal timing below are from the v1 model (the timing measures the same simulator
+fan-out; the ablation should be repeated).
+
+# v1 results (library-hours / notice model, procedural-grid towns)
+
 ## 1. Four-way comparison, matched budgets, frozen picks on held-out scenarios
 
 Each trial freezes its finalists, then runs them on held-out scenarios fixed in advance

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { buildTown, windowMat, libraryWindowMat, lampMat } from "./town.js";
-import { townFingerprint } from "./layout.js";
+import { townFingerprint, residentScenario } from "./layout.js";
 import { Resident, Researcher } from "./people.js";
 import { buildHeaven, HEAVEN_Y, RESEARCHERS } from "./heaven.js";
 import { makeResidents, createModel, TICKS_PER_DAY, BASELINE_HOURS } from "./sim.js";
@@ -85,15 +85,41 @@ function emit(type, fields) {
 }
 
 // ---------- town ----------
-async function makeTown(name) {
+// Real town data (OSM + Census) from the backend, when one is configured. Returns null for the synthetic town.
+let townSpec = null, townNote = "";
+async function loadSpec(name) {
+  const api = window.TOWN_TRIAL_API;
+  if (!api) return null;
+  const base = api.replace(/\/+$/, "");
+  const t0 = performance.now();
+  while (performance.now() - t0 < 240000) {
+    const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}`);
+    if (!r.ok) throw new Error(`${r.status}`);
+    const d = await r.json();
+    if (d.status === "ready") return d.spec;
+    if (d.status === "error") throw new Error(d.error);
+    toast(`Fetching real map data for ${name} from OpenStreetMap... (${Math.round((performance.now() - t0) / 1000)} s; first visit to a town can take a minute)`, 6000);
+    await new Promise((res) => setTimeout(res, 3000));
+  }
+  throw new Error("timed out");
+}
+
+async function makeTown(name, real = false) {
+  let spec = null;
+  townNote = "";
+  if (real) {
+    try { spec = await loadSpec(name); }
+    catch (err) { townNote = `Couldn't load real map data (${err.message}); this is a synthetic town.`; }
+  }
+  townSpec = spec;
   if (town) {
     scene.remove(town.group);
     for (const v of Object.values(views)) scene.remove(v.mesh);
   }
-  town = buildTown(name);
+  town = buildTown(name, spec);
   scene.add(town.group);
   for (const b of town.buildings) if (b.mesh) b.mesh.traverse((o) => { if (o.isMesh) o.userData.pick = { kind: "building", id: b.id }; });
-  residents = makeResidents(town, name);
+  residents = makeResidents(town, name, residentScenario(spec));
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
@@ -105,9 +131,11 @@ async function makeTown(name) {
 function startReplay(exp) {
   viewExp = exp;
   const m = mode || "service";
-  const policy = exp ? exp.policy : m === "perception" ? { channels: ["online"] } : { hours: BASELINE_HOURS };
+  const policy = exp ? exp.policy : m === "perception" ? { channels: ["online"] } : m === "town" ? { target: research && research.primary && research.primary.target } : { hours: BASELINE_HOURS };
   const live = !!mode;
-  model = createModel({ town, residents, mode: m, policy, seed: 0, days: m === "perception" ? 3 : 7, emit: live ? emit : null });
+  const days = research && research.days ? research.days : m === "perception" ? 3 : 7;
+  const incomeFactor = townSpec && townSpec.census && townSpec.census.median_income ? townSpec.census.median_income / 70000 : 1;
+  model = createModel({ town, residents, mode: m, policy, seed: 0, days, emit: live ? emit : null, incomeFactor });
   for (let k = 0; k < START_TICK; k++) model.step();
   // Teleport everyone to where the model says they are
   for (const s of model.S) {
@@ -141,8 +169,8 @@ function refreshIcons() {
   for (const s of model.S) {
     const v = views[s.r.id];
     let icon = null;
-    if (mode === "perception") icon = s.aware ? "aware" : "unaware";
-    else if (mode === "service") {
+    if (mode === "perception" || (mode === "town" && research && research.awareness)) icon = s.aware ? "aware" : "unaware";
+    else if (mode === "service" || mode === "town") {
       if (v.turnedT > 0) icon = "turned";
       else if (s.libState === "going") icon = "going";
       else if (s.libState === "queue") icon = "waiting";
@@ -188,9 +216,15 @@ function buildLabels() {
     return L;
   };
   const lib = town.byId.library;
-  const libL = add("LIBRARY", () => new THREE.Vector3(lib.x, 9.5, lib.z), "lbl sign");
-  libL.update = () => { libL.el.textContent = `LIBRARY · ${libraryOpen ? "OPEN" : "CLOSED"}`; libL.el.className = `lbl ${libraryOpen ? "open" : "closed"}`; };
-  for (const id of ["townhall", "park"]) { const b = town.byId[id]; if (b) add(b.name.toUpperCase(), () => new THREE.Vector3(b.x, (b.h || 0) + 6, b.z)); }
+  if (lib) {
+    const libL = add("LIBRARY", () => new THREE.Vector3(lib.x, (lib.h || 7) + 2.5, lib.z), "lbl sign");
+    const libName = town.real ? lib.name.toUpperCase() : "LIBRARY";
+    libL.update = () => { libL.el.textContent = `${libName} · ${libraryOpen ? "OPEN" : "CLOSED"}`; libL.el.className = `lbl ${libraryOpen ? "open" : "closed"}`; };
+  }
+  // Real towns: label the public places by their real names; synthetic towns: the two landmarks.
+  const labelled = town.real ? town.buildings.filter((b) => b.public && b.id !== "library" && (b.kind !== "school" || b.id === "school")).slice(0, 8)
+    : ["townhall", "park"].map((id) => town.byId[id]).filter(Boolean);
+  for (const b of labelled) add(b.name.toUpperCase(), () => new THREE.Vector3(b.x, (b.h || 0) + 6, b.z));
   const pl = town.byId.plaza;
   add("NOTICE BOARD", () => new THREE.Vector3(pl.boardPos.x, 4.2, pl.boardPos.z), "lbl sign");
   for (const st of Object.values(heaven.stations)) add(st.label, () => new THREE.Vector3(st.x, st.labelY, st.z), "lbl sign");
@@ -275,7 +309,7 @@ function renderPanels(force = false) {
   const now = performance.now();
   if (!force && now - lastPanel < 400) return;
   lastPanel = now;
-  if (research) $("tab-exp").innerHTML = UI.experimentsHTML(research.exps, viewExp && viewExp.id, research.primary);
+  if (research) $("tab-exp").innerHTML = UI.experimentsHTML(research.exps, viewExp && viewExp.id, research.primary, events, openWhy);
   $("tab-aud").innerHTML = UI.audiencesHTML(mode || "service", model, residents, flashSlug);
   if (selected) renderSelected();
 }
@@ -284,7 +318,11 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
   for (const id of ["log", "exp", "aud"]) $("tab-" + id).classList.toggle("hidden", id !== t.dataset.tab);
   renderPanels(true);
 }));
+const openWhy = new Set(); // experiments whose reasoning panel is open
 $("tab-exp").addEventListener("click", (e) => {
+  const why = e.target.closest("[data-why]");
+  if (why) { const id = why.dataset.why; openWhy.has(id) ? openWhy.delete(id) : openWhy.add(id); renderPanels(true); return; }
+  if (e.target.closest(".why-panel")) return; // reading the reasoning (or clicking a source link) doesn't start a replay
   const card = e.target.closest("[data-exp]");
   if (!card || !research) return;
   const x = research.exps.find((q) => q.id === card.dataset.exp);
@@ -334,14 +372,19 @@ $("city-form").addEventListener("submit", async (e) => {
   await enterTown(name);
 });
 async function enterTown(name) {
-  await makeTown(name);
+  await makeTown(name, true);
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
   controls.autoRotate = false;
   inTown = true;
   TOWN_VIEW();
-  toast(`Built ${name}: ${residents.length} residents. Type an idea below to test it.`);
+  const sp = townSpec;
+  setBanner(!!window.TOWN_TRIAL_API && !liveDisabled);
+  toast(sp ? `Built ${sp.display_name.split(",").slice(0, 2).join(",")}: ${sp.places.length} real places, ${residents.length} residents` +
+             (sp.population ? ` (each represents ~${Math.round(sp.population / residents.length)} people; mix: ${sp.census ? "Census" : "model default"}).` : ".") +
+             " Type an idea below to test it." :
+             `${townNote ? townNote + " " : ""}Built ${name}: ${residents.length} residents. Type an idea below to test it.`, 7000);
 }
 
 // Prompt
@@ -357,9 +400,13 @@ $("prompt-form").addEventListener("submit", (e) => {
 let liveDisabled = false;
 const DEMO_BANNER = $("demo-banner").textContent;
 const LIVE_BANNER = "LIVE: research loop on the backend. Scripted steps and FIXTURE sources are labelled in the log.";
+function setBanner(live) {
+  $("demo-banner").textContent = (live ? LIVE_BANNER : DEMO_BANNER) +
+    (townSpec ? " · REAL TOWN (streets schematic) · Map data © OpenStreetMap contributors" : "");
+}
 function startTrial(prompt) {
   if (window.TOWN_TRIAL_API && !liveDisabled) { startLiveTrial(prompt); return; }
-  $("demo-banner").textContent = DEMO_BANNER;
+  setBanner(false);
   beginTrial(classify(prompt));
   research = createResearch({
     mode, prompt, town, residents, emit, heaven, researchers,
@@ -381,7 +428,7 @@ async function startLiveTrial(prompt) {
     });
     beginTrial(live.mode);
     research = live;
-    $("demo-banner").textContent = LIVE_BANNER;
+    setBanner(true);
     afterTrialStart();
   } catch (err) { offerDemo(err, prompt); }
 }
@@ -399,12 +446,13 @@ function offerDemo(err, prompt) {
 }
 function beginTrial(m) {
   mode = m;
+  openWhy.clear();
   events = [];
   $("log").innerHTML = "";
   const badge = $("mode-badge");
   badge.classList.remove("hidden");
   badge.classList.toggle("perception", mode === "perception");
-  badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : "SERVICE TRIAL";
+  badge.textContent = mode === "perception" ? "PERCEPTION TRIAL" : mode === "town" ? "TOWN TRIAL" : "SERVICE TRIAL";
   startReplay(null);
 }
 function afterTrialStart() {
@@ -412,6 +460,7 @@ function afterTrialStart() {
   updateRunbar();
   toast(mode === "perception"
     ? "Perception trial: each resident is a past.dev identity. Watch ? turn into ! as the notice spreads. Researchers work in HEAVEN."
+    : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). Researchers work in HEAVEN."
     : "Service trial: watch residents visit the library. Researchers work in HEAVEN.", 5200);
   renderPanels(true);
 }

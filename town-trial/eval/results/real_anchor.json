@@ -87,13 +87,73 @@
       6.0
     ]
   },
+  "simulated_town_model": {
+    "towns": [
+      {
+        "town": "Evart, MI",
+        "library_visits_before": 59.125,
+        "library_visits_after": 73.40625,
+        "change_pct": 24.15433403805496,
+        "turned_away_before": 22.90625,
+        "turned_away_after": 14.0625
+      },
+      {
+        "town": "Marfa, TX",
+        "library_visits_before": 57.96875,
+        "library_visits_after": 72.53125,
+        "change_pct": 25.121293800539092,
+        "turned_away_before": 22.78125,
+        "turned_away_after": 13.46875
+      },
+      {
+        "town": "Ely, MN",
+        "library_visits_before": 58.6875,
+        "library_visits_after": 72.3125,
+        "change_pct": 23.216187433439828,
+        "turned_away_before": 22.0625,
+        "turned_away_after": 12.3125
+      },
+      {
+        "town": "Hood River, OR",
+        "library_visits_before": 60.90625,
+        "library_visits_after": 75.5625,
+        "change_pct": 24.063622370446392,
+        "turned_away_before": 21.03125,
+        "turned_away_after": 13.59375
+      },
+      {
+        "town": "Springfield, IL",
+        "library_visits_before": 64.03125,
+        "library_visits_after": 79.0625,
+        "change_pct": 23.47486578818936,
+        "turned_away_before": 22.875,
+        "turned_away_after": 15.8125
+      },
+      {
+        "town": "Oslo",
+        "library_visits_before": 52.03125,
+        "library_visits_after": 67.375,
+        "change_pct": 29.489489489489486,
+        "turned_away_before": 21.0,
+        "turned_away_after": 12.96875
+      }
+    ],
+    "seeds": 32,
+    "mean_change_pct": 24.9,
+    "range_pct": [
+      23.2,
+      29.5
+    ],
+    "note": "General town model (web/js/townsim.js): wants accumulate when places are closed (latent demand). Not tuned to this case."
+  },
   "comparison": {
-    "sim_minus_real_pct_points": -47.7
+    "sim_minus_real_pct_points": -47.7,
+    "town_model_minus_real_pct_points": -27.0
   },
   "caveats": [
     "Synthetic towns of 72 residents with model-default schedules; residents' interest caps weekly visits at 0-2.",
     "The real figure includes effects the model lacks (new awareness, programmes, seasonality beyond the control).",
     "Comparison is of relative change only; no calibration to Toronto was done."
   ],
-  "generated_at": "2026-11-15T01:38:04Z"
+  "generated_at": "2026-11-15T03:54:49Z"
 }

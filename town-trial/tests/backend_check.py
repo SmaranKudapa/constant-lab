@@ -77,4 +77,26 @@ for mode, prompt in (("service", "Keep the library open two late evenings"), ("p
     check(f"live fallback {mode}: brief written, scripted", types["BRIEF"] == 1 and next(e for e in evs if e["type"] == "BRIEF")["scripted"])
     check(f"live fallback {mode}: fallbacks logged", types["NOTE"] >= 3, str(types["NOTE"]))
 
+# Town mode (general model) on a real-town spec with Exa and the LLM failing: framing falls back, every experiment is costed.
+import json as _json  # noqa: E402
+from town_loop import TownTrial  # noqa: E402
+_spec = _json.load(open(Path(__file__).resolve().parent / "fixtures" / "spec_evart.json", encoding="utf-8"))
+store = EventStore({})
+store.create("t3", {})
+tt = TownTrial(store, "t3", "Evart, MI", "Extend library hours two evenings a week", "town", runner, memory=LocalMemory({}))
+tt.spec = _spec
+try:
+    tt.start(); store.finish("t3"); err = None
+except Exception as ex:
+    err = f"{type(ex).__name__}: {ex}"
+evs, done = store.read("t3")
+exps = {e["id"]: e for e in evs if e["type"] == "EXPERIMENT"}
+check("town fallback: finishes", done and not err, err or "")
+check("town fallback: framed + briefed", any(e["type"] == "FRAME" for e in evs) and any(e["type"] == "BRIEF" for e in evs))
+check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
+# the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
+e0 = exps["E0"]
+est = tt.budget_of(tt.est_mean(e0["policy"]), e0["policy"])
+check("town: pre-run budget estimate == run budget (no fees)", abs(est["net"] - e0["budget"]["net"]) <= 1, f"{est['net']} vs {e0['budget']['net']}")
+
 sys.exit(1 if fails else 0)

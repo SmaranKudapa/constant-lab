@@ -32,7 +32,7 @@ class TrialRequest(BaseModel):
     options: dict | None = None
 
 
-def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
+def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, start_town_build: Callable[[str], None] | None = None) -> FastAPI:
     """`start(trial_id=, city=, prompt=, mode=)` launches the orchestrator (Modal spawn or a thread)."""
     app = FastAPI(title="Town Trial API")
     origins = [o.strip() for o in (os.environ.get("ALLOWED_ORIGINS") or DEFAULT_ORIGINS).split(",") if o.strip()]
@@ -43,10 +43,23 @@ def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
     def health():
         return {"ok": True, "version": os.environ.get("CODE_VERSION", "local")}
 
+    @app.get("/api/towns")
+    def town(city: str):
+        """Real-town spec (OSM + Census), built in the background on first request and cached."""
+        from towns import lookup
+        if towns_cache is None or start_town_build is None:
+            raise HTTPException(501, "real-town data not configured")
+        c = city.strip()
+        if not c or len(c) > 80:
+            raise HTTPException(400, "city must be 1-80 characters")
+        return lookup(c, towns_cache, start_town_build)
+
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):
         city, prompt = req.city.strip(), req.prompt.strip()
-        mode = classify(prompt)
+        # Live agents: the general town model (Bo frames the question). Without an LLM key: the scripted demo loop.
+        live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
+        mode = "town" if live else classify(prompt)
         options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
         trial_id = uuid.uuid4().hex[:12]
         store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "options": options, "version": os.environ.get("CODE_VERSION", "local")})
@@ -54,7 +67,8 @@ def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
             store.finish(trial_id, rejected="too many concurrent trials")
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")
         start(trial_id=trial_id, city=city, prompt=prompt, mode=mode, options=options)
-        return {"trial_id": trial_id, "mode": mode, "primary": primary(mode), "options": options, "version": os.environ.get("CODE_VERSION", "local")}
+        P = {"key": "visits", "label": "(Bo is framing the question...)", "unit": ""} if mode == "town" else primary(mode)
+        return {"trial_id": trial_id, "mode": mode, "primary": P, "options": options, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/trials/{trial_id}/events")
     def events(trial_id: str, since: int = 0):

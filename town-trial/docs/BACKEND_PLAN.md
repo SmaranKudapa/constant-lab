@@ -49,6 +49,14 @@ town-trial/web  ── POST /api/trials ─▶  town-trial-api   (FastAPI, asgi_
 - [x] **M5: ship (Sun 10 AM)**: done. README sponsor pointers (file:line, checked) and memory table; PR https://github.com/SmaranKudapa/constant-lab/pull/2 (`main-backend` -> `main`, merges cleanly, not merged).
   - README: sponsor pointers (exact file:line of Exa calls and past.dev reads/writes), the memory table, how to deploy. Open the PR `main-backend` → `main`.
 
+## v2 (approved 2026-11-14 evening): any town, any policy, budgets, reasoning
+
+- [x] **Why button**: "?" left of each experiment card shows its reasoning trail with the agent behind each step (built from the event log; demo and live).
+- [x] **2A real towns**: `backend/towns.py` (Nominatim + Overpass + optional Census), `GET /api/towns`, places/names/street names on the schematic grid, prebuilt demo towns in `backend/town_cache/`, real-town parity test.
+- [x] **General model + budgets**: `web/js/townsim.js` (every public place, latent demand, fees, notices teach hours), `backend/budget.py`, `backend/town_loop.py` (Bo frames metric/place/group/budget limit; town-wide actions validated in code; budget limits in code; sweep/one-shot adapted).
+- [x] **Re-run evaluation**: `eval/RESULTS.md` v2 section (comparison on real towns, Toronto anchor +25% vs real +52%). Exa ablation not yet repeated on v2.
+- [ ] **2B real street geometry (OSMnx)**: only when asked.
+
 ## API contract
 
 ```

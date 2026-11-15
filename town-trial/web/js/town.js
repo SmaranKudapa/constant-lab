@@ -13,8 +13,8 @@ export const windowMat = new THREE.MeshLambertMaterial({ color: 0x3a4a6a, emissi
 export const libraryWindowMat = new THREE.MeshLambertMaterial({ color: 0x3a4a6a, emissive: 0xffe9a8, emissiveIntensity: 0 });
 export const lampMat = new THREE.MeshLambertMaterial({ color: 0xfff3c4, emissive: 0xffe08a, emissiveIntensity: 0 });
 
-export function buildTown(cityName) {
-  const town = layoutTown(cityName);
+export function buildTown(cityName, spec = null) {
+  const town = layoutTown(cityName, spec);
   const group = new THREE.Group();
 
   // Ground and water
@@ -87,16 +87,30 @@ export function buildTown(cityName) {
       windowsOn(g, w, h, d, 1);
       g.add(box(0.9, 1.6, 0.2, 0x5a3a2a, 0, 0, d / 2 + 0.05));
       g.rotation.y = Math.round(b.facing / (Math.PI / 2)) * (Math.PI / 2);
+    } else if (b.lot && b.kind !== "food") {
+      // A real place on a lot (real-town layout): body, roof, door, and a small marker for its kind.
+      g.add(box(w, h, d, b.wall));
+      g.add(box(w + 0.4, 0.5, d + 0.4, b.roof, 0, h, 0));
+      windowsOn(g, w, h, d, b.kind === "office" ? 4 : 1, b.kind === "library" ? libraryWindowMat : windowMat);
+      g.add(box(1.1, 1.8, 0.2, 0x4a3a2a, 0, 0, d / 2 + 0.05));
+      if (b.kind === "clinic" || b.kind === "pharmacy") { g.add(box(1.6, 0.5, 0.3, 0xffffff, 0, h + 0.8, 0)); g.add(box(0.5, 1.6, 0.3, 0xffffff, 0, h + 0.35, 0)); }
+      else if (b.kind === "worship") { g.add(box(1.4, 3.2, 1.4, b.wall, 0, h + 0.5, -d / 4)); g.add(box(1.8, 0.6, 1.8, b.roof, 0, h + 3.7, -d / 4)); }
+      else if (b.kind === "fire_station") g.add(box(w * 0.6, 2.2, 0.15, 0xb02a2a, 0, 0, d / 2 + 0.1));
+      else if (b.kind === "police") g.add(box(0.8, 0.5, 0.8, 0x3f7fd6, 0, h + 0.5, 0));
+      else if (b.kind === "post_office") g.add(box(0.7, 1.1, 0.6, 0x2f5fb3, w / 2 - 0.6, 0, d / 2 + 0.6));
+      else if (b.kind === "townhall") { g.add(box(2, 3, 2, b.wall, 0, h + 0.5, 0)); g.add(box(2.4, 0.5, 2.4, b.roof, 0, h + 3.5, 0)); }
+      else if (b.kind === "library") for (let k = -1; k <= 1; k++) g.add(box(0.5, h - 0.6, 0.5, 0xffffff, k * 2, 0, d / 2 + 0.4));
+      g.rotation.y = Math.round(b.facing / (Math.PI / 2)) * (Math.PI / 2);
     } else if (b.id.startsWith("work-")) {
       g.add(box(w, h, d, b.color));
       g.add(box(w + 0.4, 0.5, d + 0.4, 0x6e6a8a, 0, h, 0));
       windowsOn(g, w, h, d, 6);
-    } else if (b.id === "cafe") {
+    } else if (b.id === "cafe" || b.kind === "food") {
       g.add(box(6, 3.6, 6, 0xf5e6d0));
       for (let k = 0; k < 6; k++) g.add(box(1, 0.5, 1.6, k % 2 ? 0xff5d6c : 0xffffff, -2.5 + k, 2.8, 3.6));
       g.add(box(6.4, 0.4, 6.4, 0x8c5a2b, 0, 3.6, 0));
       windowsOn(g, 6, 3.6, 6, 1);
-      const s = signSprite("CAFE", { fg: "#ff7ad9", height: 1.3 }); s.position.set(cx, 5.4, cz); group.add(s);
+      if (!town.real) { const s = signSprite("CAFE", { fg: "#ff7ad9", height: 1.3 }); s.position.set(cx, 5.4, cz); group.add(s); }
     } else if (b.id === "library") {
       g.add(box(16, 0.6, 16, 0xd8d2c0));
       g.add(box(12, 5.5, 8, 0xe9dcc0, 0, 0.6, -1));
@@ -115,7 +129,7 @@ export function buildTown(cityName) {
       g.add(box(3.4, 0.6, 3.4, 0x5a4a8a, 0, 12.6, 0));
       g.add(box(1.6, 1.6, 0.2, 0xffffff, 0, 10.2, 1.55));
       windowsOn(g, 11, 6, 10, 2);
-    } else if (b.id === "school") {
+    } else if (b.kind === "school") {
       g.add(box(13, 5, 8, 0xc8664e));
       g.add(box(13.6, 0.6, 8.6, 0x6e3b2e, 0, 5, 0));
       g.add(box(0.2, 8, 0.2, 0xdddddd, 7.5, 0, 4.5));
@@ -139,7 +153,12 @@ export function buildTown(cityName) {
       b.board = nb;
       b.mesh = null;
       continue;
-    } else if (b.id === "park") {
+    } else if (b.kind === "sports") {
+      group.add(box(16, 0.15, 16, 0x4fae4a, cx, 0, cz));
+      for (const [lw, ld, ox, oz] of [[12, 0.25, 0, -5], [12, 0.25, 0, 5], [0.25, 10, -6, 0], [0.25, 10, 6, 0], [0.25, 10, 0, 0]]) group.add(box(lw, 0.18, ld, 0xffffff, cx + ox, 0.02, cz + oz));
+      b.mesh = null;
+      continue;
+    } else if (b.kind === "park") {
       group.add(box(16, 0.15, 16, 0x5fb84a, cx, 0, cz));
       group.add(box(5, 0.2, 4, 0x59c2ff, cx + 2, 0.05, cz + 2));
       b.mesh = null;

@@ -34,7 +34,12 @@ def aggregate(runs: list[dict]) -> dict:
     """Same arithmetic as sim.js runBatch (sequential sums, sd with n-1)."""
     n = len(runs)
     mean, sd = {}, {}
-    for k in KEYS:
+    if all(k in runs[0] for k in KEYS):
+        keys = KEYS
+    else:  # town mode: every numeric metric any run reported (missing = 0), same order as runBatch
+        keys = sorted({k for r in runs for k, v in r.items() if isinstance(v, (int, float)) and not isinstance(v, bool)})
+        runs = [{k: r.get(k, 0) for k in keys} for r in runs]
+    for k in keys:
         s = 0.0
         for r in runs:
             s += r[k]
@@ -124,5 +129,9 @@ class Runner:
                 results[e["key"]]["trace"] = merge_traces(traces, len(seeds))
         return {"results": results, "wall_s": round(wall, 2), "workers": len(groups), "where": where, "error": error}
 
-    def info(self, city: str, scenario: dict | None = None) -> dict:
-        return run_jobs_local([{"info": True, "city": city, "scenario": scenario}])[0]["residents"]
+    def info_full(self, city: str, spec: dict | None = None) -> dict:
+        """Residents, public places with their baseline settings, all places, and the place-kind defaults."""
+        return run_jobs_local([{"info": True, "city": city, "spec": spec}])[0]
+
+    def info(self, city: str, scenario: dict | None = None, spec: dict | None = None) -> dict:
+        return run_jobs_local([{"info": True, "city": city, "scenario": scenario, "spec": spec}])[0]["residents"]

@@ -7,6 +7,7 @@
 //   policy: {hours: [[openMin, closeMin]|null x7]} | {hours_changes: [{day, open:"HH:MM"|null, close}]}
 //           | {channels: ["online","board","bulletin"]}, optional capacity
 //   scenario: {name?, seed?, mix?, interestMult?, count?}  (seed defaults to the city name)
+//   spec: optional real-town spec (backend/towns.py); the town and resident mix are built from it
 //   {info: true, city, scenario?} returns {residents: {n, byCohort}} without simulating.
 //   trace: true adds failure traces (counts over the job's seeds) for the reviewer:
 //     turnedAway by cohort / reason / day+hour, visits by cohort, learned via, aware by cohort.
@@ -14,8 +15,9 @@
 //   learn: true adds the ordered LEARN events (resident, via, tick) for the watched-run replay into past.dev.
 // Output: runBatch result ({n, mean, sd, runs}) plus {seeds, ms}, or an array of them.
 import { pathToFileURL } from "node:url";
-import { layoutTown } from "../web/js/layout.js";
+import { layoutTown, residentScenario } from "../web/js/layout.js";
 import { makeResidents, runBatch, hoursWith, createModel, TICKS_PER_DAY, DAYS } from "../web/js/sim.js";
+import { baselineFacilities, FACILITY_DEFAULTS } from "../web/js/townsim.js";
 
 const toMin = (t) => { const [h, m] = String(t).split(":").map(Number); return h * 60 + (m || 0); };
 
@@ -31,8 +33,9 @@ export function normalizePolicy(policy = {}) {
 const towns = new Map();
 const residentCache = new Map();
 // runBatch with an emit hook that counts trace events (no effect on the simulation).
-function runTraced({ town, residents, mode, policy, seeds, days }, keepLearn = false) {
+function runTraced({ town, residents, mode, policy, seeds, days, incomeFactor = 1 }, keepLearn = false) {
   const trace = { turnedAwayByCohort: {}, turnedAwayByReason: {}, turnedAwayByDayHour: {}, visitsByCohort: {}, restrictedVisitsByCohort: {}, learnedVia: {}, awareByCohort: {} };
+  if (mode === "town") Object.assign(trace, { turnedAwayByPlace: {}, visitsByPlace: {}, feeDeterredByKind: {} });
   const learn = [];
   const inc = (o, k) => { o[k] = (o[k] || 0) + 1; };
   const runs = seeds.map((seed) => {
@@ -41,35 +44,44 @@ function runTraced({ town, residents, mode, policy, seeds, days }, keepLearn = f
       if (type === "TURNED_AWAY") {
         const t = model.state.tick, slot = `${DAYS[Math.floor(t / TICKS_PER_DAY) % 7]} ${String(Math.floor(((t % TICKS_PER_DAY) * 10) / 60)).padStart(2, "0")}:00`;
         inc(trace.turnedAwayByCohort, f.cohort); inc(trace.turnedAwayByReason, f.reason); inc(trace.turnedAwayByDayHour, slot);
-      } else if (type === "VISIT") { inc(trace.visitsByCohort, f.cohort); if (f.restricted) inc(trace.restrictedVisitsByCohort, f.cohort); }
+        if (f.facilityName) inc(trace.turnedAwayByPlace, f.facilityName);
+      } else if (type === "VISIT") {
+        inc(trace.visitsByCohort, f.cohort); if (f.restricted) inc(trace.restrictedVisitsByCohort, f.cohort);
+        if (f.facilityName) inc(trace.visitsByPlace, f.facilityName);
+      }
       else if (type === "LEARN") {
         inc(trace.learnedVia, f.via); inc(trace.awareByCohort, f.cohort);
         if (keepLearn) learn.push({ seed, tick: model.state.tick, resident: f.resident, name: f.name, cohort: f.cohort, via: f.via, from: f.from });
       }
     };
-    model = createModel({ town, residents, mode, policy, seed, days, emit });
+    model = createModel({ town, residents, mode, policy, seed, days, emit, incomeFactor });
     while (!model.done()) model.step();
     return model.summary();
   });
   return { runs, trace, learn };
 }
 
-export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null, info = false, trace = false, learn = false }) {
+export function runJob({ city, mode = "service", policy = {}, seeds = 16, days, scenario = null, info = false, trace = false, learn = false, spec = null, incomeFactor = 1 }) {
   if (!city) throw new Error("job.city is required");
   const t0 = Date.now();
-  if (!towns.has(city)) towns.set(city, layoutTown(city));
-  const town = towns.get(city);
-  const rkey = JSON.stringify([city, scenario]);
-  if (!residentCache.has(rkey)) residentCache.set(rkey, scenario ? makeResidents(town, scenario.seed ?? city, scenario) : makeResidents(town, city));
+  const tkey = spec ? `${city}|spec:${spec.fetched_at}` : city;
+  if (!towns.has(tkey)) towns.set(tkey, layoutTown(city, spec));
+  const town = towns.get(tkey);
+  const rkey = JSON.stringify([tkey, scenario]);
+  const sc = residentScenario(spec, scenario);
+  if (!residentCache.has(rkey)) residentCache.set(rkey, makeResidents(town, (scenario && scenario.seed) ?? city, sc));
   const residents = residentCache.get(rkey);
   if (info) {
     const byCohort = {};
     for (const r of residents) byCohort[r.cohort] = (byCohort[r.cohort] || 0) + 1;
     return { residents: { n: residents.length, byCohort, restricted: residents.filter((r) => r.restricted).length,
-      list: residents.map((r) => ({ id: r.id, name: r.name, cohort: r.cohort, channel: r.channel, neighborhood: r.neighborhood })) } };
+      list: residents.map((r) => ({ id: r.id, name: r.name, cohort: r.cohort, channel: r.channel, neighborhood: r.neighborhood })) },
+      facilities: baselineFacilities(town).map(({ building, ...f }) => f),
+      places: town.buildings.filter((b) => b.kind !== "home").map((b) => ({ id: b.id, kind: b.kind, name: b.name })),
+      defaults: FACILITY_DEFAULTS };
   }
   const seedList = Array.isArray(seeds) ? seeds : [...Array(seeds).keys()];
-  const args = { town, residents, mode, policy: normalizePolicy(policy), seeds: seedList, days: days ?? (mode === "service" ? 7 : 3) };
+  const args = { town, residents, mode, policy: normalizePolicy(policy), seeds: seedList, days: days ?? (mode === "perception" ? 3 : 7), incomeFactor };
   if (trace || learn) {
     const { runs, trace: tr, learn: le } = runTraced(args, learn);
     const byCohort = {};

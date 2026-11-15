@@ -33,36 +33,39 @@ instructions: [`backend/README.md`](backend/README.md).
 
 | Part | Demo mode (no backend) | Live mode (backend) |
 |---|---|---|
-| Town generation | Procedural, seeded by the city name (`web/js/layout.js`, same in browser and Node) | same |
-| Simulator (`web/js/sim.js`) | Real rules, runs in the browser | The same file, run with Node in Modal workers; parity-tested against the browser |
-| Research agents' words | Scripted (`web/js/research.js`) | LLM agents with structured outputs; any scripted fallback is labelled `scripted: true` |
-| Evidence | **FIXTURE** placeholders, labelled | Live Exa results with source URLs; a value is used only if its quote is found in the returned page (checked in code). Exa failure: labelled FIXTURE |
+| The town | Procedural, seeded by the city name | **The real town** from OpenStreetMap: its library, schools, clinics, pharmacy, community centre, parks, sports grounds, post office, town hall, shops, workplaces, real names and street names, placed at their rough real positions on a schematic street grid; population from OSM (or the Census with `CENSUS_API_KEY`). Places OSM lacks are added only when needed and labelled synthetic. ([`backend/towns.py`](backend/towns.py)) |
+| Residents | 72, model-default mix | A representative sample (60-120) sized and mixed from the town's data; each resident represents ~population/sample people |
+| Simulator | `web/js/sim.js` (library hours or a notice) | **The general town model** [`web/js/townsim.js`](web/js/townsim.js): every public place has hours (real OSM opening hours when mapped), capacity, fees and staffing; residents of each group want each kind of place at labelled default rates; unmet wants build up (latent demand); people who don't know the hours get turned away; notices travel through channels at real places. Same file runs in the browser and on Modal |
+| Questions | Library hours, or who hears a notice | **Any question about the town's public places**: Bo frames it (which metric, place, resident group, any budget limit you state). Policies: hours, capacity, fees, closing a place, opening a new one next to a real place, outreach. Ideas no action can test (zoning, taxes, housing) get a research brief, not a number |
+| Budgets | none | Every experiment has an **annual budget**: staff hours x wage + running cost per open hour - fee revenue (scaled to the real population) + campaign cost, for the place the question is about (or the town-run places). Wages and limits come from sources Ada finds (quote-checked) or labelled defaults; budget limits are enforced in code ([`backend/budget.py`](backend/budget.py)) |
+| Research agents' words | Scripted (`web/js/research.js`) | LLM agents with structured outputs; scripted fallbacks are labelled `scripted: true` |
+| Evidence | **FIXTURE** placeholders, labelled | Live Exa results with source URLs; a value is used only if its quote is in the returned page (checked in code) |
+| Reasoning | | The **"?" button** left of every experiment shows the steps behind its outcome and which agent gave each (Bo, Ada, Cy, Dee), with sources |
 | past.dev | Shown as events | Real API calls: facts, handoffs, identities, rule audiences, gated notice, recall checks |
 | Modal | Runs in the browser | Policies x seed chunks x held-out scenarios fanned out with `run_batch.map` |
 
 Evaluation results (4-way comparison, Exa ablation, Modal timing, real-data anchor): [`eval/RESULTS.md`](eval/RESULTS.md).
 The simulator ranks policies inside one model; its magnitudes are **not** forecasts (the real-data check found it
-under-predicts the effect of longer hours about 12x; see the results).
+under-predicts the effect of longer hours: +25% for a real +52% with the town model, +4% with the old one; see the results).
 
 ## Sponsor pointers
 
 **Exa** (main loop, every trial; `exa_py`):
 - The Exa call: [`backend/agents/ada.py:49`](backend/agents/ada.py#L49) (`search_and_contents` with highlights and page text).
-- Baseline search: [`backend/research_loop.py:272`](backend/research_loop.py#L272) (hours trials) and [`:307`](backend/research_loop.py#L307) (notice trials).
-- Failure-guided search, built from Cy's `next_question` + town + entity: [`backend/research_loop.py:473`](backend/research_loop.py#L473).
-- Grounded extraction and quote verification: [`backend/agents/ada.py:68`](backend/agents/ada.py#L68) (`_verify`), [`:85`](backend/agents/ada.py#L85), [`:97`](backend/agents/ada.py#L97), [`:110`](backend/agents/ada.py#L110).
-- On screen: each `EXA` log card shows the query, the pages found (title, passage, URL) and what the result changed. Ablation: `eval/exa_ablation.py`.
+- Town mode (all live trials): the target place's hours [`:359`](backend/town_loop.py#L359), the town budget [`:399`](backend/town_loop.py#L399), notice channels [`:354`](backend/town_loop.py#L354), failure-guided search built from Cy's `next_question` + town + entity [`:458`](backend/town_loop.py#L458) in [`backend/town_loop.py`](backend/town_loop.py).
+- Grounded extraction with quote verification in code: [`backend/agents/ada.py:68`](backend/agents/ada.py#L68), place hours [`:138`](backend/agents/ada.py#L138), budget facts [`:151`](backend/agents/ada.py#L151).
+- On screen: each `EXA` log card shows the query, the pages found (title, passage, URL) and what the result changed; the "?" button on an experiment shows the evidence it rests on. Ablation: `eval/exa_ablation.py`.
 
 **past.dev** (REST API, `https://api.past.dev/api/v1`):
-- Client: [`backend/memory.py:124`](backend/memory.py#L124) (`PastDevMemory`): ingest [`:146`](backend/memory.py#L146), recall [`:190`](backend/memory.py#L190) / [`:194`](backend/memory.py#L194), identities [`:206`](backend/memory.py#L206) / [`:213`](backend/memory.py#L213), audiences [`:217`](backend/memory.py#L217) / [`:221`](backend/memory.py#L221), gated recall check [`:224`](backend/memory.py#L224). Local fallback: [`:229`](backend/memory.py#L229).
-- Every write goes through [`backend/research_loop.py:138`](backend/research_loop.py#L138) (`remember`) and every handoff read through [`:146`](backend/research_loop.py#L146) (`read`, logged with `author`).
-- Writes: Ada's facts [`:288`](backend/research_loop.py#L288), [`:314`](backend/research_loop.py#L314), [`:555`](backend/research_loop.py#L555), [`:568`](backend/research_loop.py#L568); Cy's failure reasons [`:464`](backend/research_loop.py#L464); Eli's notice (audience-scoped) [`:352`](backend/research_loop.py#L352).
-- Reads of another agent's data: Eli recalls the town's facts from earlier trials [`:256`](backend/research_loop.py#L256); Bo reads Ada's facts [`:420`](backend/research_loop.py#L420), [`:484`](backend/research_loop.py#L484); Cy recalls the evidence before reviewing [`:425`](backend/research_loop.py#L425).
-- Perception trials: identities and rule audiences [`:323`](backend/research_loop.py#L323); watched-run replay (trait updates, recompute, recall before/after) [`:354`](backend/research_loop.py#L354).
+- Client [`backend/memory.py:122`](backend/memory.py#L122): ingest [`:146`](backend/memory.py#L146), recall [`:190`](backend/memory.py#L190) / [`:194`](backend/memory.py#L194), identities [`:206`](backend/memory.py#L206) / [`:213`](backend/memory.py#L213), audiences [`:217`](backend/memory.py#L217) / [`:221`](backend/memory.py#L221), gated recall check [`:224`](backend/memory.py#L224); local fallback [`:229`](backend/memory.py#L229).
+- Every write goes through [`backend/research_loop.py:138`](backend/research_loop.py#L138) and every handoff read through [`:146`](backend/research_loop.py#L146) (logged with `author`).
+- Writes: Ada's facts (hours, budget figures) [`:389`](backend/town_loop.py#L389) / [`:439`](backend/town_loop.py#L439); Cy's failure reasons [`:451`](backend/town_loop.py#L451); Eli's audience-scoped notice [`:356`](backend/research_loop.py#L356) in `research_loop.py`.
+- Reads of another agent's data: Eli recalls the town's facts from earlier trials [`:257`](backend/research_loop.py#L257); Bo reads Ada's facts [`:390`](backend/town_loop.py#L390) / [`:472`](backend/town_loop.py#L472); Cy recalls the evidence before reviewing [`:430`](backend/research_loop.py#L430); hours verified in an earlier trial are reused from memory [`:327`](backend/town_loop.py#L327) (`town_loop.py`).
+- Notice trials: resident identities and rule audiences [`:327`](backend/research_loop.py#L327); watched-run replay with recall checks before/after [`:358`](backend/research_loop.py#L358) (`research_loop.py`).
 
 **Modal** (workspace `constant-lab`, app `town-trial-api`):
-- Simulator worker (Node + `sim.js`): [`backend/app.py:53`](backend/app.py#L53); fan-out with `.map`: [`backend/app.py:66`](backend/app.py#L66), planned as policy x seed-chunk x scenario in [`backend/sim.py:87`](backend/sim.py#L87).
-- One orchestrator per trial: [`backend/app.py:59`](backend/app.py#L59); web API: [`backend/app.py:75`](backend/app.py#L75).
+- Simulator worker (Node + `sim.js`/`townsim.js`): [`backend/app.py:54`](backend/app.py#L54); fan-out with `.map`: [`:73`](backend/app.py#L73), planned as policy x seed-chunk x scenario in [`backend/sim.py:92`](backend/sim.py#L92).
+- One orchestrator per trial [`:66`](backend/app.py#L66); real-town builds in the background [`:60`](backend/app.py#L60); web API [`:82`](backend/app.py#L82).
 - Serial vs fanned-out wall time and cost: [`eval/modal_timing.py`](eval/modal_timing.py), results in [`eval/RESULTS.md`](eval/RESULTS.md) (21x faster at 24,576 seed-runs, identical results).
 
 ## Two kinds of trial

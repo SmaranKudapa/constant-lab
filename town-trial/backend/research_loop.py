@@ -204,6 +204,7 @@ class LiveTrial(Trial):
         if not out["ok"]:
             self.set(x, status="rejected")
         self.emit("REVIEW", agent="cy", exp=x["id"], ok=out["ok"], reason=out["reason"], ungrounded=out.get("ungrounded_inputs") or [],
+                  assumptions=out.get("assumptions") or [],
                   scripted=bool(out.get("scripted")))
         return out["ok"]
 
@@ -320,9 +321,12 @@ class LiveTrial(Trial):
             self.base_policy = {"channels": chans}
             self.base_source = ext["url"] if ext else "assumption (no local source)"
 
+    def is_awareness(self) -> bool:
+        return self.mode == "perception"
+
     def eli_audiences(self) -> None:
         """One past.dev identity per resident, rule audiences for this town, and the notice scoped to the 'heard' audience."""
-        info = self.runner.info(self.city)
+        info = self.runner.info(self.city, spec=self.spec)
         tk = town_key(self.city)
         # A fresh audience and trait per trial: observed in past.dev that a resident who leaves an audience and rejoins it
         # (as happens when a town is re-run) does not regain recall of its memories, while first-time members do within ~7 s.
@@ -353,10 +357,11 @@ class LiveTrial(Trial):
 
     def after_brief(self, best: dict) -> None:
         """Perception: replay the watched run (seed 0 of the recommended policy) into past.dev, and spot-check recall."""
-        if self.mode != "perception" or not getattr(self, "resident_ids", None):
+        if not self.is_awareness() or not getattr(self, "resident_ids", None):
             return
         from sim import run_jobs_local
-        learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True}])[0]["learn"]
+        learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True,
+                                 "spec": self.spec}])[0]["learn"]
         learned = [e["resident"] for e in learn]
         fam = [r for r in learned if self.residents_info[r]["cohort"] == "families"]
         never = [r for r in self.resident_ids if r not in learned]
@@ -604,6 +609,8 @@ class LiveTrial(Trial):
         os_pol = self.policy_of(_action(mode, os_))
         OS = self.exp(id="OS", label=f"One-shot: {os_['label']}"[:60], role="oneshot", parent=self.exps[0]["id"], policy=os_pol,
                       change=self.change_of(os_pol) + " (single proposal, no feedback)")
+        self.emit("PROPOSE", agent="bo", exp="OS", parent=self.exps[0]["id"], change=OS["change"], scripted=bool(os_.get("scripted")),
+                  why=(os_.get("why") or "One-shot baseline arm.") + " (One-shot arm: same model and evidence, no simulation feedback.)")
         jobs = [self.job(s["key"], s["policy"]) for s in sweep] + [self.job("OS", os_pol)]
         self.emit("RUN_START", agent="dee", say="Running the baselines", exps=[s["key"] for s in sweep] + ["OS"], seeds=SEEDS,
                   workers=len(self.runner.plan(jobs)), where=self.runner.where)

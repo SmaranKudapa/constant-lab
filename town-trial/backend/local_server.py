@@ -23,13 +23,19 @@ from sim import Runner, local_mapper  # noqa: E402
 store = EventStore({})
 runner = Runner(mapper=local_mapper(), where="local Node processes (no Modal)")
 memory = make_memory({})
+towns = {}
 
 
 def start(**kw):
-    threading.Thread(target=run_trial, kwargs={"store": store, "runner": runner, "memory": memory, **kw}, daemon=True).start()
+    threading.Thread(target=run_trial, kwargs={"store": store, "runner": runner, "memory": memory, "towns": towns, **kw}, daemon=True).start()
 
 
-app = create_app(store, start)
+def start_town_build(city):
+    from towns import build_into
+    threading.Thread(target=build_into, args=(city, towns), daemon=True).start()
+
+
+app = create_app(store, start, towns_cache=towns, start_town_build=start_town_build)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=int(os.environ.get("PORT", "8787")))

@@ -54,7 +54,11 @@ def run_trial(city: str, mode: str, options: dict | None = None, tag: str = "") 
             time.sleep(10)
     tid, t0 = start["trial_id"], time.time()
     while True:
-        d = _req("GET", f"/api/trials/{tid}/events?since=0")
+        try:
+            d = _req("GET", f"/api/trials/{tid}/events?since=0")
+        except (urllib.error.URLError, TimeoutError, OSError):  # transient network error while polling: try again
+            time.sleep(5)
+            continue
         if d["done"] or time.time() - t0 > 900:
             break
         time.sleep(4)
@@ -79,6 +83,8 @@ def analyse(rec: dict) -> dict | None:
         if e["type"] == "EXPERIMENT":
             exps[e["id"]] = e
     table = next((e for e in ev if e["type"] == "HELD_OUT_TABLE"), None)
+    frame = next((e for e in ev if e["type"] == "FRAME"), None)
+    sign = -1 if frame and frame.get("direction") == "min" else 1
     brief = next((e for e in ev if e["type"] == "BRIEF"), None)
     if not table:
         return None
@@ -99,9 +105,11 @@ def analyse(rec: dict) -> dict | None:
             "sweep": 6, "oneshot": 1}
     exa = [e for e in ev if e["type"] == "EXA"]
     feasible = {k: v for k, v in arms.items() if v["feasible"]}
-    best_arm = max(feasible, key=lambda k: feasible[k]["held_out_mean"]) if feasible else None
+    best_arm = max(feasible, key=lambda k: sign * feasible[k]["held_out_mean"]) if feasible else None
     return {
         "trial_id": rec["trial_id"], "city": rec["city"], "mode": rec["mode"], "options": rec["options"], "metric": table["metric"],
+        "direction": "min" if sign < 0 else "max", "framed_as": frame and frame.get("metric"), "model": "town" if frame else "v1",
+        "budgets": {k: (e.get("budget") or {}).get("net") for k, e in exps.items() if e.get("budget")},
         "arms": arms, "runs": runs, "best_held_out_arm": best_arm, "recommended": brief and brief.get("recommend"),
         "exa_calls": len(exa), "exa_live": sum(1 for e in exa if not e.get("fixture")),
         "verified_facts": sum(1 for e in ev if e["type"] == "MEMORY_WRITE" and e.get("agent") == "ada" and not str(e.get("source", "")).startswith("fixture")),
@@ -125,8 +133,8 @@ def load(tag: str) -> list[dict]:
     return out
 
 
-def summarize_compare() -> dict:
-    rows = load("compare")
+def summarize_compare(tag: str = "compare", out_name: str = "compare.json") -> dict:
+    rows = load(tag)
     summary = {}
     for mode in ("service", "perception"):
         rs = [r for r in rows if r["mode"] == mode]
@@ -135,7 +143,8 @@ def summarize_compare() -> dict:
         arm_stats = {}
         for arm in ("baseline", "user", "sweep", "oneshot", "agent"):
             vals = [r["arms"][arm]["held_out_mean"] for r in rs if arm in r["arms"]]
-            gains = [r["arms"][arm]["held_out_mean"] - r["arms"]["baseline"]["held_out_mean"] for r in rs if arm in r["arms"] and "baseline" in r["arms"]]
+            gains = [(1 if r.get("direction", "max") == "max" else -1) * (r["arms"][arm]["held_out_mean"] - r["arms"]["baseline"]["held_out_mean"])
+                     for r in rs if arm in r["arms"] and "baseline" in r["arms"]]
             arm_stats[arm] = {"trials": len(vals), "held_out_mean": sum(vals) / len(vals) if vals else None,
                               "gain_over_baseline": sum(gains) / len(gains) if gains else None,
                               "infeasible": sum(1 for r in rs if arm in r["arms"] and not r["arms"][arm]["feasible"]),
@@ -149,7 +158,7 @@ def summarize_compare() -> dict:
                        "agent": "<= 4 approved revisions over 2 rounds x 16 seeds (actual count per trial in trials[].runs)",
                        "exa": "<= 6 calls per trial (agent arm uses 3)", "llm": "<= 20 calls per trial, same model for every arm"},
            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-    (OUT / "compare.json").write_text(json.dumps(out, indent=2))
+    (OUT / out_name).write_text(json.dumps(out, indent=2))
     return out
 
 
@@ -201,6 +210,11 @@ def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "summarize"
     if cmd == "compare":
         run_many([(t, m, {}, "compare") for m in ("service", "perception") for t in TOWNS])
+    elif cmd == "town":  # the general town model (live trials since v2): same towns and questions
+        run_many([(t, m, {}, "town") for m in ("service", "perception") for t in TOWNS])
+        s = summarize_compare("town", "compare_town.json")
+        print(json.dumps(s["summary"], indent=1))
+        return
     elif cmd == "ablation":
         run_many([(t, "service", {"exa_mode": em}, "ablation") for em in ("none", "broad") for t in TOWNS])
     s1, s2 = summarize_compare(), summarize_ablation()

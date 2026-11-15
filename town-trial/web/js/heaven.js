@@ -135,6 +135,7 @@ export function buildHeaven(scene) {
   // Falling cubes: findings dropped to town / Modal workers fanning out
   const drops = [];
   function drop(fromLocal, toWorld, count = 8, color = 0x5be37d) {
+    if (!toWorld) return; // e.g. a real town without a library
     for (let k = 0; k < count; k++) {
       const m = box(0.7, 0.7, 0.7, 0, 0, 0, 0, new THREE.MeshLambertMaterial({ color, emissive: color, emissiveIntensity: 0.7 }));
       m.castShadow = false;
