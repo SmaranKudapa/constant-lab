@@ -247,6 +247,29 @@ export function researcherHTML(spec, events) {
   <div class="note">${esc(spec.does)}</div><h5>LOG</h5>${mine.length ? mine.map((e) => entryHTML(e)).join("") : `<p class="note">Waiting for a trial.</p>`}`;
 }
 
+// Lesson Forge (Cy): how the gods improved trial by trial in this session, and the lessons they carried forward.
+export function forgeHTML(log, events) {
+  const pct = (v) => (v === null || v === undefined || !isFinite(v) ? "-" : `${v >= 0 ? "+" : ""}${Math.round(v)}%`);
+  const bar = (v, max, cls) => `<span class="fg-bar ${cls}"><i style="width:${v === null || !isFinite(v) ? 0 : Math.max(3, Math.min(100, (100 * Math.max(0, v)) / max))}%"></i></span>`;
+  // A percentage when the comparison is non-zero; otherwise the change in the metric's own units (e.g. from 0 visits)
+  const ok = (v) => v !== null && v !== undefined && isFinite(v);
+  const val = (p, a, u) => (ok(p) ? pct(p) : ok(a) ? `${a >= 0 ? "+" : ""}${Math.abs(a) >= 100 ? Math.round(a) : a.toFixed(1)}${u && u.length < 4 ? u : ""}` : "-");
+  const max = Math.max(10, ...log.map((r) => Math.max(r.gain || 0, r.vsAuto || 0)));
+  const show = (p, a) => (ok(p) ? p : ok(a) ? (a > 0 ? max : 0) : null);
+  const rows = log.map((r) => `<div class="fg-row">
+      <div class="fg-top"><b>#${r.n}</b> ${esc(r.prompt)} <span class="fg-dim">· ${esc(r.city)}</span></div>
+      <div class="fg-kv"><span>vs today</span>${bar(show(r.gain, r.gainAbs), max, "g")}<b>${val(r.gain, r.gainAbs, r.unit)}</b></div>
+      <div class="fg-kv"><span>vs auto-tried</span>${bar(show(r.vsAuto, r.vsAutoAbs), max, "a")}<b>${val(r.vsAuto, r.vsAutoAbs, r.unit)}</b></div>
+      <div class="fg-dim">${esc(r.best)} · ${r.tried} experiments, ${r.rounds} research round${r.rounds === 1 ? "" : "s"} · ${r.lessons.length ? `used ${r.lessons.length} lesson${r.lessons.length === 1 ? "" : "s"} from earlier trials` : r.n === 1 ? "first trial: nothing to learn from yet" : r.live ? "no earlier lessons read" : "demo trial (no shared memory)"}</div>
+      ${r.lessons.map((l) => `<div class="fg-lesson"><b>${esc(AGENTS[l.by] || l.by)}</b> read <b>${esc(AGENTS[l.author] || l.author)}</b>'s note: ${esc(String(l.claim || "").slice(0, 220))}</div>`).join("")}
+    </div>`).join("");
+  const live = events.filter((e) => (e.type === "MEMORY_READ" || e.type === "MEMORY_WRITE") && /^(lesson|cy-notes)-/.test(e.source_id || "")).slice(-8).reverse();
+  return `<h3><span>Lesson Forge · Cy</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>
+  <div class="note">After every trial, Bo saves what won and Cy saves what failed to past.dev. The next trial in this session reads them back before proposing, so the gods start from what they learned. One gold ingot per finished trial. Reloading the page starts fresh.</div>
+  ${log.length ? `<h5>TRIALS THIS SESSION</h5><p class="fg-dim">Gain of the best policy over today's practice, and of the gods' best idea over the auto-tried options (the yardstick), on each trial's own metric.</p>${rows}` : `<p class="note">No finished trials yet. Run one, then another: the second one learns from the first.</p>`}
+  ${live.length ? `<h5>THIS TRIAL'S LESSONS</h5>${live.map((e) => entryHTML(e)).join("")}` : ""}`;
+}
+
 export function stationHTML(id, label, events) {
   const filter = { altar: (e) => e.type === "RUN_START", treasury: (e) => e.type === "BUDGET_CHECK", lookout: (e) => ["EXA", "COMPARABLE", "TOWN_PROFILE"].includes(e.type), archive: (e) => e.type.startsWith("MEMORY") || e.type === "AUDIENCE" && e.op !== "update_traits", court: (e) => e.type === "REVIEW" || e.type === "FAILURE" || e.type === "HELD_OUT", portal: (e) => e.type.startsWith("RUN"), drafting: (e) => ["CLAIM", "PROPOSE", "BRIEF"].includes(e.type) }[id] || (() => false);
   const mine = events.filter(filter).slice(-30).reverse();
