@@ -141,16 +141,6 @@ export function buildTown(cityName, spec = null) {
       group.add(box(4, 0.8, 4, 0x9aa3b8, cx, 0.2, cz));
       group.add(box(3, 0.3, 3, 0x59c2ff, cx, 1, cz));
       group.add(box(0.6, 2.2, 0.6, 0x9aa3b8, cx, 1, cz));
-      // Notice board
-      const nb = new THREE.Group();
-      nb.add(box(0.3, 2.4, 0.3, 0x7a5232, -1.2, 0, 0));
-      nb.add(box(0.3, 2.4, 0.3, 0x7a5232, 1.2, 0, 0));
-      nb.add(box(3, 1.6, 0.25, 0x8c5a2b, 0, 1.4, 0));
-      nb.add(box(0.8, 0.9, 0.05, 0xffffff, -0.6, 1.75, 0.15));
-      nb.add(box(0.8, 0.6, 0.05, 0xffd34d, 0.5, 1.85, 0.15));
-      nb.position.set(b.boardPos.x, 0.2, b.boardPos.z);
-      group.add(nb);
-      b.board = nb;
       b.mesh = null;
       continue;
     } else if (b.kind === "sports") {

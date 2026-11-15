@@ -1,10 +1,11 @@
 // DOM rendering for the side panel: log, experiments, audiences/live stats, selection.
 import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
+import { roleOf } from "./voices.js";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
-const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
-const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
+export const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+export const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+export const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
+export const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
 
 // The reasoning behind one experiment, rebuilt from the event log: every step that names it, in order,
 // with the agent who took the step. Works the same in demo and live mode.
@@ -63,10 +64,11 @@ export function entryHTML(e, residentsById) {
     case "CONSTRAINT": body = `New constraint: <b>${esc(e.constraint)}</b> (was ${esc(e.previous)}). ${esc(e.changes.join("; "))}<br><i>${esc(e.source)}</i>`; break;
     case "HELD_OUT": body = `${e.finalists.join(", ")} frozen and tested on ${e.scenarios} held-out scenarios × ${e.seeds} seeds. ${esc(e.note)}`; break;
     case "BRIEF": body = `Recommend <b>${esc(e.recommend)}: ${esc(e.label)}</b><br>${esc(e.summary)}<br><i>Assumes:</i> ${esc(e.assumptions)}<br><i>Pilot:</i> ${esc(e.pilot)}`; break;
-    case "LEARN": body = `${esc(e.name)} heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
-    case "VISIT": body = `${esc(e.name)} (${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
-    case "TURNED_AWAY": body = `${esc(e.name)} turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
+    case "LEARN": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) heard the notice via <b>${esc(e.via === "board" ? "a flyer" : e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
+    case "VISIT": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}, ${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
+    case "TURNED_AWAY": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
+    case "VOICES": body = `How residents would react to <b>${esc(e.exp)}</b> (${e.scripted ? "scripted" : "LLM-written"}, not real people):` + (e.voices || []).map((v) => `<div class="src"><b>${esc(v.role)}</b> (${esc(v.label)}, ${esc(v.stance)}: ${v.before} → ${v.after} ${esc(v.unit)}): "${esc(v.quote)}"</div>`).join(""); break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }
@@ -74,10 +76,10 @@ export function entryHTML(e, residentsById) {
   return `<div class="${cls}"><div class="head"><span class="type">${e.type.replace("_", " ")}</span><span class="who">${esc(who)}</span><span class="when">${esc(e.clock || "")}</span></div>${body}</div>`;
 }
 
-const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${s}$${(a / 1e3).toFixed(1)}k` : `${s}$${a.toFixed(0)}`; };
+export const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${s}$${(a / 1e3).toFixed(1)}k` : `${s}$${a.toFixed(0)}`; };
 // Primary metric of an experiment: a simulator mean, or the net annual budget for budget questions.
-const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
-const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
+export const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
+export const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
 
 export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new Set()) {
   if (!exps.length) return `<p class="note">Run a trial to see experiments. Each one records its parent, the change, the source that caused it, and results over matched seeds.</p>`;
@@ -116,7 +118,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
         `<div class="rule">${esc(f.kind.replace("_", " "))} · hours ${esc(hoursText(f.hours))} (${esc(f.hoursSource)})${f.fee ? ` · fee $${f.fee}` : ""}</div>` +
         `<div>Inside: ${fs.inside.length} · Queue: ${fs.queue.length} · Visits: ${C[`visits.f.${f.id}`] || 0} · Turned away: ${C[`turnedAway.f.${f.id}`] || 0}</div></div>`;
     }
-    if (C.aware) html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).filter(([, v]) => v).map(([k, v]) => `<div>${k}: ${v}</div>`).join("");
+    if (C.aware) html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).filter(([, v]) => v).map(([k, v]) => `<div>${k === "board" ? "flyers" : k}: ${v}</div>`).join("");
     return html + legendHTML();
   }
   if (mode === "perception") {
@@ -128,7 +130,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
     html += aud("heard-library-notice", "heard_library_notice = true", aware, residents.length);
     html += aud("working-parents", "cohort = families", fam.length, residents.length);
     html += aud("parents-who-heard", "cohort = families AND heard_library_notice = true", famAware, fam.length);
-    html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).map(([k, v]) => `<div>${k}: ${v}</div>`).join("");
+    html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).map(([k, v]) => `<div>${k === "board" ? "flyers" : k}: ${v}</div>`).join("");
     html += legendHTML();
     return html;
   }
@@ -150,6 +152,7 @@ export function residentHTML(r, s, mode, events) {
   if (s && s.aware) aud.push("heard-library-notice");
   const mine = events.filter((e) => e.resident === r.id).slice(-12).reverse();
   return `<h3><span>${esc(r.name)}</span><span class="close" data-close>CLOSE ✕</span></h3>
+  <div class="role-badge">${esc(roleOf(r))}</div>
   <div class="kv"><b>past.dev identity</b><span>${r.id}</span><b>Group</b><span>${esc(COHORTS[r.cohort].label)}</span><b>Gets news via</b><span>${esc(r.channel)}</span>
   <b>Neighborhood</b><span>${esc(r.neighborhood)}</span><b>Home</b><span>${esc(r.home.name)}</span><b>Now at</b><span>${esc(s ? s.at.name : r.home.name)}</span>
   <b>Library visits/wk</b><span>${r.interest} wanted${s ? `, ${s.visitsWeek} made` : ""}</span><b>Current hours?</b><span>${r.restricted ? "can't make them" : "can make them"}</span></div>

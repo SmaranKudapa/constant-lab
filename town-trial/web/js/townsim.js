@@ -46,7 +46,7 @@ export const DEMAND = {
 // Willingness to pay per visit ($) by cohort; scaled by the town's median income when known.
 export const WTP = { "day-workers": 12, families: 6, seniors: 5, students: 3, "night-shift": 6, remote: 15 };
 export const CHANNELS = ["online", "board", "bulletin", "newspaper", "mailer"];
-const BOARD_PLACES = ["plaza", "post_office", "townhall", "library", "community"];
+const BOARD_PLACES = ["post_office", "townhall", "library", "community"]; // "board" = paper flyers posted at these public places
 
 // OpenStreetMap opening_hours -> week of [open, close] minutes, for the common simple forms; null if unsure.
 const DAY_IX = { Mo: 0, Tu: 1, We: 2, Th: 3, Fr: 4, Sa: 5, Su: 6 };

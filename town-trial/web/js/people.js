@@ -5,7 +5,7 @@ import { box, mat, iconMaterial } from "./voxel.js";
 export const SKIN = [0xf1c7a5, 0xd9a07a, 0xb07a55, 0x8a5a3c, 0x5e3b26, 0xf5d6c0];
 export const HAIR = [0x2b1d14, 0x5a3a22, 0x8c5a2b, 0xe0c068, 0x1b1530, 0xb3412f, 0xdedede];
 
-export function makeHuman({ shirt, pants = 0x3b3f6b, skin = SKIN[0], hair = HAIR[0], robe = false, halo = false, scale = 1 }) {
+export function makeHuman({ shirt, pants = 0x3b3f6b, skin = SKIN[0], hair = HAIR[0], robe = false, halo = false, wings = false, scale = 1 }) {
   const g = new THREE.Group();
   const legL = new THREE.Group(), legR = new THREE.Group(), armL = new THREE.Group(), armR = new THREE.Group();
   const legColor = robe ? shirt : pants;
@@ -29,9 +29,43 @@ export function makeHuman({ shirt, pants = 0x3b3f6b, skin = SKIN[0], hair = HAIR
     ring.rotation.x = Math.PI / 2; ring.position.y = 2.08;
     g.add(ring);
   }
+  let wingL = null, wingR = null;
+  if (wings) {
+    // Feathered voxel wings, hinged at the shoulder blades
+    const feather = (side) => {
+      const w = new THREE.Group();
+      const white = 0xffffff, tip = 0xe6ecff;
+      const rows = [[0.9, 0.34, 0.0], [1.15, 0.3, -0.26], [1.0, 0.26, -0.5], [0.75, 0.22, -0.72]];
+      rows.forEach(([len, hgt, y], k) => w.add(box(len, hgt, 0.08, k % 2 ? tip : white, side * (len / 2 + 0.05), 1.05 + y, 0)));
+      w.add(box(0.5, 0.18, 0.1, 0xfff6c8, side * 1.05, 1.32, 0));
+      w.position.set(side * 0.12, 0, -0.24);
+      return w;
+    };
+    wingL = feather(-1); wingR = feather(1);
+    g.add(wingL, wingR);
+  }
   g.scale.setScalar(scale);
-  g.userData.parts = { legL, legR, armL, armR };
+  g.userData.parts = { legL, legR, armL, armR, wingL, wingR };
   return g;
+}
+
+// Jumping for joy: arms straight up and waving.
+export function animateCheer(g, phase) {
+  const { legL, legR, armL, armR } = g.userData.parts;
+  armL.rotation.x = Math.PI + Math.sin(phase * 2) * 0.15; armR.rotation.x = Math.PI + Math.cos(phase * 2) * 0.15;
+  armL.rotation.z = -0.25; armR.rotation.z = 0.25;
+  const tuck = Math.max(0, Math.sin(phase)) * 0.4;
+  legL.rotation.x = tuck; legR.rotation.x = tuck;
+  return Math.abs(Math.sin(phase)) * 0.9; // hop height
+}
+function relaxArms(g) { const { armL, armR } = g.userData.parts; armL.rotation.z = 0; armR.rotation.z = 0; }
+
+export function flapWings(g, phase, amount) {
+  const { wingL, wingR } = g.userData.parts;
+  if (!wingL) return;
+  const a = 0.35 + Math.sin(phase) * amount;
+  wingL.rotation.y = a; wingR.rotation.y = -a;
+  wingL.rotation.z = -Math.sin(phase) * amount * 0.6; wingR.rotation.z = Math.sin(phase) * amount * 0.6;
 }
 
 export function animateWalk(g, phase, amount) {
@@ -115,8 +149,7 @@ export class Resident {
       this.wanderT -= dt;
       if (!this.wanderTo || this.wanderT <= 0) {
         const b = this.at;
-        const target = b.id === "plaza" && Math.random() < 0.3 ? { x: b.boardPos.x, z: b.boardPos.z + 1.6 } : null;
-        this.wanderTo = target || { x: b.x + (Math.random() - 0.5) * (b.w - 3), z: b.z + (Math.random() - 0.5) * (b.d - 3) };
+        this.wanderTo = { x: b.x + (Math.random() - 0.5) * (b.w - 3), z: b.z + (Math.random() - 0.5) * (b.d - 3) };
         this.wanderT = 2 + Math.random() * 4;
       }
       const dx = this.wanderTo.x - this.pos.x, dz = this.wanderTo.z - this.pos.z;
@@ -137,8 +170,10 @@ export class Resident {
       this.mesh.rotation.y = b.facing + Math.PI;
     }
     if (moving) this.phase += dt * Math.min(18, 6 + this.speed);
-    animateWalk(this.mesh, this.phase, moving ? 1 : 0);
-    this.mesh.position.set(this.pos.x, 0, this.pos.z);
+    let hop = 0;
+    if (this.cheer) { this.cheerPhase = (this.cheerPhase || Math.random() * 6) + dt * 7; hop = animateCheer(this.mesh, this.cheerPhase); }
+    else { animateWalk(this.mesh, this.phase, moving ? 1 : 0); relaxArms(this.mesh); }
+    this.mesh.position.set(this.pos.x, hop, this.pos.z);
   }
 
   arrived() {
@@ -146,32 +181,79 @@ export class Resident {
   }
 }
 
-// A researcher in Heaven: walks in straight lines between stations.
+// A researcher in Heaven: an angel (wings, halo, twice human size) who walks between stations,
+// and during a celebration flies circles over the town.
+export const ANGEL_SCALE = 2;
 export class Researcher {
   constructor(spec, scene) {
     this.spec = spec;
-    this.mesh = makeHuman({ shirt: spec.robe, skin: spec.skin, hair: spec.hair, robe: true, halo: true });
+    this.mesh = makeHuman({ shirt: spec.robe, skin: spec.skin, hair: spec.hair, robe: true, halo: true, wings: true, scale: ANGEL_SCALE });
     this.mesh.userData.pick = { kind: "researcher", id: spec.id };
     this.pos = { ...spec.home };
+    this.y = spec.y;
     this.target = null;
     this.phase = Math.random() * 6;
     this.bubble = null; this.bubbleT = 0;
+    this.flying = false; this.flight = null; this.cheer = false;
     this.mesh.position.set(this.pos.x, spec.y, this.pos.z);
     scene.add(this.mesh);
   }
-  moveTo(p) { this.target = { x: p.x + (Math.random() - 0.5) * 1.5, z: p.z + (Math.random() - 0.5) * 1.5 }; }
+  get flyY() { return this.y; }
+  moveTo(p) { this.target = { x: p.x + (Math.random() - 0.5) * 1.5, z: p.z + (Math.random() - 0.5) * 1.5 }; if (this.flying) this.flight.home = { ...this.target }; }
   say(text, seconds = 4) { this.bubble = text; this.bubbleT = seconds; }
+  startFlight(f) {
+    this.flying = true;
+    this.flight = { ...f, t: 0, from: { x: this.pos.x, y: this.y, z: this.pos.z }, home: { ...this.pos }, returning: false, rt: 0 };
+    this.target = null;
+  }
+  endFlight(instant = false) {
+    if (!this.flying) return;
+    if (instant) { this.flying = false; this.pos = { ...this.flight.home }; this.y = this.spec.y; this.flight = null; this.mesh.rotation.z = 0; this.mesh.rotation.x = 0; return; }
+    this.flight.returning = true;
+  }
   update(dt) {
     let moving = false;
+    this.phase += dt * 8;
+    if (this.bubbleT > 0) { this.bubbleT -= dt; if (this.bubbleT <= 0) this.bubble = null; }
+    if (this.flying) {
+      const F = this.flight;
+      F.t += dt;
+      const ang = F.ph + F.w * F.t;
+      const cx = F.cx + Math.cos(ang) * F.r, cz = F.cz + Math.sin(ang) * F.r, cy = F.y + Math.sin(F.t * 1.3 + F.ph) * 2;
+      if (!F.returning && F.t > F.dur) { F.returning = true; F.rt = 0; F.rfrom = { x: this.pos.x, y: this.y, z: this.pos.z }; }
+      let nx, ny, nz;
+      if (F.returning) {
+        if (!F.rfrom) F.rfrom = { x: this.pos.x, y: this.y, z: this.pos.z };
+        F.rt += dt;
+        const u = Math.min(1, F.rt / 4), k = u * u * (3 - 2 * u);
+        nx = F.rfrom.x + (F.home.x - F.rfrom.x) * k; nz = F.rfrom.z + (F.home.z - F.rfrom.z) * k;
+        ny = F.rfrom.y + (this.spec.y - F.rfrom.y) * k + Math.sin(u * Math.PI) * 8;
+        if (u >= 1) { this.flying = false; this.flight = null; this.mesh.rotation.z = 0; this.mesh.rotation.x = 0; }
+      } else {
+        const u = Math.min(1, F.t / 3.5), k = u * u * (3 - 2 * u); // swoop down from Heaven into the circle
+        nx = F.from.x + (cx - F.from.x) * k; nz = F.from.z + (cz - F.from.z) * k; ny = F.from.y + (cy - F.from.y) * k;
+      }
+      const dx = nx - this.pos.x, dz = nz - this.pos.z;
+      if (Math.hypot(dx, dz) > 1e-4) this.mesh.rotation.y = Math.atan2(dx, dz);
+      this.mesh.rotation.z = this.flying && !F.returning ? -Math.sign(F.w) * 0.35 : 0; // bank into the turn
+      this.mesh.rotation.x = this.flying ? 0.35 : 0;
+      this.pos.x = nx; this.pos.z = nz; this.y = ny;
+      const { armL, armR } = this.mesh.userData.parts;
+      armL.rotation.x = Math.PI * 0.9; armR.rotation.x = Math.PI * 0.9; armL.rotation.z = -0.4; armR.rotation.z = 0.4;
+      flapWings(this.mesh, this.phase * 1.6, 0.8);
+      this.mesh.position.set(this.pos.x, this.y, this.pos.z);
+      return;
+    }
     if (this.target) {
       const dx = this.target.x - this.pos.x, dz = this.target.z - this.pos.z, d = Math.hypot(dx, dz);
       if (d < 0.1) this.target = null;
       else { const s = Math.min(d, 4.5 * dt); this.pos.x += (dx / d) * s; this.pos.z += (dz / d) * s; this.mesh.rotation.y = Math.atan2(dx, dz); moving = true; }
     }
-    if (this.bubbleT > 0) { this.bubbleT -= dt; if (this.bubbleT <= 0) this.bubble = null; }
-    this.phase += dt * 8;
-    animateWalk(this.mesh, this.phase, moving ? 1 : 0);
+    let hop = 0;
+    if (this.cheer) { hop = animateCheer(this.mesh, this.phase * 0.9) * ANGEL_SCALE * 0.6; flapWings(this.mesh, this.phase * 1.2, 0.6); }
+    else { animateWalk(this.mesh, this.phase, moving ? 1 : 0); relaxArms(this.mesh); flapWings(this.mesh, this.phase * 0.35, moving ? 0.25 : 0.12); }
     const bob = Math.sin(this.phase * 0.25) * 0.08;
-    this.mesh.position.set(this.pos.x, this.spec.y + bob, this.pos.z);
+    this.y = this.spec.y;
+    this.mesh.position.set(this.pos.x, this.spec.y + bob + hop, this.pos.z);
   }
 }

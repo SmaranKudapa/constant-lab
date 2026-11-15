@@ -22,7 +22,7 @@ PROPOSAL = strict({"label": {"type": "string", "description": "short name, under
 ACTIONS_HELP = {
     "service": ("Supported action: change library opening hours per day. hours_changes lists only the days that change; "
                 "each entry gives the full new open and close time for that day. Staff hours = 2 staff x open hours."),
-    "perception": ("Supported action: choose notice channels from online (library website/social), board (paper notice on the town square), "
+    "perception": ("Supported action: choose notice channels from online (library website/social), board (paper flyers at the cafe, library and town hall), "
                    "bulletin (school family bulletin). The notice about new library hours goes out on the chosen channels."),
 }
 SYSTEM = ("You are Bo, the policy designer in a team testing local policy ideas in a simulated town. "
@@ -105,7 +105,7 @@ COHORT_ENUM = ["day-workers", "families", "seniors", "students", "night-shift", 
 def town_help(town: str) -> str:
     return ("Supported actions on this real town's public places: change opening hours per day, capacity, a per-visit fee, or close a "
             "place; open a new place of a supported kind next to an existing place; send a notice through outreach channels "
-            "(online = library/city website, board = paper notices at the town centre/post office/town hall/library, bulletin = school "
+            "(online = library/city website, board = paper flyers at the post office/town hall/library/community centre, bulletin = school "
             "family bulletin, newspaper = local paper ad, mailer = postcard to every household). Every change has a budget: staff hours "
             "x wage + running cost per open hour - fee revenue (+ campaign cost).\nPlaces:\n" + town)
 

@@ -258,7 +258,7 @@ class Trial:
                   source="fixture://school-bulletin", supersedes=None, store="scripted")
         self.emit("MEMORY_READ", agent="bo", say="Using Ada's find: two revisions", source_id="fact-school-bulletin", author="ada",
                   claim="School sends a weekly family bulletin", used_for="revision P2", store="scripted")
-        P1 = self.exp(id="P1", label="+ notice board on the square", role="revision", parent="P0", policy={"channels": ["online", "board"]}, change="online + plaza notice board")
+        P1 = self.exp(id="P1", label="+ flyers at cafe, library, town hall", role="revision", parent="P0", policy={"channels": ["online", "board"]}, change="online + paper flyers at the cafe, library and town hall")
         P2 = self.exp(id="P2", label="+ school bulletin", role="revision", parent="P0", policy={"channels": ["online", "bulletin"]}, change="online + school bulletin",
                       source="fixture://school-bulletin")
         self.emit("PROPOSE", agent="bo", scripted=True, exp="P1", parent="P0", change=P1["change"], why="Paper notice for residents who don't use the website.")
@@ -275,7 +275,7 @@ class Trial:
                       wall_s=out["wall_s"], workers=out["workers"], view=view)
 
         combos = [["online", "board"], ["online", "bulletin"], ["online", "board", "bulletin"], ["board"], ["bulletin"], ["online"]][:SWEEP_BUDGET]
-        OS = self.exp(id="OS", label="One-shot proposal", role="oneshot", parent="P0", policy={"channels": ["online", "board"]}, change="online + notice board (no feedback)")
+        OS = self.exp(id="OS", label="One-shot proposal", role="oneshot", parent="P0", policy={"channels": ["online", "board"]}, change="online + flyers (no feedback)")
         jobs = [self.job(f"S{k + 1}", {"channels": c}) for k, c in enumerate(combos)] + [self.job("OS", OS["policy"])]
         self.emit("RUN_START", agent="dee", exps=[j["key"] for j in jobs], seeds=SEEDS, workers=len(self.runner.plan(jobs)), where=self.runner.where)
         out = self.fanout(jobs)
@@ -315,9 +315,24 @@ class Trial:
         self.set(best, best=True)
         base = self.exps[0]
         b = self.write_brief(best, base)
+        self.emit_voices(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"])
         self.after_brief(best)
+
+    # ---------- resident voices ----------
+    def voices(self, rows: list[dict], best: dict) -> tuple[list[dict], bool]:
+        from agents import voices as V
+        return V.scripted_voices(rows), True
+
+    def emit_voices(self, best: dict, base: dict) -> None:
+        """How each group of residents would react to the recommended policy. Stances come from simulator numbers; words are LLM or scripted."""
+        from agents import voices as V
+        rows = V.facts(best, base, self.mode == "perception" or bool(getattr(self, "awareness", False)))
+        vs, scripted = self.voices(rows, best)
+        self.emit("VOICES", agent="eli", say="Asking residents how it lands", exp=best["id"], base=base["id"], voices=vs, scripted=scripted,
+                  note=("Scripted quotes" if scripted else "Quotes written by the LLM") + " from simulator numbers (each group's stance is "
+                       "computed in code). They are not real residents.")
 
     def after_brief(self, best: dict) -> None:
         """Hook for the live loop (watched-run replay into past.dev)."""

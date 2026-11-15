@@ -9,6 +9,13 @@ import { createResearch, classify } from "./research.js";
 import { createLive } from "./live.js";
 import * as UI from "./ui.js";
 import { box } from "./voxel.js";
+import { buildSummary } from "./summary.js";
+import { openSummary, closeSummary, remember, initHistory } from "./popup.js";
+import { createCelebration } from "./celebrate.js";
+import { ANGEL_SCALE } from "./people.js";
+import { roleOf, reaction } from "./voices.js";
+import { createHover } from "./hover.js";
+import { createSky } from "./sky.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -44,6 +51,7 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left: -90, right: 90, top: 90, bottom: -90, near: 10, far: 300 });
 scene.add(sun);
+const skyDome = createSky(scene, { sun, hemi });
 
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -59,12 +67,16 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
+let trialPrompt = "", briefAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
   const st = heaven.stations[spec.station];
   researchers[spec.id] = new Researcher({ ...spec, home: { ...st.stand }, y: HEAVEN_Y }, scene);
 }
+
+const celebration = createCelebration({ scene, heavenY: HEAVEN_Y });
+const hover = createHover(scene);
 
 // selection marker
 const marker = new THREE.Group();
@@ -78,6 +90,9 @@ function emit(type, fields) {
   const e = { seq: events.length + 1, t: new Date().toISOString(), type, clock: model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : "", ...fields };
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
+  if (type === "VOICES") voicesFor = { exp: fields.exp, byCohort: Object.fromEntries((fields.voices || []).map((v) => [v.cohort, v])) };
+  if (fields.resident && (type === "VISIT" || type === "TURNED_AWAY" || type === "LEARN")) residentSay(fields.resident, type === "TURNED_AWAY" ? "turned" : type === "LEARN" ? "heard" : fields.restricted ? "restricted" : "visit");
+  if (type === "BRIEF" && research !== undefined) { briefAt = performance.now(); if (fields.recommend && fields.recommend !== "none") celebrate(); }
   const log = $("log");
   log.insertAdjacentHTML("afterbegin", UI.entryHTML(e));
   while (log.children.length > 250) log.lastElementChild.remove();
@@ -123,6 +138,7 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
+  endCelebration(); summaryDone = true; hover.set(null);
   $("log").innerHTML = "";
   startReplay(null);
   buildLabels();
@@ -180,21 +196,67 @@ function refreshIcons() {
   }
 }
 
+// ---------- celebration + results ----------
+function winningPlace() {
+  const P = research && research.primary;
+  return (P && P.target && town.byId[P.target]) || town.byId.library || town.byId.plaza || { x: 0, z: 0 };
+}
+function celebrate() {
+  const b = winningPlace();
+  cheering = true;
+  celebration.start({ target: { x: b.x, z: b.z }, townGroup: town.group, angels: Object.values(researchers) });
+  for (const r of Object.values(researchers)) r.cheer = true;
+  flyTo(new THREE.Vector3(b.x + 55, 62, b.z + 75), new THREE.Vector3(b.x * 0.5, 4, b.z * 0.5), 2.2);
+  setView("town");
+  const ban = $("celebrate-banner");
+  ban.classList.remove("hidden");
+  ban.firstElementChild.style.animation = "none"; void ban.offsetWidth; ban.firstElementChild.style.animation = "";
+  setTimeout(() => ban.classList.add("hidden"), 2900);
+}
+function endCelebration() {
+  cheering = false;
+  celebration.clear();
+  for (const r of Object.values(researchers)) r.cheer = false;
+  $("celebrate-banner").classList.add("hidden");
+}
+function screenOf(p) {
+  const v = new THREE.Vector3(p.x, 4, p.z).project(camera);
+  return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight };
+}
+function finishTrial() {
+  summaryDone = true;
+  const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
+  remember(sum);
+  openSummary(sum, screenOf(winningPlace()));
+}
+
+// ---------- residents' point of view: short reaction bubbles ----------
+const saySlots = [];
+let lastSay = 0;
+function residentSay(id, kind) {
+  const v = views[id], now = performance.now();
+  if (!v || now - lastSay < 900 / Math.max(1, Math.sqrt(speed))) return;
+  const slot = saySlots.find((q) => q.until < now);
+  if (!slot) return;
+  const voice = voicesFor && viewExp && viewExp.id === voicesFor.exp ? voicesFor.byCohort[v.data.cohort] : null;
+  if (!voice && kind === "visit" && Math.random() < 0.6) return; // ordinary visits are common; keep the chatter readable
+  lastSay = now;
+  slot.until = now + 3600;
+  slot.pos = new THREE.Vector3(v.pos.x, 3.4, v.pos.z);
+  slot.html = `<b>${UI.esc(v.data.name)} · ${UI.esc(roleOf(v.data))}</b>${UI.esc(reaction(kind, v.data, voice))}`;
+  slot.cls = `lbl say ${kind === "turned" ? "hurt" : voice ? voice.stance : kind === "restricted" ? "helped" : ""}`;
+}
+
 // ---------- day / night ----------
-const DAY = new THREE.Color(0x8fd3ff), DUSK = new THREE.Color(0xff9f7a), NIGHT = new THREE.Color(0x1d1b45);
 function lighting() {
-  const m = model ? (model.state.tick % TICKS_PER_DAY) * 10 : 12 * 60;
-  const h = m / 60;
-  const dl = THREE.MathUtils.clamp(Math.min((h - 5.5) / 2, (20.5 - h) / 2), 0, 1);
-  const duskAmt = 1 - Math.abs(dl - 0.5) * 2;
-  sky.copy(NIGHT).lerp(DAY, dl).lerp(DUSK, duskAmt * 0.35);
-  scene.fog.color.copy(sky);
-  sun.intensity = 0.15 + 2.1 * dl;
-  hemi.intensity = 0.35 + 0.8 * dl;
-  const ang = ((h - 6) / 12) * Math.PI;
-  sun.position.set(Math.cos(ang) * 120, 40 + Math.sin(Math.max(0, ang)) * 100, 40);
-  windowMat.emissiveIntensity = (1 - dl) * 0.9;
-  lampMat.emissiveIntensity = (1 - dl) * 1.2;
+  // Smooth clock between simulator ticks so the sun glides instead of stepping every 10 minutes
+  const m = model ? (model.state.tick % TICKS_PER_DAY) * 10 + Math.min(1, tickAcc / TICK_SEC) * 10 : 12 * 60;
+  const h = params.has("hour") ? +params.get("hour") : (m / 60) % 24; // ?hour=18.5 pins the time of day (screenshots, testing)
+  const night = skyDome.update(h, camera, scene.fog);
+  scene.background = null;
+  const dl = 1 - night;
+  windowMat.emissiveIntensity = night * 0.95;
+  lampMat.emissiveIntensity = Math.min(1, night * 1.4) * 1.3;
   const open = model && town ? model.isOpen(Math.floor(model.state.tick / TICKS_PER_DAY) % 7, m) : false;
   libraryWindowMat.emissiveIntensity = open ? 0.35 + (1 - dl) * 0.9 : 0;
   libraryOpen = open;
@@ -225,17 +287,26 @@ function buildLabels() {
   const labelled = town.real ? town.buildings.filter((b) => b.public && b.id !== "library" && (b.kind !== "school" || b.id === "school")).slice(0, 8)
     : ["townhall", "park"].map((id) => town.byId[id]).filter(Boolean);
   for (const b of labelled) add(b.name.toUpperCase(), () => new THREE.Vector3(b.x, (b.h || 0) + 6, b.z));
-  const pl = town.byId.plaza;
-  add("NOTICE BOARD", () => new THREE.Vector3(pl.boardPos.x, 4.2, pl.boardPos.z), "lbl sign");
   for (const st of Object.values(heaven.stations)) add(st.label, () => new THREE.Vector3(st.x, st.labelY, st.z), "lbl sign");
   for (const r of Object.values(researchers)) {
-    const L = add("", () => new THREE.Vector3(r.pos.x, HEAVEN_Y + 3.2, r.pos.z), "bubble");
+    const L = add("", () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE + 0.6, r.pos.z), "bubble");
     L.update = () => { L.el.style.display = r.bubble ? "" : "none"; if (r.bubble) L.el.textContent = `${r.spec.name}: ${r.bubble}`; };
-    const N = add(r.spec.name.toUpperCase(), () => new THREE.Vector3(r.pos.x, HEAVEN_Y + 2.5, r.pos.z), "lbl");
+    const N = add(r.spec.name.toUpperCase(), () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE, r.pos.z), "lbl");
     N.update = () => { N.el.style.display = r.bubble ? "none" : ""; };
   }
+  saySlots.length = 0;
+  for (let k = 0; k < 5; k++) {
+    const slot = { until: 0, pos: new THREE.Vector3(0, -999, 0), html: "", cls: "lbl say", shown: "" };
+    const L = add("", () => slot.pos, "lbl say");
+    L.update = () => {
+      const on = slot.until > performance.now();
+      L.el.style.display = on ? "" : "none";
+      if (on && slot.shown !== slot.html) { L.el.innerHTML = slot.html; L.el.className = slot.cls; slot.shown = slot.html; }
+    };
+    saySlots.push(slot);
+  }
   const sel = add("", () => selectedPos() || new THREE.Vector3(0, -999, 0), "lbl sign");
-  sel.update = () => { sel.el.style.display = selected && selected.kind === "resident" ? "" : "none"; if (selected && selected.kind === "resident") sel.el.textContent = views[selected.id].data.name; };
+  sel.update = () => { sel.el.style.display = selected && selected.kind === "resident" ? "" : "none"; if (selected && selected.kind === "resident") sel.el.textContent = `${views[selected.id].data.name} · ${roleOf(views[selected.id].data)}`; };
 }
 const tmpV = new THREE.Vector3();
 function placeLabels() {
@@ -264,18 +335,46 @@ const HEAVEN_VIEW = () => flyTo(new THREE.Vector3(48, HEAVEN_Y + 44, 66), new TH
 const ray = new THREE.Raycaster();
 let downAt = null;
 canvas.addEventListener("pointerdown", (e) => (downAt = { x: e.clientX, y: e.clientY }));
-canvas.addEventListener("pointerup", (e) => {
-  if (!downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6 || !inTown) return;
-  const ndc = new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+function pickAt(x, y) {
+  const ndc = new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const targets = [...Object.values(views).filter((v) => v.mesh.visible).map((v) => v.mesh), ...Object.values(researchers).map((r) => r.mesh), heaven.group, town.group];
   const hits = ray.intersectObjects(targets, true);
   for (const h of hits) {
     let o = h.object;
     while (o && !o.userData.pick) o = o.parent;
-    if (o) { select(o.userData.pick); return; }
+    if (o) return { pick: o.userData.pick, obj: o };
   }
+  return null;
+}
+// The whole clickable thing (a resident, an angel, a building, a station) for the hover highlight
+function pickRoot(hit) {
+  const p = hit.pick;
+  if (p.kind === "resident") return views[p.id] && views[p.id].mesh;
+  if (p.kind === "researcher") return researchers[p.id] && researchers[p.id].mesh;
+  if (p.kind === "building") return (town.byId[p.id] && town.byId[p.id].mesh) || null;
+  if (p.kind === "station") { let o = hit.obj; while (o.parent && o.parent !== heaven.group) o = o.parent; return o; }
+  return null;
+}
+canvas.addEventListener("pointerup", (e) => {
+  if (!downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6 || !inTown) return;
+  const hit = pickAt(e.clientX, e.clientY);
+  if (hit) select(hit.pick);
 });
+let hoverAt = null;
+canvas.addEventListener("pointermove", (e) => { hoverAt = e.buttons ? null : { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener("pointerleave", () => { hoverAt = null; hover.set(null); });
+let lastHover = 0;
+function updateHover(t) {
+  if (!inTown || !$("landing").classList.contains("hidden")) { hover.set(null); return; }
+  const now = performance.now();
+  if (hoverAt && now - lastHover > 70) {
+    lastHover = now;
+    const hit = pickAt(hoverAt.x, hoverAt.y);
+    hover.set(hit ? pickRoot(hit) : null);
+  } else if (!hoverAt) hover.set(null);
+  hover.update(t);
+}
 
 function select(pick) {
   selected = pick;
@@ -285,14 +384,14 @@ function select(pick) {
 function selectedPos() {
   if (!selected) return null;
   if (selected.kind === "resident") { const v = views[selected.id]; return v.mesh.visible ? new THREE.Vector3(v.pos.x, 2.6, v.pos.z) : null; }
-  if (selected.kind === "researcher") { const r = researchers[selected.id]; return new THREE.Vector3(r.pos.x, HEAVEN_Y, r.pos.z); }
+  if (selected.kind === "researcher") { const r = researchers[selected.id]; return new THREE.Vector3(r.pos.x, r.y, r.pos.z); }
   if (selected.kind === "building") { const b = town.byId[selected.id]; return new THREE.Vector3(b.x, 0, b.z); }
   if (selected.kind === "station") { const s = heaven.stations[selected.id]; return new THREE.Vector3(s.x, HEAVEN_Y, s.z); }
   return null;
 }
 function renderSelected() {
   const el = $("selected");
-  if (!selected) { el.classList.add("hidden"); marker.visible = false; return; }
+  if (!selected) { el.classList.add("hidden"); el._html = null; marker.visible = false; return; }
   el.classList.remove("hidden");
   $("side").classList.remove("collapsed");
   let html = "";
@@ -300,7 +399,7 @@ function renderSelected() {
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
   else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events);
-  el.innerHTML = html;
+  if (el._html !== html) { const top = el.scrollTop; el.innerHTML = html; el._html = html; el.scrollTop = top; }
 }
 $("selected").addEventListener("click", (e) => { if (e.target.closest("[data-close]")) select(null); });
 
@@ -369,10 +468,15 @@ document.querySelectorAll("[data-city]").forEach((a) => a.addEventListener("clic
 $("city-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = $("city-input").value.trim() || "Anytown";
+  if (name.toUpperCase() === "DEV67") { // dev mode: the sample town and the scripted demo loop, no backend
+    devMode = true; liveDisabled = true;
+    await enterTown("Anytown", false);
+    return;
+  }
   await enterTown(name);
 });
-async function enterTown(name) {
-  await makeTown(name, true);
+async function enterTown(name, real = true) {
+  await makeTown(name, real);
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
@@ -393,6 +497,7 @@ $("prompt-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const prompt = $("prompt-input").value.trim();
   if (!prompt) { toast("Type a policy idea first, or pick an example."); return; }
+  trialPrompt = prompt;
   startTrial(prompt);
 });
 // Live mode: the backend (Modal) runs the research loop when TOWN_TRIAL_API is set.
@@ -401,7 +506,7 @@ let liveDisabled = false;
 const DEMO_BANNER = $("demo-banner").textContent;
 const LIVE_BANNER = "LIVE: research loop on the backend. Scripted steps and FIXTURE sources are labelled in the log.";
 function setBanner(live) {
-  $("demo-banner").textContent = (live ? LIVE_BANNER : DEMO_BANNER) +
+  $("demo-banner").textContent = (devMode ? "DEV MODE (DEV67): sample town, scripted demo loop, no backend. " : "") + (live ? LIVE_BANNER : DEMO_BANNER) +
     (townSpec ? " · REAL TOWN (streets schematic) · Map data © OpenStreetMap contributors" : "");
 }
 function startTrial(prompt) {
@@ -446,6 +551,9 @@ function offerDemo(err, prompt) {
 }
 function beginTrial(m) {
   mode = m;
+  endCelebration();
+  closeSummary();
+  briefAt = 0; summaryDone = false;
   openWhy.clear();
   events = [];
   $("log").innerHTML = "";
@@ -463,6 +571,48 @@ function afterTrialStart() {
     : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). Researchers work in HEAVEN."
     : "Service trial: watch residents visit the library. Researchers work in HEAVEN.", 5200);
   renderPanels(true);
+}
+
+// ---------- keyboard camera ----------
+// WASD pan (relative to the view), E/Q up/down, arrows orbit/tilt, O/I zoom out/in.
+const keys = new Set();
+const CAM_KEYS = new Set(["w", "a", "s", "d", "e", "q", "o", "i", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
+const keyName = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
+const typing = () => { const a = document.activeElement; return !!a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.isContentEditable); };
+window.addEventListener("keydown", (e) => {
+  if (typing() || e.ctrlKey || e.metaKey || e.altKey || !inTown || !$("landing").classList.contains("hidden")) return;
+  const k = keyName(e);
+  if (!CAM_KEYS.has(k)) return;
+  keys.add(k); e.preventDefault(); fly = null; follow = false; controls.autoRotate = false;
+});
+window.addEventListener("keyup", (e) => keys.delete(keyName(e)));
+window.addEventListener("blur", () => keys.clear());
+const _off = new THREE.Vector3(), _fwd = new THREE.Vector3(), _right = new THREE.Vector3(), _mv = new THREE.Vector3(), _sph = new THREE.Spherical();
+function keyboardCamera(dt) {
+  if (!keys.size || typing()) return;
+  _off.copy(camera.position).sub(controls.target);
+  const pan = Math.max(12, _off.length() * 0.9) * dt;
+  _fwd.set(-_off.x, 0, -_off.z).normalize();
+  _right.crossVectors(_fwd, camera.up).normalize();
+  _mv.set(0, 0, 0);
+  if (keys.has("w")) _mv.addScaledVector(_fwd, pan);
+  if (keys.has("s")) _mv.addScaledVector(_fwd, -pan);
+  if (keys.has("d")) _mv.addScaledVector(_right, pan);
+  if (keys.has("a")) _mv.addScaledVector(_right, -pan);
+  if (keys.has("e")) _mv.y += pan;
+  if (keys.has("q")) _mv.y -= pan;
+  controls.target.add(_mv);
+  controls.target.y = THREE.MathUtils.clamp(controls.target.y, -2, HEAVEN_Y + 20);
+  _sph.setFromVector3(_off);
+  if (keys.has("ArrowLeft")) _sph.theta -= 1.6 * dt;
+  if (keys.has("ArrowRight")) _sph.theta += 1.6 * dt;
+  if (keys.has("ArrowUp")) _sph.phi -= 1.0 * dt;
+  if (keys.has("ArrowDown")) _sph.phi += 1.0 * dt;
+  if (keys.has("o")) _sph.radius *= 1 + 1.4 * dt;
+  if (keys.has("i")) _sph.radius *= 1 - 1.4 * dt;
+  _sph.phi = THREE.MathUtils.clamp(_sph.phi, 0.08, controls.maxPolarAngle);
+  _sph.radius = THREE.MathUtils.clamp(_sph.radius, controls.minDistance, controls.maxDistance);
+  camera.position.copy(controls.target).add(_off.setFromSpherical(_sph));
 }
 
 // ---------- main loop ----------
@@ -485,6 +635,9 @@ function frame() {
     v.update(speed > 0 ? dt : 0);
   }
   for (const r of Object.values(researchers)) r.update(dt);
+  for (const v of Object.values(views)) v.cheer = cheering;
+  celebration.update(dt);
+  if (!summaryDone && briefAt && research && research.done() && performance.now() - briefAt > (cheering ? 3800 : 1200)) finishTrial();
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
   heaven.update(dt, t);
   lighting();
@@ -498,9 +651,11 @@ function frame() {
     const p = selectedPos();
     if (p) { const d = new THREE.Vector3(p.x, 0, p.z).sub(controls.target); controls.target.add(d.multiplyScalar(0.08)); camera.position.add(d); }
   }
+  keyboardCamera(dt);
+  updateHover(t);
   const sp = selectedPos();
   marker.visible = !!sp;
-  if (sp) { marker.position.set(sp.x, sp.y > HEAVEN_Y - 5 ? HEAVEN_Y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
+  if (sp) { marker.position.set(sp.x, sp.y > 5 ? sp.y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
   controls.update();
   if (inTown) { $("clock").textContent = model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : ""; renderPanels(); }
   renderer.render(scene, camera);
@@ -511,6 +666,8 @@ function frame() {
 // Debug handle for tests and the console
 window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, fingerprint: () => townFingerprint(town, residents) };
 
+initHistory();
+
 // ---------- boot ----------
 (async function boot() {
   await Promise.all([document.fonts.load('8px "Press Start 2P"'), document.fonts.load('12px "Silkscreen"')]).catch(() => {});
@@ -520,7 +677,7 @@ window.__townTrial = { select: (p) => select(p), get residents() { return reside
   const city = params.get("city");
   if (city) {
     await enterTown(city);
-    if (params.get("prompt")) { $("prompt-input").value = params.get("prompt"); startTrial(params.get("prompt")); }
+    if (params.get("prompt")) { $("prompt-input").value = trialPrompt = params.get("prompt"); startTrial(params.get("prompt")); }
     if (params.get("view") === "heaven") { HEAVEN_VIEW(); setView("heaven"); }
     if (params.get("speed")) { const b = document.querySelector(`[data-speed="${params.get("speed")}"]`); if (b) b.click(); }
   } else {

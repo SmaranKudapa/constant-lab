@@ -515,7 +515,7 @@ class TownTrial(LiveTrial):
 
     def scripted_town_revisions(self, rnd: int) -> list[dict]:
         if self.awareness:
-            return [{"label": "+ notice board", "facility_changes": [], "new_facilities": [], "channels": ["online", "board"], "why": "Paper notice.", "evidence_url": None, "scripted": True},
+            return [{"label": "+ paper flyers", "facility_changes": [], "new_facilities": [], "channels": ["online", "board"], "why": "Paper flyers at public places.", "evidence_url": None, "scripted": True},
                     {"label": "+ school bulletin", "facility_changes": [], "new_facilities": [], "channels": ["online", "bulletin"], "why": "Reaches parents.", "evidence_url": None, "scripted": True}]
         if not self.target:
             return []
@@ -629,6 +629,7 @@ class TownTrial(LiveTrial):
         d = best["budget"]["net"] - base["budget"]["net"]
         b["summary"] += (f" Budget ({self.scope_label}): {B.fmt_usd(best['budget']['net'])}/yr ({'+' if d >= 0 else ''}{B.fmt_usd(d)} vs current; "
                          f"wage ${self.wage:g}/h from {self.wage_source}).")
+        self.emit_voices(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], budget=best["budget"], budget_delta=d)
         self.after_brief(best)

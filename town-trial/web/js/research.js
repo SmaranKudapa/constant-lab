@@ -1,6 +1,7 @@
 // The research loop as seen from Heaven. In the demo the agents' words are
 // scripted, but every number comes from real batch runs of sim.js, and every
 // step is logged in the same event format the real backend will write.
+import { demoVoices } from "./voices.js";
 import { runBatch, hoursWith, hoursText, staffHours, BASELINE_HOURS, makeResidents } from "./sim.js";
 
 const H = (h, m = 0) => h * 60 + m;
@@ -173,9 +174,9 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     say("bo", "Using Ada's find: two revisions", "archive");
     act(() => {
       emit("MEMORY_READ", { agent: "bo", source_id: "fact-school-bulletin", author: "ada", claim: "School sends a weekly family bulletin", used_for: "revision P2" });
-      P1 = exp({ id: "P1", label: "+ notice board on the square", role: "revision", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + plaza notice board" });
+      P1 = exp({ id: "P1", label: "+ flyers at cafe, library, town hall", role: "revision", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + paper flyers at the cafe, library and town hall" });
       P2 = exp({ id: "P2", label: "+ school bulletin", role: "revision", parent: "P0", policy: { channels: ["online", "bulletin"] }, change: "online + school bulletin", source: "fixture://school-bulletin" });
-      emit("PROPOSE", { agent: "bo", exp: "P1", parent: "P0", change: P1.change, why: "Paper notice for residents who don't use the website." });
+      emit("PROPOSE", { agent: "bo", exp: "P1", parent: "P0", change: P1.change, why: "Paper flyers where offline residents already go." });
       emit("PROPOSE", { agent: "bo", exp: "P2", parent: "P0", change: P2.change, why: "Reaches parents at drop-off, per Ada's source." });
       emit("REVIEW", { agent: "cy", exp: "P1", ok: true, reason: "Supported channel." });
       emit("REVIEW", { agent: "cy", exp: "P2", ok: true, reason: "Supported channel; source is local." });
@@ -200,7 +201,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       for (const c of combos) { const r = runBatch({ town, residents, mode, policy: { channels: c }, seeds: [...Array(SEEDS).keys()], days }); if (!best || r.mean[P.key] > best.r.mean[P.key]) best = { c, r }; }
       const SW = exp({ id: "SW", label: `Sweep best of ${combos.length}`, role: "sweep", parent: "P0", policy: { channels: best.c }, change: best.c.join(" + ") });
       run(SW);
-      const OS = exp({ id: "OS", label: "One-shot proposal", role: "oneshot", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + notice board (no feedback)" });
+      const OS = exp({ id: "OS", label: "One-shot proposal", role: "oneshot", parent: "P0", policy: { channels: ["online", "board"] }, change: "online + flyers (no feedback)" });
       run(OS);
       emit("RUN_DONE", { agent: "dee", exp: "SW", metric: P.key, value: fmt(SW), note: `best of ${combos.length} channel combos (uses 3 channels)` });
     }, 2.5);
@@ -238,6 +239,8 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       const best = feasible.sort((a, b) => b.result.mean[P.key] - a.result.mean[P.key])[0];
       best.best = true; onChange();
       const base = exps[0];
+      emit("VOICES", { agent: "eli", exp: best.id, base: base.id, scripted: true, voices: demoVoices({ town, residents, mode, best, base, days }),
+        note: "Scripted quotes from simulator numbers (each group's stance is computed from 4 matched seeds). They are not real residents." });
       emit("BRIEF", {
         agent: "bo", recommend: best.id, label: best.label,
         summary: `${best.label}: ${fmt(best)} vs ${fmt(base)} for current practice (${P.label}).`,

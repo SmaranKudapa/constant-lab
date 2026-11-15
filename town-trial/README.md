@@ -11,7 +11,12 @@ cd town-trial/web && python3 -m http.server 8000
 ```
 
 Open http://localhost:8000. No build step and no internet needed (three.js and fonts are vendored).
-Shortcut URL params: `?city=Evart, MI&prompt=...&speed=16&view=heaven`.
+Shortcut URL params: `?city=Evart, MI&prompt=...&speed=16&view=heaven&hour=18.5` (`hour` pins the time of day).
+
+- **Dev mode:** type `DEV67` as the city to skip the backend and run the scripted demo loop on the sample town (labelled DEV MODE).
+- **Camera keys:** WASD pan, E/Q up/down, arrow keys orbit/tilt, O/I zoom out/in (mouse orbit/zoom still works).
+- **Results:** when a trial finishes, a popup shows the question, key numbers (metric vs current practice, budget change, staff hours, turned away, held-out score) and three tabs: *Why it wins* (the brief, what residents say, each agent's reasoning with sources), *Steps* (every agent action in order) and *Other experiments* (each one that wasn't picked and briefly why). The **TRIALS** button reopens past trials' popups (kept in this browser).
+- **Resident voices:** each group's stance (helped / worse off / no change) and before/after numbers come from the simulator, computed in code; the role and one-line quote are LLM-written in live mode (`backend/agents/voices.py`) or scripted in demo mode, and always labelled as not real people.
 
 ### Deploy the frontend (Vercel)
 
@@ -71,7 +76,7 @@ under-predicts the effect of longer hours: +25% for a real +52% with the town mo
 ## Two kinds of trial
 
 - **Service trial** (e.g. "extend library hours two evenings"): residents walk to the library at their free times, queue, get served or turned away. Primary metric: weekly visits by residents who can't make current hours. Constraint: staff hours.
-- **Perception trial** (prompts about who hears / how people react / marketing): each resident is a past.dev identity with traits. When they hear the notice (online, notice board, school bulletin or word of mouth), their traits update and they join the trial's `heard-<trial>` rule audience, which is what lets them recall it (in live mode this runs on past.dev, and recall is checked before and after). Primary metric: % of working parents who heard within 3 days.
+- **Perception trial** (prompts about who hears / how people react / marketing): each resident is a past.dev identity with traits. When they hear the notice (online, paper flyers at the cafe, library and town hall, school bulletin or word of mouth), their traits update and they join the trial's `heard-<trial>` rule audience, which is what lets them recall it (in live mode this runs on past.dev, and recall is checked before and after). Primary metric: % of working parents who heard within 3 days.
 
 ## Memory: which store holds what (past.dev challenge)
 
