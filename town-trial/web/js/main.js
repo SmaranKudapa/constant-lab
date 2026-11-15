@@ -16,6 +16,7 @@ import { ANGEL_SCALE } from "./people.js";
 import { roleOf, reaction } from "./voices.js";
 import { createHover } from "./hover.js";
 import { createSky } from "./sky.js";
+import { openAudienceGraph } from "./graphs.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -421,7 +422,7 @@ function renderPanels(force = false) {
   if (!force && now - lastPanel < 400) return;
   lastPanel = now;
   if (research) $("tab-exp").innerHTML = UI.experimentsHTML(research.exps, viewExp && viewExp.id, research.primary, events, openWhy);
-  $("tab-aud").innerHTML = UI.audiencesHTML(mode || "service", model, residents, flashSlug);
+  $("tab-aud").innerHTML = UI.audiencesHTML(mode || "service", model, residents, flashSlug, !!(research && research.awareness));
   if (selected) renderSelected();
 }
 document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
@@ -430,6 +431,17 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
   renderPanels(true);
 }));
 const openWhy = new Set(); // experiments whose reasoning panel is open
+// Audience graph buttons (Audiences tab)
+$("tab-aud").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-graph]");
+  if (!btn || !research) return;
+  const m = mode || "service";
+  const aud = UI.noticeAudiences(m, residents).find((a) => a.slug === btn.dataset.graph);
+  if (!aud) return;
+  const incomeFactor = townSpec && townSpec.census && townSpec.census.median_income ? townSpec.census.median_income / 70000 : 1;
+  openAudienceGraph({ town, residents, mode: m, days: research.days || 3, incomeFactor, exps: research.exps, aud, viewingId: viewExp && viewExp.id });
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const g = $("aud-graph"); if (g) g.classList.add("hidden"); } });
 $("tab-exp").addEventListener("click", (e) => {
   const why = e.target.closest("[data-why]");
   if (why) { const id = why.dataset.why; openWhy.has(id) ? openWhy.delete(id) : openWhy.add(id); renderPanels(true); return; }

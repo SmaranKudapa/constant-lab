@@ -112,12 +112,35 @@ export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new S
   return html;
 }
 
-export function audiencesHTML(mode, model, residents, flashSlug) {
+// One past.dev audience card; graph = true adds the button that opens its membership-over-time graph.
+const GRAPH_BTN = (slug) => `<button type="button" class="why graph-btn" data-graph="${esc(slug)}" title="Graph: membership of ${esc(slug)} over time, by resident type">▲</button>`;
+function audCard(slug, rule, n, total, flashSlug, graph, color = "#ff7ad9") {
+  return `<div class="aud${flashSlug === slug ? " flash" : ""}"><div class="slug aud-top"><span>${esc(slug)}</span>${graph ? GRAPH_BTN(slug) : ""}</div><div class="rule">rule: ${esc(rule)}</div>` +
+    `<div>${n} / ${total} members</div><div class="bar"><i style="width:${(100 * n) / Math.max(1, total)}%;background:${color}"></i></div></div>`;
+}
+// The audiences a perception-style trial keeps in past.dev (slug, rule, cohort); used by the cards and the graph button.
+export function noticeAudiences(mode, residents) {
+  if (mode === "perception") return [{ slug: "heard-library-notice", rule: "heard_library_notice = true", cohort: null, title: "Heard the library notice" },
+    { slug: "parents-who-heard", rule: "cohort = families AND heard_library_notice = true", cohort: "families", title: "Working parents who heard" }];
+  const cs = [...new Set(residents.map((r) => r.cohort))];
+  return [{ slug: "heard-notice", rule: "heard_notice = true", cohort: null, title: "Heard the notice" },
+    ...cs.map((c) => ({ slug: `${c}-who-heard`, rule: `cohort = ${c} AND heard_notice = true`, cohort: c, title: `${COHORTS[c].label} who heard` }))];
+}
+
+export function audiencesHTML(mode, model, residents, flashSlug, awareness = false) {
   if (!model) return `<p class="note">Run a trial to see live state.</p>`;
   const st = model.state;
   if (mode === "town" && model.facilities) {
     const C = st.metrics.counts;
-    let html = `<p class="note">Live counts for the run you're watching (seed 0), at the town's public places.</p>`;
+    let html = "";
+    if (awareness) {
+      html += `<p class="note">Each resident is a past.dev identity. Hearing the notice updates their traits and adds them to these audiences. ▲ opens a graph of membership over time.</p>`;
+      for (const a of noticeAudiences("town", residents)) {
+        const n = model.S.filter((s) => s.aware && (!a.cohort || s.r.cohort === a.cohort)).length, tot = a.cohort ? residents.filter((r) => r.cohort === a.cohort).length : residents.length;
+        html += audCard(a.slug, a.rule, n, tot, flashSlug, true, a.cohort ? `#${COHORTS[a.cohort].shirt.toString(16).padStart(6, "0")}` : "#ff7ad9");
+      }
+    }
+    html += `<p class="note">Live counts for the run you're watching (seed 0), at the town's public places.</p>`;
     for (const f of model.facilities) {
       const fs = st.fac[f.id] || { inside: [], queue: [] };
       html += `<div class="aud"><div class="slug">${esc(f.name.toUpperCase())}${f.closed ? " · CLOSED BY POLICY" : ""}</div>` +
@@ -131,7 +154,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
     const aware = model.S.filter((s) => s.aware).length;
     const fam = residents.filter((r) => r.cohort === "families");
     const famAware = model.S.filter((s) => s.aware && s.r.cohort === "families").length;
-    const aud = (slug, rule, n, total) => `<div class="aud${flashSlug === slug ? " flash" : ""}"><div class="slug">${slug}</div><div class="rule">rule: ${rule}</div><div>${n} / ${total} members</div><div class="bar"><i style="width:${(100 * n) / total}%;background:#ff7ad9"></i></div></div>`;
+    const aud = (slug, rule, n, total) => audCard(slug, rule, n, total, flashSlug, slug !== "working-parents");
     let html = `<p class="note">Each resident is a past.dev identity. When they hear the notice, their traits update and they join the <b>heard-library-notice</b> audience, which is what lets them recall it.</p>`;
     html += aud("heard-library-notice", "heard_library_notice = true", aware, residents.length);
     html += aud("working-parents", "cohort = families", fam.length, residents.length);
