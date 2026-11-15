@@ -18,7 +18,7 @@ import re
 import time
 from datetime import datetime, timezone
 
-AGENTS = {"exa": "research god (Exa search)", "bo": "designer", "cy": "reviewer", "dee": "runner", "eli": "archivist"}
+AGENTS = {"exa": "research god (Exa search)", "bo": "designer", "cy": "reviewer", "dee": "runner", "eli": "archivist", "treasurer": "budget god"}
 
 
 def town_key(city: str) -> str:

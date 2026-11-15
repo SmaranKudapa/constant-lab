@@ -121,3 +121,7 @@
 .rp-why .rp-h { color: var(--green); }
 .rp-lead { margin: 0; font-size: 15px; line-height: 1.5; }
 .mode.town { background: var(--blue); }
+
+.rp-fund .rp-who { margin-left: 8px; }
+.rp-chainrow { display: flex; gap: 10px; background: var(--ink); border: 2px solid var(--edge); padding: 8px 10px; margin-bottom: 6px; font-size: 12px; line-height: 1.5; }
+.rp-chainrow .rp-num { flex: 0 0 30px; }

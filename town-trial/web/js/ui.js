@@ -19,7 +19,8 @@ export function reasoningFor(x, events) {
       add(e, `Read ${AGENTS[e.author] || e.author}'s fact from shared memory: ${e.claim}`, [e.source_id]);
     else if (e.type === "EXA" && !evidenceShown && x.source && (e.results || []).some((r) => r.url === x.source) && (evidenceShown = true))
       add(e, `Found the evidence this rests on (${e.search} search "${e.query}"): ${e.used_for}`, [x.source]);
-    else if (e.type === "PROPOSE" && e.exp === id) add(e, `Proposed ${id} (from ${e.parent}): ${e.change}. Why: ${e.why}`);
+    else if (e.type === "PROPOSE" && e.exp === id) add(e, `Proposed ${id} (from ${e.parent}${e.adapted_from ? `, adapted from ${e.adapted_from}` : ""}): ${e.change}. Why: ${e.why}`);
+    else if (e.type === "BUDGET_CHECK" && e.exp === id) add(e, e.final ? `Funding ${e.status}: ${e.reason}` : `Costed ${id}: ${e.summary}.`, e.source ? [e.source] : []);
     else if (e.type === "REVIEW" && e.exp === id) {
       const as = (e.assumptions || []).map((a) => `${a.assumption} [${a.basis.replace(/_/g, " ")}]`).join("; ");
       add(e, `${e.ok ? "Approved" : "Rejected"}${e.by === "code" ? " (rule checked in code)" : ""}: ${e.reason}${as ? ` Assumptions: ${as}.` : ""}`);
@@ -69,6 +70,11 @@ export function entryHTML(e, residentsById) {
     case "TURNED_AWAY": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
     case "VOICES": body = `How residents would react to <b>${esc(e.exp)}</b> (${e.scripted ? "scripted" : "LLM-written"}, not real people):` + (e.voices || []).map((v) => `<div class="src"><b>${esc(v.role)}</b> (${esc(v.label)}, ${esc(v.stance)}: ${v.before} → ${v.after} ${esc(v.unit)}): "${esc(v.quote)}"</div>`).join(""); break;
+    case "COMPARABLE": body = `Similar town <b>${esc(e.town)}</b> (${esc(e.worked === "yes" ? "it worked" : e.worked === "no" ? "it failed" : e.worked)}): ${esc(e.intervention)} → ${esc(e.outcome)}<br><i>Cost:</i> ${esc(e.cost_funding)} · <i>Similar because:</i> ${esc(e.similarity)} · <i>May not transfer:</i> ${esc(e.may_not_transfer)}<br><i>${link(e.source)}${e.published ? ` · ${esc(e.published)}` : ""}</i>`; break;
+    case "PILOT": body = `Pilot proposal (no simulated score), from <b>${esc(e.from_town)}</b>: ${esc(e.idea)}<br><i>${esc(e.why_not_simulated)}</i>`; break;
+    case "CHAIN": body = `Round ${e.round}: <b>failure</b> ${esc(e.failure)} → <b>question</b> ${esc(e.question)} → <b>source</b> ${e.source ? link(e.source) : "none found"} → <b>changed idea</b> ${esc(e.changed_idea)} → <b>new result</b> ${esc(e.new_result)}${e.improved ? " (better)" : ""}`; break;
+    case "BUDGET_CHECK": body = `<b>${esc(e.exp)}</b>: ${esc(e.summary)} (${esc(e.scope)})` + (e.items || []).map((i) => `<div>${esc(i.item)} · ${esc(i.kind)} · ${i.amount === null ? "not costed" : usd(i.amount)}</div>`).join("") +
+      (e.final ? `<div><b>Funding: ${esc(String(e.status).toUpperCase())}</b>${e.funding_source && e.funding_source !== "none identified" ? ` · ${esc(e.funding_source)}` : ""}${e.gap_usd ? ` · gap ${usd(e.gap_usd)}/yr` : ""}. ${esc(e.reason || "")}${(e.confirm || []).length ? `<br><i>Town must confirm:</i> ${esc(e.confirm.join("; "))}` : ""}</div>` : `<div class="note">${esc(e.note || "")}${e.limit ? ` · ${esc(e.limit)}` : ""}</div>`); break;
     case "NOTE": body = `${e.level === "error" ? "<b>Error:</b> " : ""}${esc(e.message)}`; break;
     default: body = esc(JSON.stringify(e));
   }

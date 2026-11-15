@@ -99,6 +99,13 @@ check("town fallback: resident voices before the brief, one per group, labelled"
       and evs.index(_v[0]) < next(i for i, e in enumerate(evs) if e["type"] == "BRIEF"), str([v["stance"] for v in _v[0]["voices"]]) if _v else "none")
 _b = [e for e in evs if e["type"] == "BRIEF"]
 check("town fallback: brief explains what the policy does and why it wins", bool(_b) and bool(_b[-1].get("what")) and bool(_b[-1].get("reasoning")), (_b[-1].get("reasoning") or "")[:120] if _b else "")
+_bc = [e for e in evs if e["type"] == "BUDGET_CHECK"]
+check("town fallback: Treasurer costs proposals and checks the winner's funding (unverified without budget documents)",
+      any(not e["final"] for e in _bc) and any(e["final"] and e["status"] == "unverified" and e["confirm"] for e in _bc)
+      and all(isinstance(e["items"], list) and e["items"] for e in _bc), f"{len(_bc)} checks")
+_ch = [e for e in evs if e["type"] == "CHAIN"]
+check("town fallback: each research round records failure -> question -> source -> changed idea -> new result",
+      len(_ch) >= 1 and all(k in _ch[0] for k in ("failure", "question", "source", "changed_idea", "new_result")), f"{len(_ch)} rounds")
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
 # the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
 e0 = exps["E0"]

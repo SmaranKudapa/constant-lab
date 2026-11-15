@@ -53,6 +53,28 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
   };
   const fmt = (x) => x.result ? `${x.result.mean[P.key].toFixed(1)}${P.unit} ± ${x.result.sd[P.key].toFixed(1)}` : "-";
   const exa = (agent, query, kind, results, usedFor) => emit("EXA", { agent, query, search: kind, results, used_for: usedFor });
+  // Treasurer (demo): line items from the policy in code; no budget document in the demo, so funding stays unverified.
+  const WAGE = 25, CH_COST = { online: 0, board: 50, bulletin: 0 };
+  const treasurer = (x, final = false) => {
+    const items = [];
+    if (mode === "service") {
+      const dh = staffHours(x.policy.hours) - staffHours(BASELINE_HOURS);
+      items.push({ item: "Staff time", kind: "ongoing", amount: Math.round(dh * 52 * WAGE), basis: `${staffHours(x.policy.hours)} staff h/wk at $${WAGE}/h (model default; was ${staffHours(BASELINE_HOURS)} h)` });
+      items.push({ item: "Space", kind: "ongoing", amount: 0, basis: "existing library building" });
+    } else {
+      const c = (x.policy.channels || []).reduce((a, ch) => a + (CH_COST[ch] || 0), 0);
+      items.push({ item: "Outreach materials", kind: "one-time", amount: c, basis: "flyers and printing (model defaults)" });
+    }
+    const ongoing = items.filter((i) => i.kind === "ongoing").reduce((a, i) => a + i.amount, 0), one = items.filter((i) => i.kind === "one-time").reduce((a, i) => a + i.amount, 0);
+    const summary = `${ongoing >= 0 ? "+" : "-"}$${Math.abs(ongoing).toLocaleString()}/yr ongoing${one ? `, $${one} one-time` : ""}`;
+    emit("BUDGET_CHECK", { agent: "treasurer", exp: x.id, items, ongoing_delta: ongoing, one_time: one, summary, scope: mode === "service" ? "library budget" : "outreach campaign", final,
+      status: "unverified", ...(final ? { funding_source: "none identified", appropriation_or_unspent: "not stated", restricted: "not stated", by: "code",
+        reason: "The demo has no real budget documents (sources are FIXTURE), so whether the money exists can't be established.",
+        confirm: [`Which ${city} budget line would pay ${summary}`, "Whether that line has unspent, unrestricted funds this fiscal year"] } : { note: "Pre-run estimate; funding is checked for the recommendation." }) });
+  };
+  const chain = (round, failure, question, source, idea, before, after) =>
+    emit("CHAIN", { agent: "cy", round, failure, question, source, changed_idea: idea, new_result: `${after.id}: ${fmt(after)} (was ${before.id}: ${fmt(before)})`,
+      improved: after.result.mean[P.key] > before.result.mean[P.key] });
 
   // ---------------- service mode: library hours ----------------
   if (mode === "service") {
@@ -81,6 +103,8 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
     });
     say("cy", "Checking E1's assumptions", "court");
     act(() => emit("REVIEW", { agent: "cy", exp: "E1", ok: true, reason: "Supported actions only. Flag: needs 12 more staff hours a week, and staffing is an unverified input." }));
+    say("treasurer", "Costing E1", "treasury");
+    act(() => treasurer(E1));
     say("dee", "Fanning E0 + E1 out to Modal", "portal");
     act(() => {
       emit("RUN_START", { agent: "dee", exps: ["E0", "E1"], seeds: SEEDS, workers: SEEDS * 2, where: "Modal (demo: in-browser)" });
@@ -107,6 +131,8 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       emit("MEMORY_WRITE", { agent: "exa", source_id: "fact-staffing-cap", kind: "constraint", claim: "No new staff hours in FY2027", effective: "2026-10-14", supersedes: null, source: "fixture://board-minutes" });
       E1.status = "infeasible"; onChange();
     });
+    say("exa", "Searching: similar towns", "lookout");
+    act(() => emit("COMPARABLE", { agent: "exa", fixture: true, town: "Sample Falls (FIXTURE)", intervention: "Moved two weekday mornings to evenings without adding staff.", outcome: "Evening visits by working residents rose; morning visits dipped slightly.", worked: "yes", cost_funding: "No added cost (same staff hours)", similarity: "Small town, one library, staffing cap", may_not_transfer: "Its residents commute less, so evenings may matter more there.", modellable: true, source: "fixture://similar-town", published: null }));
     say("bo", "Reading the cap, rethinking", "archive");
     act(() => {
       emit("MEMORY_READ", { agent: "bo", source_id: "fact-staffing-cap", author: "exa", claim: "No new staff hours in FY2027", used_for: "revision must keep staff hours at 96" });
@@ -121,10 +147,11 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       emit("PROPOSE", { agent: "bo", exp: "E3", parent: "E1", change: E3.change, why: "Same 96 staff hours: move the morning hours on Tue/Thu to the evening." });
     });
     say("cy", "E3 approved", "court");
-    act(() => emit("REVIEW", { agent: "cy", exp: "E3", ok: true, reason: "Supported actions, staff hours unchanged (96)." }));
+    act(() => { emit("REVIEW", { agent: "cy", exp: "E3", ok: true, reason: "Supported actions, staff hours unchanged (96)." }); treasurer(E3); });
     say("dee", "Running E3", "portal");
     act(() => { emit("RUN_START", { agent: "dee", exps: ["E3"], seeds: SEEDS, workers: SEEDS, where: "Modal (demo: in-browser)" }); heaven.drop(heaven.stations.portal, town.byId.library, 8); }, 1.4);
-    act(() => { run(E3); emit("RUN_DONE", { agent: "dee", exp: "E3", metric: P.key, value: fmt(E3), staff_hours: 96, turned_away: E3.result.mean.turnedAway.toFixed(1) }); onView(E3); });
+    act(() => { run(E3); emit("RUN_DONE", { agent: "dee", exp: "E3", metric: P.key, value: fmt(E3), staff_hours: 96, turned_away: E3.result.mean.turnedAway.toFixed(1) }); onView(E3);
+      chain(1, "E1 needs 12 more staff hours a week, and nobody had checked whether that's allowed.", "Is extra evening staffing allowed this fiscal year?", "fixture://board-minutes", "E3: shift Tue/Thu to 13:00-21:00 (same 96 staff hours)", E1, E3); });
     say("cy", "Inspecting E3's turned-away log", "court");
     act(() => emit("FAILURE", { agent: "cy", exp: "E3", trace: `Mornings lost on Tue/Thu cost some daytime visits. Many residents who work Saturdays are still turned away.`, next_question: "Would moving Saturday later reach them?" }));
     say("bo", "Proposing E4: add a later Saturday", "drafting");
@@ -133,7 +160,8 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       emit("PROPOSE", { agent: "bo", exp: "E4", parent: "E3", change: E4.change, why: "Keeps 96 staff hours; targets Saturday workers seen in E3's trace." });
       emit("REVIEW", { agent: "cy", exp: "E4", ok: true, reason: "Supported actions, staff hours unchanged." });
     });
-    act(() => { run(E4); emit("RUN_DONE", { agent: "dee", exp: "E4", metric: P.key, value: fmt(E4), staff_hours: staffHours(shift3), turned_away: E4.result.mean.turnedAway.toFixed(1) }); }, 2);
+    act(() => { treasurer(E4); run(E4); emit("RUN_DONE", { agent: "dee", exp: "E4", metric: P.key, value: fmt(E4), staff_hours: staffHours(shift3), turned_away: E4.result.mean.turnedAway.toFixed(1) });
+      chain(2, "Residents who work Saturdays are still turned away under E3.", "Would moving Saturday later reach them?", null, "E4: E3 + Saturday 12:00-20:00", E3, E4); }, 2);
 
     // Baselines with matched budgets
     say("dee", "Running the baselines", "portal");
@@ -252,6 +280,7 @@ export function createResearch({ mode, prompt, town, residents, emit, heaven, re
       best.best = true; onChange();
       const base = exps[0];
       const voices = demoVoices({ town, residents, mode, best, base, days });
+      treasurer(best, true);
       emit("VOICES", { agent: "eli", exp: best.id, base: base.id, scripted: true, voices,
         note: "Scripted quotes from simulator numbers (each group's stance is computed from 4 matched seeds). They are not real residents." });
       emit("BRIEF", {

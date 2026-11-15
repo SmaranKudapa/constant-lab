@@ -12,6 +12,7 @@ const STATION = {
   CLAIM: "drafting", PROPOSE: "drafting", BRIEF: "drafting",
   REVIEW: "court", FAILURE: "court", HELD_OUT: "court",
   RUN_START: "portal", RUN_DONE: "portal",
+  BUDGET_CHECK: "treasury", COMPARABLE: "lookout", PILOT: "drafting", CHAIN: "court",
 };
 const STATE_EVENTS = new Set(["EXPERIMENT", "HELD_OUT_TABLE"]); // rebuild panels, not log cards
 const POLL_MS = 1000;

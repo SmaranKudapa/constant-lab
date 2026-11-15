@@ -10,6 +10,7 @@ export const RESEARCHERS = [
   { id: "cy", name: "Cy", role: "Reviewer", does: "Checks causal assumptions and blocks unsupported changes.", robe: 0xff9f43, skin: 0xd9a07a, hair: 0xb3412f, station: "court" },
   { id: "dee", name: "Dee", role: "Runner", does: "Fans experiments out to Modal workers and collects results.", robe: 0x5be37d, skin: 0x8a5a3c, hair: 0x5a3a22, station: "portal" },
   { id: "eli", name: "Eli", role: "Archivist", does: "Keeps shared memory in past.dev: evidence, handoffs, audiences.", robe: 0xff7ad9, skin: 0xf5d6c0, hair: 0xe0c068, station: "archive" },
+  { id: "treasurer", name: "Treasurer", role: "Budget god", does: "Costs every proposal line by line and checks it against the town's sourced budget: a funding source, a gap, or budget unverified. Advises only; never changes the budget.", robe: 0xe8c24a, skin: 0xc68e62, hair: 0x2b2b2b, station: "treasury" },
 ];
 
 export function buildHeaven(scene) {
@@ -110,6 +111,15 @@ export function buildHeaven(scene) {
     for (const [a, b] of [[-4, -3], [4, -3], [-4, 3], [4, 3], [0, -3]]) g.add(box(0.8, 5, 0.8, 0xffffff, a, 0.5, b));
     g.add(box(10, 0.6, 8, 0xff9f43, 0, 5.5, 0));
     g.add(box(4, 1.4, 1.2, 0x8c5a2b, 0, 0.5, -1.5));
+  });
+  station("treasury", -20, 1, "TREASURY", (g) => {
+    const goldM = new THREE.MeshLambertMaterial({ color: 0xffd34d, emissive: 0xffc23a, emissiveIntensity: 0.3 });
+    g.add(box(7, 0.6, 7, 0xffffff));
+    g.add(box(5.6, 4.2, 5, 0xf3eefc, 0, 0.6, 0));
+    for (const x of [-2.2, 0, 2.2]) g.add(box(0.7, 4.2, 0.7, 0xffffff, x, 0.6, 2.7));
+    g.add(box(6.6, 0.7, 6, 0, 0, 4.8, 0, goldM));
+    g.add(box(4, 0.7, 4, 0, 0, 5.5, 0, goldM));
+    for (let k = 0; k < 4; k++) g.add(box(0.9, 0.3 + k * 0.25, 0.9, 0, -2.4 + k * 1.6, 0.6, 3.6, goldM)); // coin stacks
   });
   station("portal", 0, -19, "MODAL PORTAL", (g) => {
     g.add(box(1.2, 7, 1.2, 0x2b2840, -3, 0, 0));
