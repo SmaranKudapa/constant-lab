@@ -295,6 +295,10 @@ class Trial:
         b = self.write_brief(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"])
+        self.after_brief(best)
+
+    def after_brief(self, best: dict) -> None:
+        """Hook for the live loop (watched-run replay into past.dev)."""
 
     def write_brief(self, best: dict, base: dict) -> dict:
         service = self.mode == "service"

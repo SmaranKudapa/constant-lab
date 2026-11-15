@@ -12,13 +12,14 @@ Same event log as the scripted port (orchestrator.Trial), with these rules:
 from __future__ import annotations
 
 import json
+import time
 
 from agents import fixtures
 from agents.ada import Ada
 from agents.bo import Bo
 from agents.cy import Cy
 from agents.llm import LLM, Budget, BudgetExceeded
-from memory import LocalMemory
+from memory import LocalMemory, audience_slug, town_key
 from orchestrator import SEEDS, SWEEP_BUDGET, Trial
 from policy import (BASELINE_HOURS, DAYS, H, apply_changes, describe_hours, fixed, hours_text, hours_with, staff_hours, to_minutes,
                     validate_action)
@@ -37,6 +38,9 @@ class LiveTrial(Trial):
         self.llm = LLM(self.budget)
         self.ada, self.bo, self.cy = Ada(self.budget, self.llm), Bo(self.llm), Cy(self.llm)
         self.memory = memory
+        self.written: set[str] = set()  # source ids written to memory during this trial
+        if hasattr(memory, "on_fallback"):
+            memory.on_fallback = lambda msg: self.note(msg, agent="eli", store="local-fallback")
         self.evidence: list[dict] = []   # {claim, url, author} facts the team may rely on
         self.n = 0                       # experiment counter
         self.channels_grounded: dict[str, str] = {"online": "assumed (every library posts online)"}
@@ -96,6 +100,13 @@ class LiveTrial(Trial):
             self.note(f"Exa {kind} search failed ({type(ex).__name__}: {str(ex)[:160]}); using labelled FIXTURE evidence.", agent=agent)
             return fixture_fn(self.city), False
 
+    @staticmethod
+    def published(results: list[dict], url: str) -> str | None:
+        for r in results:
+            if r["url"] == url and r.get("published"):
+                return str(r["published"])[:10]
+        return None
+
     def log_exa(self, agent: str, query: str, kind: str, results: list[dict], live: bool, used_for: str, say: str | None = None) -> None:
         self.emit("EXA", agent=agent, say=say, query=query, search=kind, results=Ada.public(results), used_for=used_for, fixture=not live)
 
@@ -115,16 +126,19 @@ class LiveTrial(Trial):
             return None, "the model's quote was not found in any passage, so it was discarded"
         return out, "verified quote"
 
-    def remember(self, agent: str, source_id: str, claim: str, kind: str, source: str, say: str | None = None, **meta) -> None:
-        w = self.memory.ingest(agent, self.city, source_id, claim, kind, source, metadata={"trial": self.id, **meta})
+    def remember(self, agent: str, source_id: str, claim: str, kind: str, source: str, say: str | None = None, audience: str | None = None,
+                 **meta) -> None:
+        w = self.memory.ingest(agent, self.city, source_id, claim, kind, source, effective=meta.get("effective"),
+                               metadata={"trial": self.id, **meta}, audience=audience)
+        self.written.add(source_id)
         self.emit("MEMORY_WRITE", agent=agent, say=say, source_id=source_id, kind=kind, claim=claim, source=source,
-                  effective=meta.get("effective"), supersedes=w["supersedes"], store=self.memory.name)
+                  effective=meta.get("effective"), supersedes=w["supersedes"], store=self.memory.last_store)
 
     def read(self, agent: str, source_id: str, used_for: str, say: str | None = None) -> dict | None:
-        f = self.memory.get(self.city, source_id)
+        f = self.memory.get(self.city, source_id, reader=agent)
         if f:
             self.emit("MEMORY_READ", agent=agent, say=say, source_id=source_id, author=f["author"], claim=f["claim"], used_for=used_for,
-                      store=self.memory.name)
+                      store=self.memory.last_store)
         return f
 
     def trace_text(self, x: dict) -> str:
@@ -187,6 +201,7 @@ class LiveTrial(Trial):
     # ---------- the loop ----------
     def start(self) -> None:
         self.base_hours = [list(h) if h else None for h in BASELINE_HOURS]
+        self.memory.ensure_agents()
         self.recall_town()
         self.baseline_search()
         idea = self.translate()
@@ -229,13 +244,13 @@ class LiveTrial(Trial):
         prior = self.memory.recall("eli", self.city, f"{self.city} library", kinds=("fact", "constraint"))
         if not prior:
             self.emit("MEMORY_READ", agent="eli", say="Recalling memory for this town", query=f"{self.city} library", found=0,
-                      note="No prior facts for this town. Starting fresh.", store=self.memory.name)
+                      note="No prior facts for this town. Starting fresh.", store=self.memory.last_store)
             return
         self.emit("MEMORY_READ", agent="eli", say="Recalling memory for this town", query=f"{self.city} library", found=len(prior),
-                  note=f"{len(prior)} prior facts from earlier trials: " + "; ".join(f["claim"] for f in prior)[:300], store=self.memory.name)
+                  note=f"{len(prior)} prior facts from earlier trials: " + "; ".join(f["claim"] for f in prior)[:300], store=self.memory.last_store)
         for f in prior:
             self.emit("MEMORY_READ", agent="eli", source_id=f["source_id"], author=f["author"], claim=f["claim"],
-                      used_for="carried into this trial (re-checked by search below)", store=self.memory.name)
+                      used_for="carried into this trial (re-checked by search below)", store=self.memory.last_store)
             self.evidence.append({"claim": f["claim"], "url": f["source"], "author": f["author"]})
 
     def baseline_search(self) -> None:
@@ -258,7 +273,8 @@ class LiveTrial(Trial):
                 self.log_exa("ada", q, "broad", res, live, f"Baseline hours for the simulator: {describe_hours(hours)} (quote: \"{ext['quote'][:160]}\")",
                              say="Searching: current library hours")
                 self.evidence.append({"claim": claim, "url": ext["url"], "author": "ada"})
-                self.remember("ada", "fact-library-hours", claim, "fact", ext["url"], say="Saving the baseline to shared memory", query=q)
+                self.remember("ada", "fact-library-hours", claim, "fact", ext["url"], say="Saving the baseline to shared memory", query=q,
+                              effective=self.published(res, ext["url"]))
             else:
                 self.base_source = "model default (no local source)" if live else "fixture://library-hours"
                 self.log_exa("ada", q, "broad", res, live,
@@ -283,7 +299,8 @@ class LiveTrial(Trial):
                 for c in chans:
                     self.channels_grounded[c] = ext["url"]
                 self.evidence.append({"claim": f"Announcement channels in use: {', '.join(chans)}", "url": ext["url"], "author": "ada"})
-                self.remember("ada", "fact-notice-channels", f"Current announcement channels: {', '.join(chans)}", "fact", ext["url"], query=q)
+                self.remember("ada", "fact-notice-channels", f"Current announcement channels: {', '.join(chans)}", "fact", ext["url"], query=q,
+                              effective=self.published(res, ext["url"]))
             else:
                 self.note(f"Gap: no source shows how {city} announces library changes ({how}). Baseline assumes an online post only.", agent="ada")
             self.log_exa("ada", q, "broad", res, live, f"Baseline channels: {', '.join(chans)}" + ("" if ext else " (assumed)"),
@@ -292,13 +309,72 @@ class LiveTrial(Trial):
             self.base_source = ext["url"] if ext else "assumption (no local source)"
 
     def eli_audiences(self) -> None:
+        """One past.dev identity per resident, rule audiences for this town, and the notice scoped to the 'heard' audience."""
         info = self.runner.info(self.city)
-        self.emit("AUDIENCE", agent="eli", say="Setting up audiences", op="bulk_replace_identities", count=info["n"],
-                  note="One synthetic identity per resident with traits: cohort, channel, neighborhood.", store=self.memory.name)
-        self.emit("AUDIENCE", agent="eli", op="replace_audience", slug="heard-library-notice", kind="rule", rule="heard_library_notice = true",
-                  members=0, store=self.memory.name)
-        self.emit("AUDIENCE", agent="eli", op="replace_audience", slug="working-parents", kind="rule", rule="cohort = families",
-                  members=info["byCohort"].get("families", 0), store=self.memory.name)
+        tk = town_key(self.city)
+        # A fresh audience and trait per trial: observed in past.dev that a resident who leaves an audience and rejoins it
+        # (as happens when a town is re-run) does not regain recall of its memories, while first-time members do within ~7 s.
+        self.heard_slug, parents_slug = f"heard-{self.id}", audience_slug("parents", self.city)
+        self.heard_trait = f"heard_notice_{self.id}"
+        self.resident_ids = {r["id"]: f"{tk}-{r['id']}" for r in info["list"]}
+        rows = [{"identity": self.resident_ids[r["id"]], "traits": {"town": tk, "name": r["name"], "cohort": r["cohort"], "channel": r["channel"],
+                                                                   "neighborhood": r["neighborhood"]}} for r in info["list"]]
+        self.residents_info = {r["id"]: r for r in info["list"]}
+        n = self.memory.put_identities(rows)
+        self.emit("AUDIENCE", agent="eli", say="Setting up audiences", op="bulk_replace_identities", count=n,
+                  note=f"One identity per resident ({tk}-r01 ...) with traits: town, cohort, channel, neighborhood.", store=self.memory.last_store)
+        town_is = {"trait": "town", "operator": "is", "values": [tk]}
+        m = self.memory.put_audience(self.heard_slug, f"{self.city}: heard the library notice",
+                                     {"match": "all", "conditions": [town_is, {"trait": self.heard_trait, "operator": "is", "values": ["true"]}]})
+        self.emit("AUDIENCE", agent="eli", op="replace_audience", slug=self.heard_slug, kind="rule",
+                  rule=f"town = {tk} AND {self.heard_trait} = true (this trial's notice)", members=m, store=self.memory.last_store)
+        m = self.memory.put_audience(parents_slug, f"{self.city}: working parents",
+                                     {"match": "all", "conditions": [town_is, {"trait": "cohort", "operator": "is", "values": ["families"]}]})
+        self.emit("AUDIENCE", agent="eli", op="replace_audience", slug=parents_slug, kind="rule", rule=f"town = {tk} AND cohort = families",
+                  members=m, store=self.memory.last_store)
+        # One notice per trial, with distinctive text for the recall spot checks. (Measured: past.dev applies late
+        # rule-audience membership to a fresh source within ~7 s, but not reliably to a re-sent revision.)
+        self.notice_id = f"notice-{self.id}"
+        self.notice_text = (f"Library notice {self.id}: the {self.city} public library is changing its opening hours. "
+                            f"Residents who received notice {self.id} can find the new times on the library website.")
+        self.remember("eli", self.notice_id, self.notice_text, "notice", "town-trial:notice", audience=self.heard_slug)
+
+    def after_brief(self, best: dict) -> None:
+        """Perception: replay the watched run (seed 0 of the recommended policy) into past.dev, and spot-check recall."""
+        if self.mode != "perception" or not getattr(self, "resident_ids", None):
+            return
+        from sim import run_jobs_local
+        learn = run_jobs_local([{"city": self.city, "mode": self.mode, "policy": best["policy"], "seeds": [0], "days": self.days, "learn": True}])[0]["learn"]
+        learned = [e["resident"] for e in learn]
+        fam = [r for r in learned if self.residents_info[r]["cohort"] == "families"]
+        never = [r for r in self.resident_ids if r not in learned]
+        spot = list(dict.fromkeys((fam[:1] or learned[:1]) + [r for r in learned if r not in fam][:1] + never[:1]))
+
+        def check(when: str, settle: bool = False) -> None:
+            for r in spot:
+                ok, tries = False, 0
+                while True:  # membership changes reach recall a few seconds after a recompute
+                    tries += 1
+                    ok = self.memory.recall_as(self.resident_ids[r], self.city, self.notice_text, self.notice_id)
+                    if ok or not settle or r not in learned or tries >= 6:
+                        break
+                    time.sleep(4)
+                info = self.residents_info[r]
+                self.emit("MEMORY_READ", agent="eli", query=f"library notice {self.id}", identity=self.resident_ids[r], found=int(ok),
+                          note=f"{when}: {info['name']} ({info['cohort']}, {'heard it' if r in learned else 'never heard it'} in the run) "
+                               f"{'CAN' if ok else 'cannot'} recall the notice" + (f" (after {tries} tries)" if tries > 1 else ""),
+                          store=self.memory.last_store)
+        check("Before replay")
+        for i, e in enumerate(learn[:120]):
+            self.memory.update_traits(self.resident_ids[e["resident"]], {self.heard_trait: "true", "heard_library_notice": "true", "heard_via": e["via"]})
+            if (i + 1) % 20 == 0 or i + 1 == len(learn[:120]):
+                members = self.memory.recompute(self.heard_slug)
+                self.emit("AUDIENCE", agent="eli", say="Replaying the watched run into past.dev" if i < 20 else None, op="update_traits", count=i + 1,
+                          identity=self.resident_ids[e["resident"]], traits={"heard_library_notice": "true", "heard_via": e["via"]},
+                          slug=self.heard_slug, members=members,
+                          note=f"{best['id']} seed 0: {i + 1}/{len(learn)} residents who heard the notice updated; audience recomputed",
+                          store=self.memory.last_store)
+        check("After replay", settle=True)
 
     def translate(self) -> dict | None:
         mode, P = self.mode, self.P
@@ -328,9 +404,23 @@ class LiveTrial(Trial):
         self.emit("CLAIM", agent="bo", say="Writing the testable claim", claim=out["claim"], metric=P["label"],
                   constraint="staff hours (unknown yet)" if mode == "service" else "no paid ads",
                   horizon=f"{'1 week' if mode == 'service' else '3 days'}, {SEEDS} matched seeds", prompt=self.prompt, scripted=bool(out.get("scripted")))
-        if mode == "service" and self.memory.get(self.city, "fact-library-hours"):
+        if mode == "service" and "fact-library-hours" in self.written:
             self.read("bo", "fact-library-hours", "baseline policy E0", say="Reading Ada's fact, building runs")
         return {**out, **_action(mode, out)}
+
+    def cy_recall(self) -> None:
+        """Cy recalls the town's evidence (written by Ada) before reviewing; recalled facts join the review context."""
+        facts = self.memory.recall("cy", self.city, "library facts constraints sources", kinds=("fact", "constraint"))
+        known = {e["claim"] for e in self.evidence}
+        for f in facts:
+            self.emit("MEMORY_READ", agent="cy", say="Recalling the evidence before reviewing", source_id=f["source_id"], author=f["author"],
+                      claim=f["claim"], used_for="grounds for reviewing the next proposals", store=self.memory.last_store,
+                      recalled=f.get("recalled") or [])
+            if f["claim"] not in known:
+                self.evidence.append({"claim": f["claim"], "url": f["source"], "author": f["author"]})
+        if not facts:
+            self.emit("MEMORY_READ", agent="cy", query=f"{self.city} library facts constraints", found=0,
+                      note="No facts recalled yet; reviewing against the trace only.", store=self.memory.last_store)
 
     def cy_check_user(self, x: dict, why: str) -> None:
         """The user's idea is always run (it's what they asked); Cy flags concerns but doesn't block it."""
@@ -376,8 +466,9 @@ class LiveTrial(Trial):
 
         # 3. Bo revises, reading Ada's facts from memory
         for sid in ("fact-staffing-cap", "fact-school-bulletin", "fact-notice-board", "fact-notice-channels"):
-            if self.memory.get(city, sid):
+            if sid in self.written:
                 self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Ada's finds")
+        self.cy_recall()
         context = (f"Current practice: {describe_hours(self.base_hours) if mode == 'service' else ', '.join(self.base_policy['channels'])}\n"
                    f"Results so far: {self.results_text()}\nFailure trace: {self.trace_text(best)}\nReviewer's question: {fail['next_question']}\n"
                    f"Constraints (enforced in code): {self.constraints_text()}\nLocal sources: {self.evidence_text()}\n"
@@ -440,7 +531,7 @@ class LiveTrial(Trial):
         for x in broken:
             self.set(x, status="infeasible")
         self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "ada"})
-        self.remember("ada", "fact-staffing-cap", ext["statement"], "constraint", ext["url"], query=q)
+        self.remember("ada", "fact-staffing-cap", ext["statement"], "constraint", ext["url"], query=q, effective=self.published(res, ext["url"]))
         return ext["url"]
 
     def apply_channels(self, q: str, res: list[dict], live: bool, question: str) -> str | None:
@@ -453,7 +544,7 @@ class LiveTrial(Trial):
         self.log_exa("ada", q, "failure-guided", res, live, f"Local evidence for channels: {', '.join(ext['channels'])} (quote: \"{ext['quote'][:160]}\")")
         self.evidence.append({"claim": ext["statement"], "url": ext["url"], "author": "ada"})
         sid = "fact-school-bulletin" if "bulletin" in ext["channels"] else "fact-notice-board" if "board" in ext["channels"] else "fact-notice-channels"
-        self.remember("ada", sid, ext["statement"], "fact", ext["url"], query=q)
+        self.remember("ada", sid, ext["statement"], "fact", ext["url"], query=q, effective=self.published(res, ext["url"]))
         return ext["url"]
 
     def scripted_revisions(self, rnd: int) -> list[dict]:

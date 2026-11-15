@@ -58,7 +58,7 @@ def run_batch(jobs: list[dict]) -> list[dict]:
 @app.function(secrets=secrets, timeout=1800)
 def run_trial(trial_id: str, city: str, prompt: str, mode: str) -> None:
     from events import EventStore
-    from memory import LocalMemory
+    from memory import make_memory
     from orchestrator import run_trial as run
     from sim import Runner, local_mapper
 
@@ -66,7 +66,7 @@ def run_trial(trial_id: str, city: str, prompt: str, mode: str) -> None:
         return list(run_batch.map(groups))
 
     runner = Runner(mapper=modal_mapper, where="Modal (run_batch.map)", fallback=local_mapper(2))
-    run(EventStore(events_dict), trial_id, city, prompt, mode, runner, memory=LocalMemory(memory_dict))
+    run(EventStore(events_dict), trial_id, city, prompt, mode, runner, memory=make_memory(memory_dict))
 
 
 @app.function(secrets=secrets)
