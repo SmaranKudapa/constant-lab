@@ -275,7 +275,7 @@ function renderPanels(force = false) {
   const now = performance.now();
   if (!force && now - lastPanel < 400) return;
   lastPanel = now;
-  if (research) $("tab-exp").innerHTML = UI.experimentsHTML(research.exps, viewExp && viewExp.id, research.primary);
+  if (research) $("tab-exp").innerHTML = UI.experimentsHTML(research.exps, viewExp && viewExp.id, research.primary, events, openWhy);
   $("tab-aud").innerHTML = UI.audiencesHTML(mode || "service", model, residents, flashSlug);
   if (selected) renderSelected();
 }
@@ -284,7 +284,11 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
   for (const id of ["log", "exp", "aud"]) $("tab-" + id).classList.toggle("hidden", id !== t.dataset.tab);
   renderPanels(true);
 }));
+const openWhy = new Set(); // experiments whose reasoning panel is open
 $("tab-exp").addEventListener("click", (e) => {
+  const why = e.target.closest("[data-why]");
+  if (why) { const id = why.dataset.why; openWhy.has(id) ? openWhy.delete(id) : openWhy.add(id); renderPanels(true); return; }
+  if (e.target.closest(".why-panel")) return; // reading the reasoning (or clicking a source link) doesn't start a replay
   const card = e.target.closest("[data-exp]");
   if (!card || !research) return;
   const x = research.exps.find((q) => q.id === card.dataset.exp);
@@ -399,6 +403,7 @@ function offerDemo(err, prompt) {
 }
 function beginTrial(m) {
   mode = m;
+  openWhy.clear();
   events = [];
   $("log").innerHTML = "";
   const badge = $("mode-badge");

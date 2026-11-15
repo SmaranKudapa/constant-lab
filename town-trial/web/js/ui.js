@@ -3,6 +3,44 @@ import { COHORTS, DAYS, hoursText, staffHours } from "./sim.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const AGENTS = { ada: "Ada (Researcher)", bo: "Bo (Designer)", cy: "Cy (Reviewer)", dee: "Dee (Runner)", eli: "Eli (Archivist)" };
+const AGENT_COLOR = { ada: "#59c2ff", bo: "#ffd34d", cy: "#ff9f43", dee: "#5be37d", eli: "#ff7ad9" };
+const link = (u) => (/^https?:\/\//.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u));
+
+// The reasoning behind one experiment, rebuilt from the event log: every step that names it, in order,
+// with the agent who took the step. Works the same in demo and live mode.
+export function reasoningFor(x, events) {
+  const id = x.id, steps = [];
+  let evidenceShown = false;
+  const add = (e, text, sources = []) => steps.push({ seq: e.seq, agent: e.agent, type: e.type, text, sources, scripted: !!e.scripted });
+  for (const e of events) {
+    if (e.type === "CLAIM" && x.role === "user") add(e, `Testable claim: ${e.claim}`);
+    else if (e.type === "MEMORY_READ" && e.author && String(e.used_for || "").includes(id))
+      add(e, `Read ${AGENTS[e.author] || e.author}'s fact from shared memory: ${e.claim}`, [e.source_id]);
+    else if (e.type === "EXA" && !evidenceShown && x.source && (e.results || []).some((r) => r.url === x.source) && (evidenceShown = true))
+      add(e, `Found the evidence this rests on (${e.search} search "${e.query}"): ${e.used_for}`, [x.source]);
+    else if (e.type === "PROPOSE" && e.exp === id) add(e, `Proposed ${id} (from ${e.parent}): ${e.change}. Why: ${e.why}`);
+    else if (e.type === "REVIEW" && e.exp === id) {
+      const as = (e.assumptions || []).map((a) => `${a.assumption} [${a.basis.replace(/_/g, " ")}]`).join("; ");
+      add(e, `${e.ok ? "Approved" : "Rejected"}${e.by === "code" ? " (rule checked in code)" : ""}: ${e.reason}${as ? ` Assumptions: ${as}.` : ""}`);
+    } else if (e.type === "CONSTRAINT" && (e.changes || []).some((c) => c.startsWith(id + " ")))
+      add(e, `New constraint ${e.constraint} made ${id} infeasible.`, [e.source]);
+    else if (e.type === "RUN_START" && (e.exps || []).includes(id)) add(e, `Ran ${id} over ${e.seeds} matched seeds on ${e.where}${e.held_out ? " (held-out scenarios)" : ""}.`);
+    else if (e.type === "RUN_DONE" && e.exp === id)
+      add(e, `Result: ${e.value}${e.staff_hours !== undefined && e.staff_hours !== null ? `, staff ${e.staff_hours} h/wk` : ""}${e.budget ? `, budget ${e.budget}` : ""}${e.turned_away ? `, turned away ${e.turned_away}` : ""}${e.overall ? `, overall ${e.overall}` : ""}${e.note ? ` (${e.note})` : ""}.`);
+    else if (e.type === "FAILURE" && e.exp === id) add(e, `Read the failure trace: ${e.trace} Next question: ${e.next_question}`);
+    else if (e.type === "HELD_OUT" && (e.finalists || []).includes(id)) add(e, `Frozen and tested on ${e.scenarios} held-out scenarios x ${e.seeds} seeds.`);
+    else if (e.type === "BRIEF" && e.recommend === id) add(e, `Recommended ${id}: ${e.summary} Assumes: ${e.assumptions}`);
+  }
+  return steps;
+}
+
+function reasoningHTML(x, events) {
+  const steps = reasoningFor(x, events);
+  if (!steps.length) return `<div class="why-panel"><p class="note">No reasoning recorded yet for ${esc(x.id)}.</p></div>`;
+  return `<div class="why-panel">${steps.map((s) => `<div class="why-step" style="border-left-color:${AGENT_COLOR[s.agent] || "#999"}">
+      <div class="why-who" style="color:${AGENT_COLOR[s.agent] || "#999"}">${esc(AGENTS[s.agent] || s.agent || "system")} · ${esc(s.type.replace("_", " "))}${s.scripted ? " · scripted" : ""}</div>
+      <div>${esc(s.text)}</div>${s.sources.filter(Boolean).map((u) => `<div class="why-src">source: ${link(u)}</div>`).join("")}</div>`).join("")}</div>`;
+}
 
 export function entryHTML(e, residentsById) {
   const who = e.agent ? AGENTS[e.agent] || e.agent : e.name ? `${e.name}` : "town";
@@ -35,18 +73,19 @@ export function entryHTML(e, residentsById) {
   return `<div class="${cls}"><div class="head"><span class="type">${e.type.replace("_", " ")}</span><span class="who">${esc(who)}</span><span class="when">${esc(e.clock || "")}</span></div>${body}</div>`;
 }
 
-export function experimentsHTML(exps, viewingId, P) {
+export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new Set()) {
   if (!exps.length) return `<p class="note">Run a trial to see experiments. Each one records its parent, the change, the source that caused it, and results over matched seeds.</p>`;
   const max = Math.max(1, ...exps.filter((x) => x.result).map((x) => x.result.mean[P.key]));
   let html = `<p class="note">Primary metric: ${esc(P.label)}. Click a run to replay it in town (same seed, same residents).</p>`;
   for (const x of exps) {
     const tag = x.best ? `<span class="tagx best">BEST</span>` : x.status === "infeasible" ? `<span class="tagx infeasible">INFEASIBLE</span>` : x.status === "rejected" ? `<span class="tagx rejected">REJECTED</span>` : `<span class="tagx">${esc(x.status.toUpperCase())}</span>`;
     const v = x.result ? x.result.mean[P.key] : 0;
-    html += `<div class="exp${x.id === viewingId ? " viewing" : ""}" data-exp="${x.id}">
+    html += `<div class="exp${x.id === viewingId ? " viewing" : ""}" data-exp="${x.id}"><div class="exp-row">
+      <button type="button" class="why${openWhy.has(x.id) ? " open" : ""}" data-why="${x.id}" title="Why? Show the reasoning behind ${esc(x.id)}">?</button><div class="exp-body">
       <h4><span>${esc(x.id)} · ${esc(x.label)}</span>${tag}</h4>
       <div class="meta">${esc(x.role)}${x.parent ? ` · from ${esc(x.parent)}` : ""} · ${esc(x.change)}${x.source ? ` · source ${esc(x.source)}` : ""}</div>
       ${x.result ? `<div class="metrics">${v.toFixed(1)}${P.unit} ± ${x.result.sd[P.key].toFixed(1)} <span class="meta">(n=${x.result.n})</span>${x.policy.hours ? ` · staff ${staffHours(x.policy.hours)} h/wk` : ""}</div><div class="bar"><i style="width:${(100 * v) / max}%"></i></div>` : ""}
-    </div>`;
+    </div></div>${openWhy.has(x.id) ? reasoningHTML(x, events) : ""}</div>`;
   }
   if (exps.heldOut) {
     const H = exps.heldOut;

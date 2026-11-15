@@ -112,6 +112,15 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #8fd3ff; col
 .exp .tagx.infeasible, .exp .tagx.rejected { background: var(--red); }
 .exp .meta { font-size: 11px; color: var(--dim); }
 .exp .metrics { margin-top: 5px; font-size: 12px; }
+.exp-row { display: flex; gap: 8px; align-items: flex-start; }
+.exp-body { flex: 1; min-width: 0; }
+.why { flex: none; width: 22px; height: 22px; font-family: var(--px); font-size: 10px; color: var(--ink); background: var(--hi); border: 2px solid var(--edge); cursor: pointer; padding: 0; }
+.why.open, .why:hover { background: #fff; }
+.why-panel { margin-top: 8px; border-top: 2px dashed var(--edge); padding-top: 6px; cursor: default; }
+.why-step { border-left: 4px solid #999; padding: 3px 0 3px 7px; margin: 0 0 6px; font-size: 11px; line-height: 1.45; }
+.why-who { font-family: var(--px); font-size: 8px; margin-bottom: 2px; }
+.why-src { color: var(--dim); word-break: break-all; }
+.why-src a { color: var(--dim); }
 .bar { height: 10px; background: #120e22; border: 2px solid var(--edge); margin-top: 3px; }
 .bar > i { display: block; height: 100%; background: var(--green); }
 h5 { font-family: var(--px); font-size: 9px; color: var(--hi); margin: 14px 0 6px; }

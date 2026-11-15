@@ -204,6 +204,7 @@ class LiveTrial(Trial):
         if not out["ok"]:
             self.set(x, status="rejected")
         self.emit("REVIEW", agent="cy", exp=x["id"], ok=out["ok"], reason=out["reason"], ungrounded=out.get("ungrounded_inputs") or [],
+                  assumptions=out.get("assumptions") or [],
                   scripted=bool(out.get("scripted")))
         return out["ok"]
 
@@ -604,6 +605,8 @@ class LiveTrial(Trial):
         os_pol = self.policy_of(_action(mode, os_))
         OS = self.exp(id="OS", label=f"One-shot: {os_['label']}"[:60], role="oneshot", parent=self.exps[0]["id"], policy=os_pol,
                       change=self.change_of(os_pol) + " (single proposal, no feedback)")
+        self.emit("PROPOSE", agent="bo", exp="OS", parent=self.exps[0]["id"], change=OS["change"], scripted=bool(os_.get("scripted")),
+                  why=(os_.get("why") or "One-shot baseline arm.") + " (One-shot arm: same model and evidence, no simulation feedback.)")
         jobs = [self.job(s["key"], s["policy"]) for s in sweep] + [self.job("OS", os_pol)]
         self.emit("RUN_START", agent="dee", say="Running the baselines", exps=[s["key"] for s in sweep] + ["OS"], seeds=SEEDS,
                   workers=len(self.runner.plan(jobs)), where=self.runner.where)
