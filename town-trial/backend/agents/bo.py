@@ -129,6 +129,8 @@ def frame(llm: LLM, city: str, prompt: str, town: str, kinds: list, facility_ids
             "- awareness: whether people hear about / find out about / learn of ANY announcement or change (always representable with the "
             "outreach channels, even if the place in the announcement is not on the list); set cohort if a group is named.\n"
             "- visits / unique_visitors (with kind/cohort/target): getting more people (or a group) to use a place.\n"
+            "Whenever the question names a group (students, seniors, working parents/families, day workers, night-shift workers, remote "
+            "workers), set cohort to it.\n"
             "- visits_restricted: people who cannot make the target's current hours.\n"
             "- turned_away: people arriving when a place is closed or full.\n"
             "- net_cost ONLY when the goal itself is to save money or minimise cost (e.g. 'what is the cheapest way...').\n"

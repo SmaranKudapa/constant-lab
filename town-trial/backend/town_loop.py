@@ -25,6 +25,8 @@ KIND_LABEL = {"library": "library", "clinic": "clinic", "pharmacy": "pharmacy", 
               "park": "park", "post_office": "post office", "townhall": "town hall"}
 COHORT_LABEL = {"day-workers": "day workers", "families": "working parents", "seniors": "seniors", "students": "students",
                 "night-shift": "night-shift workers", "remote": "remote workers"}
+PLURAL = {"library": "libraries", "clinic": "clinics", "pharmacy": "pharmacies", "community": "community centres", "sports": "sports grounds",
+          "park": "parks", "post_office": "post offices", "townhall": "town halls"}
 DIRECTION = {"visits": 1, "unique_visitors": 1, "visits_restricted": 1, "awareness": 1, "turned_away": -1, "net_cost": -1}
 
 
@@ -75,7 +77,7 @@ class TownTrial(LiveTrial):
         self.target, self.metric = tgt, m
         tname = self.fac[tgt]["name"] if tgt else None
         who = COHORT_LABEL.get(cohort, "residents") if cohort else "residents"
-        where = (tname if tgt and not kind else f"{KIND_LABEL.get(kind, kind)}s" if kind else "all public places")
+        where = (tname if tgt and not kind else PLURAL.get(kind, f"{kind}s") if kind else "all public places")
         if m == "visits":
             key = f"visits.kc.{kind}.{cohort}" if kind and cohort else f"visits.k.{kind}" if kind else f"visits.f.{tgt}" if tgt else (f"visits.c.{cohort}" if cohort else "visits")
             label, unit = f"visits/week by {who} to {where}", ""
@@ -116,6 +118,9 @@ class TownTrial(LiveTrial):
     def set_scope(self, fr: dict) -> None:
         """Which places the budget covers: the target place for budget questions about it, else the town-run places."""
         bl = (fr.get("budget_limit") or {}).get("type", "none")
+        if self.awareness and bl == "none":  # notice questions: only the campaign costs money
+            self.scope, self.scope_label = set(), "outreach campaign cost"
+            return
         if self.target and (self.metric == "net_cost" or bl in ("cut_pct", "max_increase_usd", "no_increase")):
             self.scope, self.scope_label = {self.target}, f"{self.fac[self.target]['name']} budget"
         else:
