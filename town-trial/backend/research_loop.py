@@ -588,7 +588,7 @@ class LiveTrial(Trial):
                 base = base + [{"day": 5, "open": "12:00", "close": "20:00"}]
             return [{"label": "Shift Tue/Thu to 13:00-21:00" + (" + Sat 12-20" if rnd else ""), "hours_changes": base, "channels": [],
                      "why": "Move morning hours to the evening at the same staff hours.", "evidence_url": None, "scripted": True}]
-        return [{"label": "+ notice board", "hours_changes": [], "channels": ["online", "board"], "why": "Paper notice for offline residents.",
+        return [{"label": "+ paper flyers", "hours_changes": [], "channels": ["online", "board"], "why": "Paper flyers where offline residents go.",
                  "evidence_url": None, "scripted": True},
                 {"label": "+ school bulletin", "hours_changes": [], "channels": ["online", "bulletin"], "why": "Reaches parents at drop-off.",
                  "evidence_url": None, "scripted": True}]

@@ -288,8 +288,6 @@ function buildLabels() {
   const labelled = town.real ? town.buildings.filter((b) => b.public && b.id !== "library" && (b.kind !== "school" || b.id === "school")).slice(0, 8)
     : ["townhall", "park"].map((id) => town.byId[id]).filter(Boolean);
   for (const b of labelled) add(b.name.toUpperCase(), () => new THREE.Vector3(b.x, (b.h || 0) + 6, b.z));
-  const pl = town.byId.plaza;
-  add("NOTICE BOARD", () => new THREE.Vector3(pl.boardPos.x, 4.2, pl.boardPos.z), "lbl sign");
   for (const st of Object.values(heaven.stations)) add(st.label, () => new THREE.Vector3(st.x, st.labelY, st.z), "lbl sign");
   for (const r of Object.values(researchers)) {
     const L = add("", () => new THREE.Vector3(r.pos.x, r.y + 2.3 * ANGEL_SCALE + 0.6, r.pos.z), "bubble");

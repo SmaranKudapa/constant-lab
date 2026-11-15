@@ -515,7 +515,7 @@ class TownTrial(LiveTrial):
 
     def scripted_town_revisions(self, rnd: int) -> list[dict]:
         if self.awareness:
-            return [{"label": "+ notice board", "facility_changes": [], "new_facilities": [], "channels": ["online", "board"], "why": "Paper notice.", "evidence_url": None, "scripted": True},
+            return [{"label": "+ paper flyers", "facility_changes": [], "new_facilities": [], "channels": ["online", "board"], "why": "Paper flyers at public places.", "evidence_url": None, "scripted": True},
                     {"label": "+ school bulletin", "facility_changes": [], "new_facilities": [], "channels": ["online", "bulletin"], "why": "Reaches parents.", "evidence_url": None, "scripted": True}]
         if not self.target:
             return []

@@ -149,8 +149,7 @@ export class Resident {
       this.wanderT -= dt;
       if (!this.wanderTo || this.wanderT <= 0) {
         const b = this.at;
-        const target = b.id === "plaza" && Math.random() < 0.3 ? { x: b.boardPos.x, z: b.boardPos.z + 1.6 } : null;
-        this.wanderTo = target || { x: b.x + (Math.random() - 0.5) * (b.w - 3), z: b.z + (Math.random() - 0.5) * (b.d - 3) };
+        this.wanderTo = { x: b.x + (Math.random() - 0.5) * (b.w - 3), z: b.z + (Math.random() - 0.5) * (b.d - 3) };
         this.wanderT = 2 + Math.random() * 4;
       }
       const dx = this.wanderTo.x - this.pos.x, dz = this.wanderTo.z - this.pos.z;

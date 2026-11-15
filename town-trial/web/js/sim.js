@@ -129,6 +129,8 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
   const rng = makeRng("run:" + seed);
   const lib = town.byId.library, plaza = town.byId.plaza, school = town.byId.school;
   const freeSpots = [plaza, town.byId.park, town.byId.cafe].filter(Boolean);
+  // "board" channel = paper flyers posted at the cafe, the library and the town hall (no notice board on the square)
+  const flyersAt = new Set([town.byId.cafe, lib, town.byId.townhall].filter(Boolean));
   const S = residents.map((r) => ({
     r, at: r.home, plan: "home", visitsWeek: 0, visitedToday: false, triedToday: false,
     libState: null, libUntil: 0, arriveAt: 0, aware: false, awareVia: null, lastFreeDecision: -1,
@@ -231,7 +233,7 @@ export function createModel({ town, residents, mode, policy, seed, emit = null, 
       byPlace.get(s.at).push(s);
       if (s.aware || !awake) continue;
       if (ch.includes("online") && s.r.channel === "online" && s.at === s.r.home && rng.chance(0.005)) learn(s, "online");
-      if (ch.includes("board") && s.at === plaza && rng.chance(s.r.channel === "paper" ? 0.08 : 0.015)) learn(s, "board");
+      if (ch.includes("board") && flyersAt.has(s.at) && rng.chance(s.r.channel === "paper" ? 0.08 : 0.015)) learn(s, "board");
       if (ch.includes("bulletin") && s.at === school && s.r.cohort === "families" && rng.chance(0.06)) learn(s, "bulletin");
     }
     // Word of mouth between people in the same place

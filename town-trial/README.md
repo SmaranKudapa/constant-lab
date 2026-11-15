@@ -71,7 +71,7 @@ under-predicts the effect of longer hours: +25% for a real +52% with the town mo
 ## Two kinds of trial
 
 - **Service trial** (e.g. "extend library hours two evenings"): residents walk to the library at their free times, queue, get served or turned away. Primary metric: weekly visits by residents who can't make current hours. Constraint: staff hours.
-- **Perception trial** (prompts about who hears / how people react / marketing): each resident is a past.dev identity with traits. When they hear the notice (online, notice board, school bulletin or word of mouth), their traits update and they join the trial's `heard-<trial>` rule audience, which is what lets them recall it (in live mode this runs on past.dev, and recall is checked before and after). Primary metric: % of working parents who heard within 3 days.
+- **Perception trial** (prompts about who hears / how people react / marketing): each resident is a past.dev identity with traits. When they hear the notice (online, paper flyers at the cafe, library and town hall, school bulletin or word of mouth), their traits update and they join the trial's `heard-<trial>` rule audience, which is what lets them recall it (in live mode this runs on past.dev, and recall is checked before and after). Primary metric: % of working parents who heard within 3 days.
 
 ## Memory: which store holds what (past.dev challenge)
 

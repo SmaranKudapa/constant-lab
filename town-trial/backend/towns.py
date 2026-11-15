@@ -177,7 +177,7 @@ def place_on_grid(center: dict, places: list[dict]) -> tuple[list[dict], list[di
     blocks = [{"i": i, "j": j, "use": None, "lots": []} for i in range(GRID) for j in range(GRID)]
     blk = lambda i, j: blocks[i * GRID + j]  # noqa: E731
     centre = blk(2, 2)
-    centre["use"] = "plaza"  # schematic town centre with the notice board
+    centre["use"] = "plaza"  # schematic town centre (fountain square)
     for p in places:
         p["gx"] = max(0.0, min(GRID - 1e-6, (p["mx"] / scale + 1) * GRID / 2))
         p["gz"] = max(0.0, min(GRID - 1e-6, (p["mz"] / scale + 1) * GRID / 2))

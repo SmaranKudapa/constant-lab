@@ -64,7 +64,7 @@ export function entryHTML(e, residentsById) {
     case "CONSTRAINT": body = `New constraint: <b>${esc(e.constraint)}</b> (was ${esc(e.previous)}). ${esc(e.changes.join("; "))}<br><i>${esc(e.source)}</i>`; break;
     case "HELD_OUT": body = `${e.finalists.join(", ")} frozen and tested on ${e.scenarios} held-out scenarios × ${e.seeds} seeds. ${esc(e.note)}`; break;
     case "BRIEF": body = `Recommend <b>${esc(e.recommend)}: ${esc(e.label)}</b><br>${esc(e.summary)}<br><i>Assumes:</i> ${esc(e.assumptions)}<br><i>Pilot:</i> ${esc(e.pilot)}`; break;
-    case "LEARN": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) heard the notice via <b>${esc(e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
+    case "LEARN": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) heard the notice via <b>${esc(e.via === "board" ? "a flyer" : e.via)}</b>${e.fromName ? ` from ${esc(e.fromName)}` : ""} at ${esc(e.at)}`; break;
     case "VISIT": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}, ${esc(COHORTS[e.cohort].label)}) visited ${esc(e.facilityName || "the library")}${e.restricted ? " · <b>can't make current hours</b>" : ""}`; break;
     case "TURNED_AWAY": body = `${esc(e.name)} (${esc(roleOf({ id: e.resident, cohort: e.cohort }))}) turned away${e.facilityName ? ` at ${esc(e.facilityName)}` : ""}: ${esc(e.reason)}`; break;
     case "FRAME": body = `Question framed as: <b>${esc(e.label)}</b> (${esc(e.direction === "min" ? "lower is better" : "higher is better")})${e.target_name ? `<br><i>Place:</i> ${esc(e.target_name)}` : ""}${e.budget_scope ? `<br><i>Budget covers:</i> ${esc(e.budget_scope)}` : ""}${e.budget_limit && e.budget_limit.type !== "none" ? `<br><i>Budget limit (from your question):</i> ${esc(e.budget_limit.type.replace(/_/g, " "))}${e.budget_limit.value ? " " + e.budget_limit.value : ""}` : ""}`; break;
@@ -118,7 +118,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
         `<div class="rule">${esc(f.kind.replace("_", " "))} · hours ${esc(hoursText(f.hours))} (${esc(f.hoursSource)})${f.fee ? ` · fee $${f.fee}` : ""}</div>` +
         `<div>Inside: ${fs.inside.length} · Queue: ${fs.queue.length} · Visits: ${C[`visits.f.${f.id}`] || 0} · Turned away: ${C[`turnedAway.f.${f.id}`] || 0}</div></div>`;
     }
-    if (C.aware) html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).filter(([, v]) => v).map(([k, v]) => `<div>${k}: ${v}</div>`).join("");
+    if (C.aware) html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).filter(([, v]) => v).map(([k, v]) => `<div>${k === "board" ? "flyers" : k}: ${v}</div>`).join("");
     return html + legendHTML();
   }
   if (mode === "perception") {
@@ -130,7 +130,7 @@ export function audiencesHTML(mode, model, residents, flashSlug) {
     html += aud("heard-library-notice", "heard_library_notice = true", aware, residents.length);
     html += aud("working-parents", "cohort = families", fam.length, residents.length);
     html += aud("parents-who-heard", "cohort = families AND heard_library_notice = true", famAware, fam.length);
-    html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).map(([k, v]) => `<div>${k}: ${v}</div>`).join("");
+    html += `<h5>HOW PEOPLE HEARD</h5>` + Object.entries(st.metrics.learnedVia).map(([k, v]) => `<div>${k === "board" ? "flyers" : k}: ${v}</div>`).join("");
     html += legendHTML();
     return html;
   }

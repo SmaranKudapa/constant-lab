@@ -111,7 +111,7 @@ class Ada:
         schema = strict({
             "found": {"type": "boolean"},
             "channels": {"type": "array", "items": {"type": "string", "enum": CHANNELS},
-                         "description": "online = website/social/email from the library; board = a public notice board; bulletin = a school newsletter/bulletin to families"},
+                         "description": "online = website/social/email from the library; board = paper flyers or posters at public places (library, town hall, post office, shops); bulletin = a school newsletter/bulletin to families"},
             "statement": {"type": "string"}, "quote": {"type": "string"}, "url": {"type": "string"},
         })
         out = self.llm.json("notice_channels", schema, self.SYSTEM,
