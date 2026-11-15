@@ -61,7 +61,29 @@ def boom(*a, **k):
     raise ConnectionError("forced failure (test)")
 LLM.json = boom
 Ada.search = boom
+
+# Bo must use what his memory reads return: capture the context passed to his revise step (then fail it, as above).
+from agents import bo as _bo_mod  # noqa: E402
+from agents.bo import Bo  # noqa: E402
+_bo_ctx: list = []
+def _capture_revise(*a, **k):  # Bo.revise(self, mode, city, context, ...) and town_revise(llm, city, town, context, ...)
+    _bo_ctx.append(a[3] if len(a) > 3 else k.get("context", ""))
+    raise ConnectionError("forced failure (test)")
+Bo.revise = _capture_revise
+_bo_mod.town_revise = _capture_revise
+
+def bo_used_reads(evs):
+    reads = [e for e in evs if e["type"] == "MEMORY_READ" and e.get("agent") == "bo" and "revision prompt" in (e.get("used_for") or "")]
+    ok = bool(reads) and all(any("From shared memory" in c and r["claim"] in c and r["author"] in c for c in _bo_ctx) for r in reads)
+    return ok, f"{len(reads)} reads, {len(_bo_ctx)} prompts"
+
+_mt = LiveTrial.memory_text([{"claim": "Library closes 18:00", "source": "https://x.test/a", "author": "exa", "_store": "past.dev",
+                              "recalled": ["The library closes at 6pm"]}, None])
+check("memory_text: built from returned records (store, author, source, past.dev's recalled claim)",
+      all(s in _mt for s in ("past.dev", "exa", "Library closes 18:00", "https://x.test/a", "The library closes at 6pm")) and LiveTrial.memory_text([]) == "", _mt[:90])
+
 for mode, prompt in (("service", "Keep the library open two late evenings"), ("perception", "Who hears about the new library hours notice?")):
+    _bo_ctx.clear()
     store = EventStore({})
     store.create("t2", {})
     t = LiveTrial(store, "t2", "Evart, MI", prompt, mode, runner, memory=LocalMemory({}))
@@ -76,15 +98,20 @@ for mode, prompt in (("service", "Keep the library open two late evenings"), ("p
     check(f"live fallback {mode}: Exa fell back to labelled fixtures", exa and all(e["fixture"] for e in exa), str(len(exa)))
     check(f"live fallback {mode}: brief written, scripted", types["BRIEF"] == 1 and next(e for e in evs if e["type"] == "BRIEF")["scripted"])
     check(f"live fallback {mode}: fallbacks logged", types["NOTE"] >= 3, str(types["NOTE"]))
+    check(f"live fallback {mode}: Bo's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
 
 # Town mode (general model) on a real-town spec with Exa and the LLM failing: framing falls back, every experiment is costed.
 import json as _json  # noqa: E402
 from town_loop import TownTrial  # noqa: E402
 _spec = _json.load(open(Path(__file__).resolve().parent / "fixtures" / "spec_evart.json", encoding="utf-8"))
+_bo_ctx.clear()
 store = EventStore({})
 store.create("t3", {})
 tt = TownTrial(store, "t3", "Evart, MI", "Extend library hours two evenings a week", "town", runner, memory=LocalMemory({}))
 tt.spec = _spec
+# offline, Exa Dude writes nothing in town mode, so seed one of his facts as if this trial had written it (Bo reads this trial's writes)
+tt.memory.ingest("exa", "Evart, MI", "fact-budget-hourly_wage", "Library staff wage FY2026: $17.50/hour", "fact", "https://example.org/evart-budget")
+tt.written.add("fact-budget-hourly_wage")
 try:
     tt.start(); store.finish("t3"); err = None
 except Exception as ex:
@@ -93,6 +120,7 @@ evs, done = store.read("t3")
 exps = {e["id"]: e for e in evs if e["type"] == "EXPERIMENT"}
 check("town fallback: finishes", done and not err, err or "")
 check("town fallback: framed + briefed", any(e["type"] == "FRAME" for e in evs) and any(e["type"] == "BRIEF" for e in evs))
+check("town fallback: Bo's revision prompt contains the records his memory reads returned", *bo_used_reads(evs))
 _v = [e for e in evs if e["type"] == "VOICES"]
 check("town fallback: resident voices before the brief, one per group, labelled", len(_v) == 1 and _v[0]["scripted"] and len(_v[0]["voices"]) >= 5
       and all(v["stance"] in ("helped", "hurt", "unchanged") and v["quote"] and v["role"] for v in _v[0]["voices"])

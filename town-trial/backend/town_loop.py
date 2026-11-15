@@ -546,9 +546,13 @@ class TownTrial(LiveTrial):
 
     def treasurer_final(self, best: dict, base: dict) -> dict:
         li = TR.line_items(best["budget"], base["budget"], best["policy"], self.scope_label)
-        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]:  # Treasurer reads Exa Dude's budget facts from shared memory
-            self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records")
-        fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, self.budget_docs))
+        # Treasurer reads Exa Dude's budget facts from shared memory; any sourced record not already in this trial's documents joins them
+        recs = [f for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]
+                if (f := self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records"))]
+        have = {(d["statement"], d["url"]) for d in self.budget_docs}
+        docs = self.budget_docs + [{"statement": f["claim"], "kind": f.get("kind") or "fact", "amount": None, "url": f["source"], "published": None}
+                                   for f in recs if str(f.get("source") or "").startswith("http") and (f["claim"], f["source"]) not in have]
+        fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, docs))
         if err:
             self.fallback_note("treasurer", "Funding check", err)
             fund = TR.funding(None, self.city, "", li, [])
@@ -624,8 +628,8 @@ class TownTrial(LiveTrial):
             elif res:
                 fx = __import__("agents.fixtures", fromlist=["x"]).FIXTURE_EXTRACT.get(res[0]["url"]) or {}
                 self.log_exa("exa", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
-        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]:
-            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
+        bo_mem = [f for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]
+                  if (f := self.read("bo", sid, f"Bo's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
         self.cy_recall()
         focus = (f"Target place: {self.target} ({self.fac[self.target]['name']}). Every proposal must change this place (or open/close a place "
                  f"of its kind, or add outreach about it); changes elsewhere do not answer the question.\n" if self.target else "")
@@ -634,7 +638,7 @@ class TownTrial(LiveTrial):
                    f"Constraints (enforced in code): {self.constraints_text()}\nWage used: ${self.wage:g}/staff hour ({self.wage_source})\n"
                    + (f"Budget covers: {self.scope_label}. To stay within a budget limit you may offset new costs inside it (trim hours at "
                       f"another place in it, or add a modest fee).\n" if self.constraint else "")
-                   + f"Local sources: {self.evidence_text()}\nSimilar towns (verified cases; adapt a promising one and name it in adapted_from): {CMP.text(self.cases)}\n"
+                   + f"Local sources: {self.evidence_text()}\n" + self.memory_text(bo_mem) + f"Similar towns (verified cases; adapt a promising one and name it in adapted_from): {CMP.text(self.cases)}\n"
                    + "Already tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
 
         def validate(props):
