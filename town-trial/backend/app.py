@@ -59,6 +59,19 @@ def run_batch(jobs: list[dict]) -> list[dict]:
 @app.function(secrets=secrets, timeout=600)
 def build_town(city: str) -> None:
     from towns import build_into
+    import town_profile as TP
+    import time
+    st = towns_dict.get(TP._status_key(city), None) or {}
+    busy = st.get("state") == "building" and time.time() - st.get("t", 0) < 240
+    if not TP.cached(city, towns_dict) and not busy:  # Exa Dude researches the budget while the map is being built
+        towns_dict[TP._status_key(city)] = {"state": "building", "t": time.time()}
+        build_profile.spawn(city)
+    build_into(city, towns_dict)
+
+
+@app.function(secrets=secrets, timeout=300)
+def build_profile(city: str) -> None:
+    from town_profile import build_into
     build_into(city, towns_dict)
 
 
@@ -86,4 +99,5 @@ def web():
     def start(**kw):
         run_trial.spawn(**kw)
 
-    return create_app(EventStore(events_dict), start, towns_cache=towns_dict, start_town_build=lambda c: build_town.spawn(c))
+    return create_app(EventStore(events_dict), start, towns_cache=towns_dict, start_town_build=lambda c: build_town.spawn(c),
+                      start_profile_build=lambda c: build_profile.spawn(c))

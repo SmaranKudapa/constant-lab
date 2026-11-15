@@ -18,8 +18,8 @@ from sim import Runner
 SEEDS = 16        # matched seeds per experiment
 SWEEP_BUDGET = 6  # runs the parameter sweep may spend
 HELD_OUT_SEEDS = list(range(100, 108))
-ROLE_NAME = {"baseline": "current practice", "user": "your idea", "sweep": "parameter sweep", "oneshot": "one-shot", "revision": "iterative agent"}
-EXP_FIELDS = ["id", "label", "role", "parent", "policy", "change", "source", "status", "result", "best", "budget"]
+ROLE_NAME = {"baseline": "current practice", "user": "your idea", "sweep": "auto-tried options", "oneshot": "one-shot", "revision": "iterative agent"}
+EXP_FIELDS = ["id", "label", "role", "parent", "policy", "change", "source", "status", "result", "best", "budget", "tried", "explain"]
 
 
 class Stopped(Exception):
@@ -225,7 +225,7 @@ class Trial:
         out = self.fanout(jobs)
         best = max(sweep, key=lambda s: out["results"][s["key"]]["mean"][P["key"]])
         ok = lambda pol: self.constraint[1]({"policy": pol})
-        SW = self.exp(id="SW", label=f"Sweep best of {SWEEP_BUDGET}", role="sweep", parent="E0", policy={"hours": best["hours"]}, change=hours_text(best["hours"]))
+        SW = self.exp(id="SW", label=f"Best of {SWEEP_BUDGET} auto-tried options", role="sweep", parent="E0", policy={"hours": best["hours"]}, change=hours_text(best["hours"]))
         self.set(SW, result=out["results"][best["key"]], status="done" if ok(SW["policy"]) else "infeasible")
         self.set(OS, result=out["results"]["OS"], status="done" if ok(OS["policy"]) else "infeasible")
         self.emit("RUN_DONE", agent="dee", exp="SW", metric=P["key"], value=self.fmt(SW), note=f"best of {SWEEP_BUDGET} sweep configs",
@@ -284,7 +284,7 @@ class Trial:
         self.emit("RUN_START", agent="dee", exps=[j["key"] for j in jobs], seeds=SEEDS, workers=len(self.runner.plan(jobs)), where=self.runner.where)
         out = self.fanout(jobs)
         k_best = max(range(len(combos)), key=lambda k: out["results"][f"S{k + 1}"]["mean"][P["key"]])
-        SW = self.exp(id="SW", label=f"Sweep best of {len(combos)}", role="sweep", parent="P0", policy={"channels": combos[k_best]}, change=" + ".join(combos[k_best]))
+        SW = self.exp(id="SW", label=f"Best of {len(combos)} auto-tried options", role="sweep", parent="P0", policy={"channels": combos[k_best]}, change=" + ".join(combos[k_best]))
         self.set(SW, result=out["results"][f"S{k_best + 1}"], status="done")
         self.set(OS, result=out["results"]["OS"], status="done")
         self.emit("RUN_DONE", agent="dee", exp="SW", metric=P["key"], value=self.fmt(SW), note=f"best of {len(combos)} channel combos",

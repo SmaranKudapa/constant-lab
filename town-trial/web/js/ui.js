@@ -60,7 +60,7 @@ export function entryHTML(e, residentsById) {
     case "PROPOSE": body = `<b>${esc(e.exp)}</b> (from ${esc(e.parent)}): ${esc(e.change)}<br><i>${esc(e.why)}</i>`; break;
     case "REVIEW": body = `<b>${esc(e.exp)}</b> ${e.ok ? "APPROVED" : "REJECTED"}: ${esc(e.reason)}`; break;
     case "RUN_START": body = `${e.exps.join(", ")} × ${e.seeds} matched seeds → ${e.workers} workers on ${esc(e.where)}`; break;
-    case "RUN_DONE": body = `<b>${esc(e.exp)}</b>: ${esc(e.value)}${e.staff_hours !== undefined ? ` · staff ${e.staff_hours} h/wk` : ""}${e.turned_away ? ` · turned away ${e.turned_away}` : ""}${e.overall ? ` · overall ${e.overall}` : ""}${e.note ? ` · ${esc(e.note)}` : ""}`; break;
+    case "RUN_DONE": body = `<b>${esc(e.exp)}</b>: ${esc(e.value)}${e.staff_hours !== undefined ? ` · staff ${e.staff_hours} h/wk` : ""}${e.turned_away ? ` · turned away ${e.turned_away}` : ""}${e.overall ? ` · overall ${e.overall}` : ""}${e.note ? ` · ${esc(e.note)}` : ""}${e.tried ? triedHTML(e.tried, e.explain, true) : ""}`; break;
     case "FAILURE": body = `<b>${esc(e.exp)}</b>: ${esc(e.trace)}<br><i>Next question:</i> ${esc(e.next_question)}`; break;
     case "CONSTRAINT": body = `New constraint: <b>${esc(e.constraint)}</b> (was ${esc(e.previous)}). ${esc(e.changes.join("; "))}<br><i>${esc(e.source)}</i>`; break;
     case "HELD_OUT": body = `${e.finalists.join(", ")} frozen and tested on ${e.scenarios} held-out scenarios × ${e.seeds} seeds. ${esc(e.note)}`; break;
@@ -101,6 +101,23 @@ export const usd = (x) => { const a = Math.abs(x), s = x < 0 ? "-" : ""; return 
 export const metricOf = (x, P) => (P.key === "budget.net" ? (x.budget ? x.budget.net : 0) : (x.result.mean[P.key] ?? 0));
 export const fmtMetric = (v, P) => (P.key === "budget.net" ? `${usd(v)}/yr` : v.toFixed(1));
 
+// The sweep is a yardstick: Dee tries a handful of standard options with no reasoning and keeps the best. Show every option
+// it tried, ranked, so "Best of 6 auto-tried options" is readable at a glance.
+export const SWEEP_EXPLAIN = "A yardstick, not the gods' idea: Dee automatically tried a few standard options with no reasoning and kept the best one. If the gods' own proposals beat this, their reasoning added something.";
+export function triedHTML(tried, explain, compact = false) {
+  if (!tried || !tried.length) return "";
+  const max = Math.max(1e-9, ...tried.map((t) => Math.abs(t.score)));
+  // Options usually all change the same place ("Central Library: Sun 12:00-17:00"): name the place once, list only the changes
+  const m = /^([^:]{3,80}):\s/.exec(tried[0].change || "");
+  const place = m && tried.every((t) => (t.change || "").startsWith(m[0])) ? m[1] : null;
+  const what = (t) => (place ? t.change.slice(place.length + 1).trim() : t.change);
+  const rows = tried.map((t, k) => `<li class="${t.best ? "kept" : ""}${t.ok === false ? " over" : ""}"><span class="tr-rank">${k + 1}</span>
+    <span class="tr-what">${esc(what(t))}</span><span class="tr-val">${esc(String(t.value).replace(/ ± .*/, ""))}</span>
+    <span class="tr-bar"><i style="width:${Math.max(4, (100 * Math.abs(t.score)) / max)}%"></i></span>
+    <span class="tr-tag">${t.best ? "KEPT" : t.ok === false ? "OVER LIMIT" : ""}</span></li>`).join("");
+  return `<div class="tried${compact ? " compact" : ""}">${compact ? "" : `<p class="tr-explain">${esc(explain || SWEEP_EXPLAIN)}</p>`}${place ? `<div class="tr-place">Options tried at <b>${esc(place)}</b>, best first:</div>` : ""}<ol>${rows}</ol></div>`;
+}
+
 export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new Set()) {
   if (!exps.length) return `<p class="note">Run a trial to see experiments. Each one records its parent, the change, the source that caused it, and results over matched seeds.</p>`;
   const max = Math.max(1, ...exps.filter((x) => x.result).map((x) => Math.abs(metricOf(x, P))));
@@ -115,13 +132,14 @@ export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new S
       <h4><span>${esc(x.id)} · ${esc(x.label)}</span>${tag}</h4>
       <div class="meta">${esc(x.role)}${x.parent ? ` · from ${esc(x.parent)}` : ""} · ${esc(x.change)}${x.source ? ` · source ${esc(x.source)}` : ""}</div>
       ${x.result ? `<div class="metrics">${fmtMetric(v, P)}${P.key === "budget.net" ? "" : `${P.unit} ± ${(x.result.sd[P.key] ?? 0).toFixed(1)}`} <span class="meta">(n=${x.result.n})</span>${x.policy.hours ? ` · staff ${staffHours(x.policy.hours)} h/wk` : ""}${bud}</div><div class="bar"><i style="width:${(100 * Math.abs(v)) / max}%"></i></div>` : ""}
+      ${x.role === "sweep" ? triedHTML(x.tried, x.explain) : ""}
     </div></div>${openWhy.has(x.id) ? reasoningHTML(x, events) : ""}</div>`;
   }
   if (exps.heldOut) {
     const H = exps.heldOut;
     html += `<h5>HELD-OUT TEST (frozen picks)</h5><table class="cmp"><tr><th>Scenario</th>${H.finalists.map((f) => `<th>${esc(f.id)}<br>${esc(f.role)}${f.feasible ? "" : " ✗"}</th>`).join("")}</tr>`;
     for (const row of H.table) html += `<tr><td>${esc(row.scenario)}</td>${H.finalists.map((f) => `<td>${fmtMetric(row[f.id], P)}</td>`).join("")}</tr>`;
-    html += `</table><p class="note">✗ = breaks a discovered constraint. Same search budget for sweep, one-shot and agent. Residents' schedules and demand rates are model defaults (labelled), not measurements.</p>`;
+    html += `</table><p class="note">✗ = breaks a discovered constraint. Same search budget for the auto-tried options, the one-shot guess and the agents. Residents' schedules and demand rates are model defaults (labelled), not measurements.</p>`;
   }
   return html;
 }

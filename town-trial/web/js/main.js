@@ -84,6 +84,31 @@ const ritual = createRitual(scene, { altarWorld: heaven.altarWorld });
 // A policy starts running: the god lays a scroll on the altar, then a beam hits the town with a shockwave.
 // From the research loop the god walks to the altar first; when the user switches experiments it happens at once.
 let pendingRitual = null;
+// Gods are twice human size with wings: keep every pair at least a wingspan apart, and move a god's walking target off
+// any spot another god holds, so two gods sent to the same station settle side by side instead of overlapping.
+const GOD_GAP = 5.2;
+function clearSpot(t, o, nx, nz) {  // push target t to GOD_GAP from point o (along o->t, or along n if they coincide)
+  let dx = t.x - o.x, dz = t.z - o.z, d = Math.hypot(dx, dz);
+  if (d >= GOD_GAP) return;
+  if (d < 1e-3) { dx = nx; dz = nz; d = 1; }
+  t.x = o.x + (dx / d) * GOD_GAP; t.z = o.z + (dz / d) * GOD_GAP;
+}
+function separateGods() {
+  const rs = Object.values(researchers).filter((r) => !r.flying);
+  for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) {
+    const a = rs[i], b = rs[j];
+    let dx = b.pos.x - a.pos.x, dz = b.pos.z - a.pos.z, d = Math.hypot(dx, dz);
+    if (d < 1e-3) { const ang = i * 2.1 + j * 1.3; dx = Math.cos(ang); dz = Math.sin(ang); d = 1; }
+    const nx = dx / d, nz = dz / d;
+    if (Math.hypot(b.pos.x - a.pos.x, b.pos.z - a.pos.z) < GOD_GAP) {
+      const push = Math.min(GOD_GAP - Math.hypot(b.pos.x - a.pos.x, b.pos.z - a.pos.z), 0.8) / 2;
+      a.pos.x -= nx * push; a.pos.z -= nz * push; b.pos.x += nx * push; b.pos.z += nz * push;
+    }
+    // where they are heading: b's target off a's spot (a's target, or where a stands), and the same for a
+    if (b.target) clearSpot(b.target, a.target || a.pos, nx, nz);
+    if (a.target) clearSpot(a.target, b.target || b.pos, -nx, -nz);
+  }
+}
 function policyRitual(agentId = "dee", instant = false) {
   const b = winningPlace();
   if (instant || !researchers[agentId]) { heaven.placeScroll(); ritual.fire(b, 0.35); return; }
@@ -132,7 +157,7 @@ async function loadSpec(name) {
   if (!api) return null;
   const base = api.replace(/\/+$/, "");
   const t0 = performance.now();
-  while (performance.now() - t0 < 240000) {
+  while (performance.now() - t0 < 360000) {
     const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}`);
     if (!r.ok) throw new Error(`${r.status}`);
     const d = await r.json();
@@ -163,9 +188,9 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
-  endCelebration(); summaryDone = true; hover.set(null); townProfile = null;
+  endCelebration(); summaryDone = true; hover.set(null);
   $("status-chip").classList.add("hidden");
-  $("mode-badge").classList.add("hidden");
+  $("mode-badge").classList.add("hidden"); renderBanner();
   $("log").innerHTML = "";
   startReplay(null);
   buildLabels();
@@ -553,6 +578,34 @@ function setStatus(text, busy = true, error = false) {
 }
 const shortNum = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
 // Top bar: the town's actual residents, the simulated residents, and the town budget (when a verified source gives it)
+// Exa Dude's town profile (budget, channels, verified places) starts building when the town loads, so the budget is in
+// the top bar before any trial. A trial's TOWN_PROFILE event replaces it.
+let profileState = null, profileFor = "";
+async function loadProfile(name) {
+  const api = window.TOWN_TRIAL_API;
+  if (!api || liveDisabled) return;
+  const base = api.replace(/\/+$/, ""), t0 = performance.now();
+  profileFor = name; profileState = "building"; updateStats();
+  try {
+    while (profileFor === name && performance.now() - t0 < 180000) {
+      const r = await fetch(`${base}/api/towns/profile?city=${encodeURIComponent(name)}`);
+      if (!r.ok) throw new Error(`${r.status}`);
+      const d = await r.json();
+      if (profileFor !== name) return;
+      if (d.status === "ready") { if (!townProfile || !townProfile.budget) townProfile = d.profile; profileState = "ready"; updateStats(); return; }
+      if (d.status === "error") throw new Error(d.error);
+      await new Promise((res) => setTimeout(res, 4000));
+    }
+    if (profileFor === name) { profileState = "slow"; updateStats(); }
+  } catch (err) { if (profileFor === name) { profileState = "error"; updateStats(); } }
+}
+// No published budget total: size one from the population (typical US municipal spending per resident, higher in bigger
+// cities). Shown only in the top bar; the gods and the Treasurer never use it as a verified figure.
+function estBudget(pop) {
+  if (!pop) return 0;
+  const perResident = pop >= 100000 ? 2200 : pop >= 25000 ? 1600 : pop >= 5000 ? 1200 : 900;
+  return Math.round(pop * perResident);
+}
 function updateStats() {
   const pop = townSpec && townSpec.population;
   $("st-pop").textContent = pop ? shortNum(pop) : "synthetic";
@@ -560,8 +613,14 @@ function updateStats() {
   $("st-sim").textContent = String(residents.length);
   $("st-sim").parentElement.title = `${residents.length} simulated residents` + (pop ? `, each standing for about ${Math.round(pop / residents.length).toLocaleString()} real people` : "");
   const b = townProfile && townProfile.budget;
-  $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : "unknown";
-  $("st-bud").parentElement.title = b ? `${b.fiscal_year || "Current"} ${b.total_kind} (source: ${b.url})` : "No verified budget document yet (Exa Dude looks for one on a town's first live trial)";
+  const searching = !b && !townProfile && profileState === "building";
+  const est = estBudget(pop);
+  $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : searching ? "searching…" : !townSpec ? "synthetic" : est ? `$${shortNum(est)}` : "-";
+  $("st-bud").classList.toggle("searching", searching);
+  $("st-bud").parentElement.title = b ? `${b.fiscal_year || "Current"} ${b.total_kind} (source: ${b.url})`
+    : searching ? "Exa Dude is looking for this town's budget document"
+    : !townSpec ? "Synthetic town: no real budget"
+    : est ? `No published budget total found; ${shortNum(est)} is calculated from the population (${Math.round(pop).toLocaleString()} × typical per-resident municipal spending)` : "No population to size a budget from";
   $("town-stats").classList.remove("hidden");
 }
 
@@ -578,7 +637,11 @@ $("city-form").addEventListener("submit", async (e) => {
   await enterTown(name);
 });
 async function enterTown(name, real = true) {
-  if (real && window.TOWN_TRIAL_API) showLoading(`Building ${name}`, "Fetching real map data from OpenStreetMap");
+  townProfile = null; profileFor = ""; profileState = null;
+  if (real && window.TOWN_TRIAL_API) {
+    showLoading(`Building ${name}`, "Fetching real map data from OpenStreetMap");
+    loadProfile(name);  // the town budget is looked up while the map is being built
+  }
   try { await makeTown(name, real); } finally { hideLoading(); }
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
@@ -604,9 +667,17 @@ $("prompt-form").addEventListener("submit", (e) => {
 // Live mode: the backend (Modal) runs the research loop when TOWN_TRIAL_API is set.
 // Any network error offers to continue in demo mode, which needs no backend.
 let liveDisabled = false;
+let bannerLive = false;
+// One badge for the mode and the trial: "LIVE • TOWN TRIAL" while a trial runs, "LIVE" otherwise (the old separate trial badge
+// pushed PANEL off narrow screens).
+function renderBanner() {
+  const b = $("mode-badge"), trial = !b.classList.contains("hidden") && b.textContent !== "-" ? b.textContent : "";
+  $("demo-banner").innerHTML = `${bannerLive ? "LIVE" : "DEMO"}${trial ? `<i class="dot"></i>${trial}` : ""}`;
+  $("demo-banner").classList.toggle("live", bannerLive);
+}
 function setBanner(live) {
-  $("demo-banner").textContent = live ? "LIVE" : "DEMO";
-  $("demo-banner").classList.toggle("live", live);
+  bannerLive = live;
+  renderBanner();
   $("osm-credit").classList.toggle("hidden", !townSpec); // OpenStreetMap's licence asks for this credit wherever its data is shown
 }
 function startTrial(prompt) {
@@ -660,6 +731,7 @@ function setBadge(type) {
   badge.classList.toggle("perception", type === "perception");
   badge.classList.toggle("town", type !== "perception" && type !== "service");
   badge.textContent = type === "perception" ? "PERCEPTION TRIAL" : type === "service" ? "SERVICE TRIAL" : "TOWN TRIAL";
+  renderBanner();
 }
 window.__setTrialBadge = setBadge;
 function beginTrial(m) {
@@ -768,6 +840,7 @@ function frame() {
     if (v.servedT > 0) v.servedT -= sdt;
     v.update(speed > 0 ? dt : 0);
   }
+  separateGods();
   for (const r of Object.values(researchers)) r.update(dt);
   for (const v of Object.values(views)) v.cheer = cheering;
   celebration.update(dt);
@@ -775,7 +848,7 @@ function frame() {
   // The best policy is found when the brief arrives: let the celebration play for 3 s, then show the results. Don't wait for
   // the backend to finish: follow-up steps after the brief (e.g. past.dev recall checks) can take a while and don't change the result.
   if (!summaryDone && briefAt && research) {
-    if (!doneAt) { doneAt = briefAt; $("mode-badge").classList.add("hidden"); }
+    if (!doneAt) { doneAt = briefAt; $("mode-badge").classList.add("hidden"); renderBanner(); }
     if (performance.now() - doneAt >= (cheering ? 3000 : 1000)) finishTrial();  // no celebration (nothing to recommend): show it sooner
   }
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
@@ -809,7 +882,7 @@ function frame() {
 }
 
 // Debug handle for tests and the console
-window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, fingerprint: () => townFingerprint(town, residents) };
+window.__townTrial = { select: (p) => select(p), get residents() { return residents; }, get research() { return research; }, get town() { return town; }, researchers, fingerprint: () => townFingerprint(town, residents) };
 
 initHistory();
 

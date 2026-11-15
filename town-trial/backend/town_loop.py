@@ -199,7 +199,8 @@ class TownTrial(LiveTrial):
         if self.awareness:
             extra["overall"] = fixed(m.get("awarePct", 0), 0) + "%"
         self.emit("RUN_DONE", agent="dee", exp=x["id"], metric=self.P["key"], value=self.fmt(x), wall_s=out["wall_s"], workers=out["workers"],
-                  view=x["id"] if view else None, note=note or ("new best so far" if view and x["role"] == "revision" else None), **extra)
+                  view=x["id"] if view else None, note=note or ("new best so far" if view and x["role"] == "revision" else None),
+                  **({"tried": x["tried"], "explain": x.get("explain")} if x.get("tried") else {}), **extra)
 
     def job(self, key: str, policy: dict, seeds=SEEDS, scenario: dict | None = None) -> dict:
         j = super().job(key, policy, seeds, scenario)
@@ -454,7 +455,7 @@ class TownTrial(LiveTrial):
         if not prof and self.ada.available and self.exa_mode == "failure":
             from agents.ada import Ada
             from agents.llm import LLM, Budget
-            pb = Budget(exa=3, llm=3)
+            pb = Budget(exa=4, llm=4)
             pada = Ada(pb, LLM(pb))
             pada.place_terms = list(self.ada.place_terms)
             city, spec = self.city, self.spec
@@ -744,13 +745,19 @@ class TownTrial(LiveTrial):
             s["ok"] = self.constraint is None or self.constraint[1]({"policy": s["policy"], "budget": s["budget"]})
         pool = [s for s in sweep if s["ok"]] or sweep
         best = max(pool, key=lambda s: self.P["dir"] * self.mval(out["results"][s["key"]]["mean"], s["policy"]))
-        SW = self.exp(id="SW", label=f"Sweep best of {len(sweep)}", role="sweep", parent="E0", policy=best["policy"], change=self.change_of(best["policy"]))
+        tried = sorted(({"key": s["key"], "change": self.change_of(s["policy"]), "score": round(self.mval(out["results"][s["key"]]["mean"], s["policy"]), 2),
+                         "value": self.fmt({"result": out["results"][s["key"]], "policy": s["policy"]}), "ok": s["ok"], "best": s is best} for s in sweep),
+                       key=lambda t: -self.P["dir"] * t["score"])
+        explain = (f"A yardstick, not the gods' idea: Dee automatically tried {len(sweep)} standard options with no reasoning "
+                   f"and kept the best one. If the gods' own proposals beat this, their reasoning added something.")
+        SW = self.exp(id="SW", label=f"Best of {len(sweep)} auto-tried options", role="sweep", parent="E0", policy=best["policy"],
+                      change=self.change_of(best["policy"]), tried=tried, explain=explain)
         for x, key in ((SW, best["key"]), (OS, "OS")):
             res = out["results"][key]
             x["budget"] = self.budget_of(res["mean"], x["policy"])
             x["result"] = res
             self.set(x, result=res, budget=x["budget"], status="done" if self.feasible(x) else "infeasible")
-        self.run_done(SW, out, note=f"best of {len(sweep)} sweep configs" + ("" if best["ok"] else " (none met the budget limit)"))
+        self.run_done(SW, out, note=f"best of {len(sweep)} auto-tried options" + ("" if best["ok"] else " (none met the budget limit)"))
         self.run_done(OS, out, note="one-shot LLM proposal, same model, no feedback")
 
     def held_out_and_brief(self, finalists: list[dict]) -> None:

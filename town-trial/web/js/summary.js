@@ -5,7 +5,7 @@ import { staffHours } from "./sim.js";
 
 const RESEARCH = new Set(["CLAIM", "FRAME", "EXA", "MEMORY_WRITE", "MEMORY_READ", "PROPOSE", "REVIEW", "RUN_START", "RUN_DONE", "FAILURE",
   "CONSTRAINT", "HELD_OUT", "BRIEF", "VOICES", "NOTE", "COMPARABLE", "PILOT", "CHAIN", "BUDGET_CHECK"]);
-const ROLE = { baseline: "current practice", user: "your idea", sweep: "parameter sweep", oneshot: "one-shot LLM", revision: "agent revision" };
+const ROLE = { baseline: "current practice", user: "your idea", sweep: "auto-tried options", oneshot: "one-shot LLM", revision: "agent revision" };
 
 export function stepText(e) {
   switch (e.type) {
@@ -43,7 +43,7 @@ function whyNot(x, best, P, events) {
   }
   if (!x.result) return `Never ran (${x.status}).`;
   const v = metricOf(x, P), bv = metricOf(best, P);
-  const lead = x.role === "baseline" ? "Current practice." : x.role === "sweep" ? "Best of the blind parameter sweep." : x.role === "oneshot" ? "One-shot LLM guess with no feedback." : "";
+  const lead = x.role === "baseline" ? "Current practice." : x.role === "sweep" ? `Yardstick: the best of ${(x.tried || []).length || "several"} standard options Dee tried automatically, with no reasoning.` : x.role === "oneshot" ? "One-shot LLM guess with no feedback." : "";
   return `${lead} Scored ${fmtMetric(v, P)}${P.unit || ""} vs ${fmtMetric(bv, P)}${P.unit || ""} for ${best.id}.`.trim();
 }
 
@@ -104,6 +104,6 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
   const prof = [...events].reverse().find((e) => e.type === "TOWN_PROFILE");
   out.townBudget = prof && prof.budget ? { year: prof.budget.fiscal_year, total: prof.budget.total_budget_usd, kind: prof.budget.total_kind, url: prof.budget.url, published: prof.budget.published } : null;
   out.others = exps.filter((x) => x !== best).map((x) => ({ id: x.id, label: x.label, role: ROLE[x.role] || x.role, status: x.status,
-    text: x.result ? fmtMetric(metricOf(x, P), P) + (P.key === "budget.net" ? "" : P.unit || "") : "-", why: whyNot(x, best, P, events) }));
+    text: x.result ? fmtMetric(metricOf(x, P), P) + (P.key === "budget.net" ? "" : P.unit || "") : "-", why: whyNot(x, best, P, events), tried: x.tried || null }));
   return out;
 }

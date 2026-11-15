@@ -32,7 +32,8 @@ class TrialRequest(BaseModel):
     options: dict | None = None
 
 
-def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, start_town_build: Callable[[str], None] | None = None) -> FastAPI:
+def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, start_town_build: Callable[[str], None] | None = None,
+               start_profile_build: Callable[[str], None] | None = None) -> FastAPI:
     """`start(trial_id=, city=, prompt=, mode=)` launches the orchestrator (Modal spawn or a thread)."""
     app = FastAPI(title="Town Trial API")
     origins = [o.strip() for o in (os.environ.get("ALLOWED_ORIGINS") or DEFAULT_ORIGINS).split(",") if o.strip()]
@@ -53,6 +54,17 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
         if not c or len(c) > 80:
             raise HTTPException(400, "city must be 1-80 characters")
         return lookup(c, towns_cache, start_town_build)
+
+    @app.get("/api/towns/profile")
+    def town_profile(city: str):
+        """Exa Dude's town profile (budget, channels, verified places), started when the town loads and cached per town."""
+        import town_profile as TP
+        if towns_cache is None or start_profile_build is None:
+            raise HTTPException(501, "town profiles not configured")
+        c = city.strip()
+        if not c or len(c) > 80:
+            raise HTTPException(400, "city must be 1-80 characters")
+        return TP.lookup(c, towns_cache, start_profile_build)
 
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):
