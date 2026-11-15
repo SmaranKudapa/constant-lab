@@ -38,6 +38,7 @@ const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 900);
 camera.position.set(95, 80, 110);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
+controls.enableZoom = false; // custom wheel zoom below: faster per notch, glides to a stop, zooms toward the cursor
 controls.maxPolarAngle = 1.38;
 controls.minDistance = 8;
 controls.maxDistance = 280;
@@ -314,10 +315,12 @@ function buildLabels() {
 const tmpV = new THREE.Vector3();
 function placeLabels() {
   const w = window.innerWidth, h = window.innerHeight;
+  const onOlympus = controls.target.y > HEAVEN_Y * 0.5;  // where the camera is looking, so keyboard moves count too
   for (const L of labels) {
     if (L.update) L.update();
     if (L.el.style.display === "none") continue;
     tmpV.copy(L.getPos());
+    if ((tmpV.y > HEAVEN_Y * 0.5) !== onOlympus) { L.el.style.visibility = "hidden"; continue; }
     const dist = tmpV.distanceTo(camera.position);
     tmpV.project(camera);
     const vis = tmpV.z < 1 && Math.abs(tmpV.x) < 1.1 && Math.abs(tmpV.y) < 1.1 && dist < 240;
@@ -406,8 +409,17 @@ function selectedPos() {
 }
 function renderSelected() {
   const el = $("selected");
-  if (!selected) { el.classList.add("hidden"); el._html = null; marker.visible = false; return; }
-  el.classList.remove("hidden");
+  if (!selected) {  // fold away, then hide
+    marker.visible = false;
+    if (!el.classList.contains("hidden") && !el.classList.contains("closing")) {
+      el.classList.add("closing");
+      clearTimeout(el._closeT);
+      el._closeT = setTimeout(() => { el.classList.add("hidden"); el.classList.remove("closing"); el._html = null; }, 320);
+    }
+    return;
+  }
+  clearTimeout(el._closeT);
+  el.classList.remove("hidden", "closing");
   let html = "";
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
@@ -602,14 +614,14 @@ function afterTrialStart() {
   for (const r of Object.values(researchers)) r.moveTo(heaven.stations[r.spec.station].stand);
   updateRunbar();
   toast(mode === "perception"
-    ? "Perception trial: each resident is a past.dev identity. Watch ? turn into ! as the notice spreads. Researchers work in HEAVEN."
-    : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). Researchers work in HEAVEN."
-    : "Service trial: watch residents visit the library. Researchers work in HEAVEN.", 5200);
+    ? "Perception trial: each resident is a past.dev identity. Watch ? turn into ! as the notice spreads. The gods work on OLYMPUS."
+    : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). The gods work on OLYMPUS."
+    : "Service trial: watch residents visit the library. The gods work on OLYMPUS.", 5200);
   renderPanels(true);
 }
 
 // ---------- keyboard camera ----------
-// WASD pan (relative to the view), E/Q up/down, arrows orbit/tilt, O/I zoom out/in.
+// WASD pan (relative to the view), E/Q up/down, Up/Down arrows forward/back, Left/Right arrows orbit, O/I zoom out/in.
 const keys = new Set();
 const CAM_KEYS = new Set(["w", "a", "s", "d", "e", "q", "o", "i", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
 const keyName = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
@@ -641,13 +653,37 @@ function keyboardCamera(dt) {
   _sph.setFromVector3(_off);
   if (keys.has("ArrowLeft")) _sph.theta += 1.6 * dt;
   if (keys.has("ArrowRight")) _sph.theta -= 1.6 * dt;
-  if (keys.has("ArrowUp")) _sph.phi += 1.0 * dt;
-  if (keys.has("ArrowDown")) _sph.phi -= 1.0 * dt;
+  if (keys.has("ArrowUp")) { controls.target.addScaledVector(_fwd, pan); }
+  if (keys.has("ArrowDown")) { controls.target.addScaledVector(_fwd, -pan); }
   if (keys.has("o")) _sph.radius *= 1 + 1.4 * dt;
   if (keys.has("i")) _sph.radius *= 1 - 1.4 * dt;
   _sph.phi = THREE.MathUtils.clamp(_sph.phi, 0.08, controls.maxPolarAngle);
   _sph.radius = THREE.MathUtils.clamp(_sph.radius, controls.minDistance, controls.maxDistance);
   camera.position.copy(controls.target).add(_off.setFromSpherical(_sph));
+}
+
+// ---------- wheel zoom with momentum ----------
+let zoomVel = 0, zoomAt = null;
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+  zoomVel = THREE.MathUtils.clamp(zoomVel + Math.sign(d) * Math.min(Math.abs(d), 240) * 0.012, -6, 6);
+  zoomAt = { x: e.clientX, y: e.clientY };
+  fly = null; follow = false; controls.autoRotate = false;
+}, { passive: false });
+const _zr = new THREE.Raycaster(), _zp = new THREE.Plane(), _zhit = new THREE.Vector3();
+function wheelZoom(dt) {
+  if (Math.abs(zoomVel) < 0.01) { zoomVel = 0; return; }
+  const f = Math.exp(zoomVel * dt);  // > 1 zooms out, < 1 zooms in
+  _off.copy(camera.position).sub(controls.target);
+  const r0 = _off.length(), r1 = THREE.MathUtils.clamp(r0 * f, controls.minDistance, controls.maxDistance);
+  if (zoomAt && r1 < r0) {  // zooming in: drift the target toward the point under the cursor
+    _zr.setFromCamera(new THREE.Vector2((zoomAt.x / window.innerWidth) * 2 - 1, -(zoomAt.y / window.innerHeight) * 2 + 1), camera);
+    _zp.set(new THREE.Vector3(0, 1, 0), -controls.target.y);
+    if (_zr.ray.intersectPlane(_zp, _zhit)) controls.target.lerp(_zhit, 1 - r1 / r0);
+  }
+  camera.position.copy(controls.target).add(_off.setLength(r1));
+  zoomVel *= Math.exp(-dt * 5);  // drag
 }
 
 // ---------- main loop ----------
@@ -692,6 +728,7 @@ function frame() {
     if (p) { const d = new THREE.Vector3(p.x, 0, p.z).sub(controls.target); controls.target.add(d.multiplyScalar(0.08)); camera.position.add(d); }
   }
   keyboardCamera(dt);
+  wheelZoom(dt);
   updateHover(t);
   const sp = selectedPos();
   marker.visible = !!sp;

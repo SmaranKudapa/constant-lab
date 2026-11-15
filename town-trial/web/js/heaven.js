@@ -1,4 +1,4 @@
-// Heaven: a floating island above the town where the researcher agents live.
+// Olympus: a floating island above the town where the researcher agents live.
 import * as THREE from "three";
 import { box, mat } from "./voxel.js";
 

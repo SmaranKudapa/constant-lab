@@ -1,4 +1,4 @@
-// Hover highlight for clickable things (residents, angels, buildings, Heaven stations): a glowing
+// Hover highlight for clickable things (residents, angels, buildings, Olympus stations): a glowing
 // back-face outline that pulses gold-white around the object's silhouette, plus a ring of voxel
 // sparkles orbiting its base.
 import * as THREE from "three";

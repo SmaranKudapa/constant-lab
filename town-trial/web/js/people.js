@@ -1,4 +1,4 @@
-// Blocky humans: town residents (who walk the streets) and Heaven researchers.
+// Blocky humans: town residents (who walk the streets) and Olympus researchers.
 import * as THREE from "three";
 import { box, mat, iconMaterial } from "./voxel.js";
 
@@ -181,7 +181,7 @@ export class Resident {
   }
 }
 
-// A researcher in Heaven: an angel (wings, halo, twice human size) who walks between stations,
+// A researcher in Olympus: an angel (wings, halo, twice human size) who walks between stations,
 // and during a celebration flies circles over the town.
 export const ANGEL_SCALE = 2;
 export class Researcher {
@@ -230,7 +230,7 @@ export class Researcher {
         ny = F.rfrom.y + (this.spec.y - F.rfrom.y) * k + Math.sin(u * Math.PI) * 8;
         if (u >= 1) { this.flying = false; this.flight = null; this.mesh.rotation.z = 0; this.mesh.rotation.x = 0; }
       } else {
-        const u = Math.min(1, F.t / 3.5), k = u * u * (3 - 2 * u); // swoop down from Heaven into the circle
+        const u = Math.min(1, F.t / 3.5), k = u * u * (3 - 2 * u); // swoop down from Olympus into the circle
         nx = F.from.x + (cx - F.from.x) * k; nz = F.from.z + (cz - F.from.z) * k; ny = F.from.y + (cy - F.from.y) * k;
       }
       const dx = nx - this.pos.x, dz = nz - this.pos.z;

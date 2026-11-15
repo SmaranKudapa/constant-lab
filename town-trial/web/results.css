@@ -146,3 +146,17 @@
 .ag-tab { border-collapse: collapse; font-size: 12px; width: 100%; }
 .ag-tab th, .ag-tab td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--panel-2); }
 .ag-tab th { color: var(--dim); font-weight: normal; }
+
+/* ---------- selection panel: popup-style close, fold in/out ---------- */
+#selected h3 { padding-right: 34px; position: relative; }
+.sel-x { position: absolute; right: -4px; top: -4px; background: var(--ink); color: var(--text); border: 2px solid var(--edge); font-size: 13px; width: 28px; height: 28px; cursor: pointer; font-family: var(--sk); }
+.sel-x:hover { background: var(--red); }
+#selected.panel { transform-origin: left center; animation: selIn .42s cubic-bezier(.2, 1.4, .4, 1) both; }
+#selected.panel.closing { animation: selOut .3s ease-in forwards; }
+@keyframes selIn { 0% { transform: translateX(-60px) perspective(600px) rotateY(55deg) scale(.85); opacity: 0; clip-path: inset(0 100% 0 0); }
+  60% { transform: translateX(6px) perspective(600px) rotateY(-4deg) scale(1.02); opacity: 1; clip-path: inset(0 0 0 0); } 100% { transform: none; } }
+@keyframes selOut { to { transform: translateX(-50px) perspective(600px) rotateY(45deg) scale(.9); opacity: 0; clip-path: inset(0 100% 0 0); } }
+
+/* ---------- top bar: TRIALS and PANEL aligned ---------- */
+.trials-wrap { align-self: center; display: flex; }
+#trials-btn, #toggle-panel { height: 32px; display: inline-flex; align-items: center; }

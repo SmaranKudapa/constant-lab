@@ -45,14 +45,15 @@ const hourLabel = (h) => `${DAYS[Math.floor(h / 24) % 7]} ${String(h % 24).padSt
 function chartSVG(A, B, only) {
   const W = 640, H = 250, L = 40, R = 12, T = 12, Bm = 28;
   const cohorts = only ? [only] : A.cohorts;
-  const max = Math.max(1, ...cohorts.map((c) => Math.max(A.size[c] ? A.curve[c][A.hours] : 0, B ? B.curve[c][B.hours] : 0)));
+  const pct = (S, c, h) => (100 * S.curve[c][h]) / Math.max(1, S.size[c]);  // % of that resident type who joined
+  const max = Math.min(100, Math.max(10, Math.ceil(Math.max(...cohorts.map((c) => Math.max(pct(A, c, A.hours), B ? pct(B, c, B.hours) : 0))) / 10) * 10));
   const x = (h) => L + (h / A.hours) * (W - L - R), y = (v) => T + (1 - v / max) * (H - T - Bm);
-  let g = `<svg viewBox="0 0 ${W} ${H}" class="ag-svg" role="img" aria-label="Audience membership over time">`;
-  for (let k = 0; k <= 4; k++) { const v = (max * k) / 4, yy = y(v); g += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" class="ag-grid"/><text x="${L - 6}" y="${yy + 3}" class="ag-ax" text-anchor="end">${v.toFixed(v < 10 ? 1 : 0)}</text>`; }
+  let g = `<svg viewBox="0 0 ${W} ${H}" class="ag-svg" role="img" aria-label="Share of each resident type in the audience over time">`;
+  for (let k = 0; k <= 4; k++) { const v = (max * k) / 4, yy = y(v); g += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" class="ag-grid"/><text x="${L - 6}" y="${yy + 3}" class="ag-ax" text-anchor="end">${Math.round(v)}%</text>`; }
   for (let d = 0; d <= A.days; d++) { const xx = x(d * 24); g += `<line x1="${xx}" x2="${xx}" y1="${T}" y2="${H - Bm}" class="ag-grid"/>${d < A.days ? `<text x="${xx + 4}" y="${H - 10}" class="ag-ax">${DAYS[d % 7]}</text>` : ""}`; }
   const line = (S, c, dash) => {
     let p = "";
-    for (let h = 0; h <= S.hours; h++) p += `${h ? "L" : "M"}${x(h).toFixed(1)},${y(S.curve[c][h]).toFixed(1)}`;
+    for (let h = 0; h <= S.hours; h++) p += `${h ? "L" : "M"}${x(h).toFixed(1)},${y(pct(S, c, h)).toFixed(1)}`;
     return `<path d="${p}" fill="none" stroke="${hex(COHORTS[c].shirt)}" stroke-width="${dash ? 2 : 2.6}" ${dash ? 'stroke-dasharray="5 4" opacity=".8"' : ""}/>`;
   };
   for (const c of cohorts) { if (B) g += line(B, c, true); g += line(A, c, false); }

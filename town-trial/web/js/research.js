@@ -1,4 +1,4 @@
-// The research loop as seen from Heaven. In the demo the agents' words are
+// The research loop as seen from Olympus. In the demo the agents' words are
 // scripted, but every number comes from real batch runs of sim.js, and every
 // step is logged in the same event format the real backend will write.
 import { demoVoices } from "./voices.js";
