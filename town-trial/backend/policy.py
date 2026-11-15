@@ -39,13 +39,19 @@ def strong_perception(prompt: str) -> bool:
     return bool(STRONG_PERCEPTION.search(p)) and not USAGE.search(p)
 
 
+# SERVICE: the question is about a specific place's hours, use, fees, staffing or cost.
+SERVICE = re.compile(r"\bhours?\b|\bopen(s|ed|ing)?\b|\bclos(e|es|ed|ing|ure)\b|\bvisit\w*\b|\buse\b|\busage\b|\battend\w*\b|\bfees?\b|\bcharge\b|\bcapacity\b|\bturn(ed)? away\b|\bstaff\w*\b|\bbudget\b|\bcost\w*\b|\bcheap\w*\b|\bsave money\b|\bcrowd\w*\b|\bwait\w*\b|\b(mon|tues|wednes|thurs|fri|satur|sun)days?\b|\bweekends?\b|\bevenings?\b|\bmornings?\b|\b\d+ ?(am|pm)\b|\blater\b|\bearlier\b|\bbusier\b|\bfoot traffic\b|\bmore people (come|go|use)\b")
+
+
 def classify(prompt: str) -> str:
+    """perception (who hears / knows), service (a place's hours, use, fees, cost), or town: the default for broad goals
+    ("Make school more accessible") and the fallback whenever the question fits neither."""
     p = prompt.lower()
-    if STRONG_PERCEPTION.search(p) and not USAGE.search(p):
-        return "perception"
     if (STRONG_PERCEPTION.search(p) or WEAK_PERCEPTION.search(p)) and not USAGE.search(p):
         return "perception"
-    return "service"
+    if SERVICE.search(p):
+        return "service"
+    return "town"
 
 
 def primary(mode: str) -> dict:

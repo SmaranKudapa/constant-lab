@@ -117,10 +117,11 @@ def town_help(town: str) -> str:
 def frame(llm: LLM, city: str, prompt: str, town: str, kinds: list, facility_ids: list) -> dict:
     """Bo turns any question into: what to measure, for whom, at which place, any budget limit the user stated, and the user's own idea."""
     schema = strict({
-        "trial_type": {"type": "string", "enum": ["perception", "service"],
-                       "description": "perception = the question asks whether people will hear about / know about / find out about something "
-                                      "(an announcement, a change, a closing, an opening); service = it asks how many people use, visit or are "
-                                      "served by places, or what it costs"},
+        "trial_type": {"type": "string", "enum": ["perception", "service", "town"],
+                       "description": "perception = whether people will hear about / know about / find out about something (an announcement, "
+                                      "a change, a closing, an opening); service = a specific place's hours, use, fees, staffing or cost; "
+                                      "town = a broad goal for the town or a group (e.g. 'make school more accessible', 'improve life for "
+                                      "seniors'). Use town when unsure."},
         "representable": {"type": "boolean", "description": "false if no supported action can test the idea (e.g. zoning, taxes, housing)"},
         "claim": {"type": "string", "description": "the testable claim: action, population, metric, horizon"},
         "metric": {"type": "string", "enum": METRICS,
@@ -134,7 +135,9 @@ def frame(llm: LLM, city: str, prompt: str, town: str, kinds: list, facility_ids
     })
     user = (f"Town: {city}\nUser question: {prompt}\n{town_help(town)}\nKinds of place: {kinds}\n"
             "First decide trial_type. A question like 'Will people know about X closing?' or 'Who will hear about the new hours?' is "
-            "perception, and its metric MUST be awareness.\n"
+            "perception, and its metric MUST be awareness. A broad goal ('make school more accessible') is a town trial: pick the "
+            "metric and places that best measure the goal (e.g. unique_visitors or visits for the group it names) and keep it "
+            "representable whenever hours, capacity, fees, opening a place or outreach could move that measure.\n"
             "Choose the metric that answers the question's GOAL:\n"
             "- awareness: whether people hear about / find out about / learn of ANY announcement or change (always representable with the "
             "outreach channels, even if the place in the announcement is not on the list); set cohort if a group is named.\n"

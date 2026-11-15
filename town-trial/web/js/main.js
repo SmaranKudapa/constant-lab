@@ -67,7 +67,7 @@ resize();
 let town = null, residents = [], views = {}, model = null, mode = null, research = null;
 let viewExp = null, speed = 1, tickAcc = 0, inTown = false, selected = null, follow = false;
 let events = [], flashSlug = null, lastPanel = 0;
-let trialPrompt = "", briefAt = 0, doneAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
+let trialType = null, trialPrompt = "", briefAt = 0, doneAt = 0, summaryDone = true, cheering = false, voicesFor = null, devMode = false;
 const heaven = buildHeaven(scene);
 const researchers = {};
 for (const spec of RESEARCHERS) {
@@ -523,7 +523,9 @@ function setBanner(live) {
 function startTrial(prompt) {
   if (window.TOWN_TRIAL_API && !liveDisabled) { startLiveTrial(prompt); return; }
   setBanner(false);
-  beginTrial(classify(prompt));
+  trialType = classify(prompt);
+  // The demo has scripted loops for perception and service; a town question runs the service loop in the demo
+  beginTrial(trialType === "perception" ? "perception" : "service");
   research = createResearch({
     mode, prompt, town, residents, emit, heaven, researchers,
     onChange: () => renderPanels(true),
@@ -543,6 +545,7 @@ async function startLiveTrial(prompt) {
       onError: (err) => offerDemo(err, prompt),
     });
     research = live;
+    trialType = live.trialType || "town";
     beginTrial(live.mode);
     setBanner(true);
     afterTrialStart();
@@ -564,7 +567,8 @@ function offerDemo(err, prompt) {
 function setBadge(type) {
   const badge = $("mode-badge");
   badge.classList.toggle("perception", type === "perception");
-  badge.textContent = type === "perception" ? "PERCEPTION TRIAL" : "SERVICE TRIAL";
+  badge.classList.toggle("town", type !== "perception" && type !== "service");
+  badge.textContent = type === "perception" ? "PERCEPTION TRIAL" : type === "service" ? "SERVICE TRIAL" : "TOWN TRIAL";
 }
 window.__setTrialBadge = setBadge;
 function beginTrial(m) {
@@ -578,7 +582,7 @@ function beginTrial(m) {
   const badge = $("mode-badge");
   badge.classList.remove("hidden");
   badge.classList.toggle("perception", mode === "perception");
-  setBadge(mode === "town" ? (research && research.awareness ? "perception" : "service") : mode);
+  setBadge(trialType || mode);
   startReplay(null);
 }
 function afterTrialStart() {

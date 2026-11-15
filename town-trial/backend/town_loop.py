@@ -305,6 +305,17 @@ class TownTrial(LiveTrial):
                    "user_idea": {"label": "Two late evenings", "facility_changes": [{"facility": tgt, "hours_changes": [{"day": 1, "open": "10:00", "close": "21:00"},
                                  {"day": 3, "open": "10:00", "close": "21:00"}], "capacity": None, "fee": None, "close": False}] if tgt else [],
                                  "new_facilities": [], "channels": [], "why": "Scripted default idea.", "evidence_url": None, "scripted": True}}
+        # Town trials (broad goals, the default type) always get a simulation when any proxy is measurable: if Bo found no direct
+        # lever ("make school more accessible": schools aren't a modelled place), ask once more for the closest measurable proxy.
+        if not err and not out.get("representable") and out.get("trial_type", "town") == "town":
+            proxy_prompt = (f"{self.prompt}\n(This is a town trial. There may be no direct lever for it; choose the closest measurable proxy with "
+                            "the supported places and actions, e.g. how easily the group it concerns can reach public places that serve it "
+                            "(library, community centre, parks, sports) after school or work. Say in the claim that it is a proxy. Set "
+                            "representable=false only if no supported place or action relates to the goal at all.)")
+            out2, err2 = self.attempt("bo", "frame (proxy)", lambda e: bo_mod.frame(self.llm, self.city, proxy_prompt, self.town_text(), kinds, list(self.fac)))
+            if out2 and out2.get("representable"):
+                self.note(f"No direct lever for this goal in the town model; testing the closest measurable proxy instead: {out2['claim']}", agent="bo")
+                out = {**out2, "trial_type": "town"}
         # Perception questions ("Will people know about the Walgreens closing?") are measured by awareness. Bo decides; code
         # enforces it when Bo or the keyword check says the question is clearly about who hears / knows.
         from policy import strong_perception
@@ -312,6 +323,9 @@ class TownTrial(LiveTrial):
             why = "Bo marked it a perception question" if out.get("trial_type") == "perception" else "the question asks whether people will hear or know about something"
             self.note(f"Framed as a perception trial (awareness), because {why}; Bo's metric was {out.get('metric')}.", agent="bo")
             out["metric"], out["kind"], out["target"], out["representable"] = "awareness", None, out.get("target"), True
+        # perception / service / town (the default and the fallback for anything Bo or the keywords can't place)
+        tt = out.get("trial_type") if out.get("trial_type") in ("service", "town") else "town"
+        self.trial_type = "perception" if out.get("metric") == "awareness" else tt
         self.set_metric(out)
         self.set_scope(out)
         if not out["representable"]:
@@ -323,7 +337,7 @@ class TownTrial(LiveTrial):
             return None
         bl = out.get("budget_limit") or {}
         self.pending_limit = (bl["type"], bl.get("value"), "your question", "from your question") if bl.get("type") not in (None, "none") else None
-        self.emit("FRAME", agent="bo", say="Framing the question", trial_type="perception" if self.awareness else "service", metric=self.P["metric"], key=self.P["key"], label=self.P["label"], unit=self.P["unit"],
+        self.emit("FRAME", agent="bo", say="Framing the question", trial_type=getattr(self, "trial_type", "town"), metric=self.P["metric"], key=self.P["key"], label=self.P["label"], unit=self.P["unit"],
                   budget_scope=self.scope_label,
                   direction="max" if self.P["dir"] > 0 else "min", target=self.target, target_name=self.fac.get(self.target, {}).get("name"),
                   kind=out.get("kind"), cohort=out.get("cohort"), days=self.days, budget_limit=bl, scripted=bool(out.get("scripted")))

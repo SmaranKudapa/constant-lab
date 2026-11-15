@@ -24,7 +24,7 @@ Import the repo in Vercel and set **Root Directory = `town-trial/web`**, Framewo
 
 The frontend talks to the backend through one setting: `window.TOWN_TRIAL_API` in `web/config.js`. Leave it empty for the demo. Once the Modal backend is deployed (branch `main-backend`), put its URL there, or test with `?api=<modal url>` on any Vercel preview. The backend must allow CORS from the Vercel domain.
 
-Simulator checks: `node town-trial/tests/sim_check.mjs` (capacity cap, nobody lost, closed library gives 0 visits, staff-hour arithmetic, deterministic replay, no outreach gives 0 awareness). Parity and backend checks: `node town-trial/tests/parity_check.mjs`, `python town-trial/tests/backend_check.py`. Trial-type classifier (browser and backend must agree on 25 example questions): `node town-trial/tests/classify_check.mjs`.
+Simulator checks: `node town-trial/tests/sim_check.mjs` (capacity cap, nobody lost, closed library gives 0 visits, staff-hour arithmetic, deterministic replay, no outreach gives 0 awareness). Parity and backend checks: `node town-trial/tests/parity_check.mjs`, `python town-trial/tests/backend_check.py`. Trial-type classifier (perception / service / town; browser and backend must agree on 32 example questions): `node town-trial/tests/classify_check.mjs`.
 
 ### Live mode (backend on Modal)
 

@@ -23,5 +23,12 @@
   ["How do we reduce people being turned away at the clinic?", "service"],
   ["Open a second library near the school", "service"],
   ["What is the cheapest way to keep the post office open?", "service"],
-  ["Will people use the pool more if it opens at 6am?", "service"]
+  ["Will people use the pool more if it opens at 6am?", "service"],
+  ["Make school more accessible", "town"],
+  ["Make the school more accessible", "town"],
+  ["Improve life for seniors in town", "town"],
+  ["How can we make the town better for families?", "town"],
+  ["Help the downtown", "town"],
+  ["Make the park nicer", "town"],
+  ["What should we do about the community centre?", "town"]
 ]

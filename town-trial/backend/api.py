@@ -59,7 +59,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
         city, prompt = req.city.strip(), req.prompt.strip()
         # Live agents: the general town model (Bo frames the question). Without an LLM key: the scripted demo loop.
         live = bool(os.environ.get("OPENAI_API_KEY")) and not os.environ.get("TOWN_TRIAL_SCRIPTED")
-        mode = "town" if live else classify(prompt)
+        mode = "town" if live else ("perception" if classify(prompt) == "perception" else "service")
         options = {k: v for k, v in (req.options or {}).items() if k in ALLOWED_OPTIONS and v in ALLOWED_OPTIONS[k]}
         trial_id = uuid.uuid4().hex[:12]
         store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "options": options, "version": os.environ.get("CODE_VERSION", "local")})
