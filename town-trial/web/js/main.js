@@ -321,7 +321,7 @@ function screenOf(p) {
   const v = new THREE.Vector3(p.x, 4, p.z).project(camera);
   return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight };
 }
-// Lesson Forge: one row per finished trial in this page session (how much the gods improved on today's practice, how
+// Learning Forge: one row per finished trial in this page session (how much the gods improved on today's practice, how
 // far they beat the auto-tried options, and which earlier trials' lessons they read). Kept in memory only.
 const forgeLog = [];
 function forgeEntry() {
@@ -342,7 +342,7 @@ function finishTrial() {
   const sum = buildSummary({ prompt: trialPrompt, city: town.name, mode, events, exps: research.exps, primary: research.primary });
   remember(sum);
   if (sum.fail) sfx.fail(); else sfx.chime();
-  setTimeout(() => sfx.coin(), 900);  // a new gold ingot at the Lesson Forge
+  setTimeout(() => sfx.coin(), 900);  // a new gold ingot at the Learning Forge
   try { forgeLog.push(forgeEntry()); heaven.setForgeLevel(forgeLog.length); if (researchers.cy) researchers.cy.moveTo(heaven.stations.forge.stand); } catch (e) { console.warn("forge", e); }
   openSummary(sum, screenOf(winningPlace()), endCelebration);
 }
