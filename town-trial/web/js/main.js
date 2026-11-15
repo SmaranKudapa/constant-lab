@@ -599,7 +599,7 @@ function setStatus(text, busy = true, error = false) {
   c.classList.remove("hidden");
   c.classList.toggle("busy", busy); c.classList.toggle("error", error);
 }
-const shortNum = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
+const shortNum = (n) => (n >= 1e9 ? `${(n / 1e9).toFixed(n >= 1e10 ? 0 : 1)}B` : n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
 // Top bar: the town's actual residents, the simulated residents, and the town budget (when a verified source gives it)
 // Exa Dude's town profile (budget, channels, verified places) starts building when the town loads, so the budget is in
 // the top bar before any trial. A trial's TOWN_PROFILE event replaces it.
@@ -636,7 +636,7 @@ function updateStats() {
   $("st-sim").textContent = String(residents.length);
   $("st-sim").parentElement.title = `${residents.length} simulated residents` + (pop ? `, each standing for about ${Math.round(pop / residents.length).toLocaleString()} real people` : "");
   const b = townProfile && townProfile.budget;
-  const searching = !b && !townProfile && profileState === "building";
+  const searching = !!townSpec && !b && !townProfile && profileState === "building";
   const est = estBudget(pop);
   $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : searching ? "searching…" : !townSpec ? "synthetic" : est ? `$${shortNum(est)}` : "-";
   $("st-bud").classList.toggle("searching", searching);
@@ -666,6 +666,7 @@ async function enterTown(name, real = true) {
     loadProfile(name);  // the town budget is looked up while the map is being built
   }
   try { await makeTown(name, real); } finally { hideLoading(); }
+  if (!townSpec) { profileFor = ""; profileState = null; }  // no real town: stop looking for its budget
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
