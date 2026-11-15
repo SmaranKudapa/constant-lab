@@ -17,6 +17,7 @@ import { roleOf, reaction } from "./voices.js";
 import { createHover } from "./hover.js";
 import { createSky } from "./sky.js";
 import { openAudienceGraph } from "./graphs.js";
+import { createRitual } from "./ritual.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -38,6 +39,7 @@ const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 900);
 camera.position.set(95, 80, 110);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
+controls.enableZoom = false; // custom wheel zoom below: faster per notch, glides to a stop, zooms toward the cursor
 controls.maxPolarAngle = 1.38;
 controls.minDistance = 8;
 controls.maxDistance = 280;
@@ -78,6 +80,24 @@ for (const spec of RESEARCHERS) {
 
 const celebration = createCelebration({ scene, heavenY: HEAVEN_Y });
 const hover = createHover(scene);
+const ritual = createRitual(scene, { altarWorld: heaven.altarWorld });
+// A policy starts running: the god lays a scroll on the altar, then a beam hits the town with a shockwave.
+// From the research loop the god walks to the altar first; when the user switches experiments it happens at once.
+let pendingRitual = null;
+function policyRitual(agentId = "dee", instant = false) {
+  const b = winningPlace();
+  if (instant || !researchers[agentId]) { heaven.placeScroll(); ritual.fire(b, 0.35); return; }
+  researchers[agentId].moveTo(heaven.stations.altar.stand);
+  pendingRitual = { agent: agentId, t: 0, b };
+}
+function updateRitual(dt) {
+  if (pendingRitual) {
+    pendingRitual.t += dt;
+    const r = researchers[pendingRitual.agent], st = heaven.stations.altar.stand;
+    if (Math.hypot(r.pos.x - st.x, r.pos.z - st.z) < 1.4 || pendingRitual.t > 2.5) { heaven.placeScroll(); ritual.fire(pendingRitual.b, 0.45); pendingRitual = null; }
+  }
+  ritual.update(dt);
+}
 
 // selection marker
 const marker = new THREE.Group();
@@ -91,7 +111,10 @@ function emit(type, fields) {
   const e = { seq: events.length + 1, t: new Date().toISOString(), type, clock: model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : "", ...fields };
   events.push(e);
   if (type === "AUDIENCE") { flashSlug = fields.slug; setTimeout(() => (flashSlug = null), 700); }
-  if (type === "TOWN_PROFILE") townProfile = fields;
+  if (type === "TOWN_PROFILE") { townProfile = fields; updateStats(); }
+  if (type === "RUN_START") policyRitual(fields.agent || "dee");
+  if (fields.agent && STATUS[type]) setStatus(fields.say || STATUS[type], true);
+  if (type === "BRIEF") setStatus(fields.recommend && fields.recommend !== "none" ? "Best policy found" : "Can't be simulated", false, !(fields.recommend && fields.recommend !== "none"));
   if (type === "VOICES") voicesFor = { exp: fields.exp, byCohort: Object.fromEntries((fields.voices || []).map((v) => [v.cohort, v])) };
   if (fields.resident && (type === "VISIT" || type === "TURNED_AWAY" || type === "LEARN")) residentSay(fields.resident, type === "TURNED_AWAY" ? "turned" : type === "LEARN" ? "heard" : fields.restricted ? "restricted" : "visit");
   if (type === "BRIEF" && research !== undefined) { briefAt = performance.now(); if (fields.recommend && fields.recommend !== "none") celebrate(); }
@@ -115,7 +138,7 @@ async function loadSpec(name) {
     const d = await r.json();
     if (d.status === "ready") return d.spec;
     if (d.status === "error") throw new Error(d.error);
-    toast(`Fetching real map data for ${name} from OpenStreetMap... (${Math.round((performance.now() - t0) / 1000)} s; first visit to a town can take a minute)`, 6000);
+    showLoading(`Building ${name}`, `Fetching real map data from OpenStreetMap · ${Math.round((performance.now() - t0) / 1000)} s · a town's first visit can take a minute`);
     await new Promise((res) => setTimeout(res, 3000));
   }
   throw new Error("timed out");
@@ -141,6 +164,7 @@ async function makeTown(name, real = false) {
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
   endCelebration(); summaryDone = true; hover.set(null); townProfile = null;
+  $("status-chip").classList.add("hidden");
   $("mode-badge").classList.add("hidden");
   $("log").innerHTML = "";
   startReplay(null);
@@ -314,10 +338,12 @@ function buildLabels() {
 const tmpV = new THREE.Vector3();
 function placeLabels() {
   const w = window.innerWidth, h = window.innerHeight;
+  const onOlympus = controls.target.y > HEAVEN_Y * 0.5;  // where the camera is looking, so keyboard moves count too
   for (const L of labels) {
     if (L.update) L.update();
     if (L.el.style.display === "none") continue;
     tmpV.copy(L.getPos());
+    if ((tmpV.y > HEAVEN_Y * 0.5) !== onOlympus) { L.el.style.visibility = "hidden"; continue; }
     const dist = tmpV.distanceTo(camera.position);
     tmpV.project(camera);
     const vis = tmpV.z < 1 && Math.abs(tmpV.x) < 1.1 && Math.abs(tmpV.y) < 1.1 && dist < 240;
@@ -406,10 +432,20 @@ function selectedPos() {
 }
 function renderSelected() {
   const el = $("selected");
-  if (!selected) { el.classList.add("hidden"); el._html = null; marker.visible = false; return; }
-  el.classList.remove("hidden");
+  if (!selected) {  // fold away, then hide
+    marker.visible = false;
+    if (!el.classList.contains("hidden") && !el.classList.contains("closing")) {
+      el.classList.add("closing");
+      clearTimeout(el._closeT);
+      el._closeT = setTimeout(() => { el.classList.add("hidden"); el.classList.remove("closing"); el._html = null; }, 320);
+    }
+    return;
+  }
+  clearTimeout(el._closeT);
+  el.classList.remove("hidden", "closing");
   let html = "";
   if (selected.kind === "resident") { const v = views[selected.id]; html = UI.residentHTML(v.data, model && model.S.find((s) => s.r.id === selected.id), mode, events); }
+  else if (selected.kind === "researcher" && selected.id === "eli") html = UI.pastDevHTML(researchers.eli.spec, events, mode || "service", model, residents, !!(research && research.awareness));
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
   else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events, townProfile);
@@ -433,7 +469,7 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
 }));
 const openWhy = new Set(); // experiments whose reasoning panel is open
 // Audience graph buttons (Audiences tab)
-$("tab-aud").addEventListener("click", (e) => {
+function graphClick(e) {
   const btn = e.target.closest("[data-graph]");
   if (!btn || !research) return;
   const m = mode || "service";
@@ -441,7 +477,9 @@ $("tab-aud").addEventListener("click", (e) => {
   if (!aud) return;
   const incomeFactor = townSpec && townSpec.census && townSpec.census.median_income ? townSpec.census.median_income / 70000 : 1;
   openAudienceGraph({ town, residents, mode: m, days: research.days || 3, incomeFactor, exps: research.exps, aud, viewingId: viewExp && viewExp.id });
-});
+}
+$("tab-aud").addEventListener("click", graphClick);
+$("selected").addEventListener("click", graphClick);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const g = $("aud-graph"); if (g) g.classList.add("hidden"); } });
 $("tab-exp").addEventListener("click", (e) => {
   const why = e.target.closest("[data-why]");
@@ -450,11 +488,20 @@ $("tab-exp").addEventListener("click", (e) => {
   const card = e.target.closest("[data-exp]");
   if (!card || !research) return;
   const x = research.exps.find((q) => q.id === card.dataset.exp);
-  if (x && x.result) { startReplay(x); toast(`Replaying ${x.id}: ${x.label}`); renderPanels(true); }
+  if (x && x.result) { startReplay(x); policyRitual("dee", true); renderPanels(true); }
 });
 
 function viewable() { return research ? research.exps.filter((x) => x.result) : []; }
+// The run bar sits just above the prompt box (however tall it is), and the left panel stops above both
+function placeRunbar() {
+  const b = $("prompt-form").offsetHeight + 18;
+  $("runbar").style.bottom = `${b}px`;
+  const rb = $("runbar").classList.contains("hidden") ? 0 : $("runbar").offsetHeight + 10;
+  $("selected").style.maxHeight = `${Math.max(160, window.innerHeight - 108 - b - rb - 12)}px`;
+}
+window.addEventListener("resize", placeRunbar);
 function updateRunbar() {
+  placeRunbar();
   const list = viewable();
   $("runbar").classList.toggle("hidden", !research);
   $("run-label").textContent = viewExp ? `Watching ${viewExp.id}: ${viewExp.label} (seed 0)` : mode ? "Watching: starting conditions" : "";
@@ -466,6 +513,7 @@ function cycleRun(dir) {
   let i = list.indexOf(viewExp);
   i = (i + dir + list.length) % list.length;
   startReplay(list[i]);
+  policyRitual("dee", true);
   renderPanels(true);
 }
 $("run-prev").addEventListener("click", () => cycleRun(-1));
@@ -482,10 +530,39 @@ function setView(v) { $("view-town").classList.toggle("active", v === "town"); $
 $("toggle-panel").addEventListener("click", () => $("side").classList.toggle("collapsed"));
 
 let toastT = null;
-function toast(msg, ms = 3200) {
+// Only for problems the user must know about (failed map data, backend errors): a readable red card.
+function toast(msg, ms = 3200, error = true) {
   const t = $("toast");
-  t.textContent = msg; t.classList.remove("hidden");
+  t.textContent = msg; t.classList.remove("hidden"); t.classList.toggle("error", error);
   clearTimeout(toastT); toastT = setTimeout(() => t.classList.add("hidden"), ms);
+}
+function showLoading(title, sub) { $("ld-title").textContent = title; $("ld-sub").textContent = sub || ""; $("loading").classList.remove("hidden"); }
+function hideLoading() { $("loading").classList.add("hidden"); }
+
+// Status chip next to the trial badge: a spinner and what the gods are doing now; a tick when the trial is done.
+const STATUS = { CLAIM: "Bo is writing the testable claim", FRAME: "Bo framed the question", EXA: "Exa Dude is searching", TOWN_PROFILE: "Exa Dude is researching the town",
+  COMPARABLE: "Exa Dude found a similar town", MEMORY_WRITE: "Past Dev is saving to memory", MEMORY_READ: "Reading shared memory", AUDIENCE: "Past Dev is updating audiences",
+  PROPOSE: "Bo is proposing a change", REVIEW: "Cy is reviewing", BUDGET_CHECK: "Treasurer is costing it", RUN_START: "Dee is running experiments on Modal",
+  RUN_DONE: "Results are in", FAILURE: "Cy is reading the failure trace", CONSTRAINT: "A new constraint was found", CHAIN: "Cy is recording the research chain",
+  HELD_OUT: "Testing on unseen towns", VOICES: "Asking residents how it lands", PILOT: "Bo wrote a pilot proposal" };
+function setStatus(text, busy = true, error = false) {
+  const c = $("status-chip");
+  $("status-text").textContent = text;
+  c.classList.remove("hidden");
+  c.classList.toggle("busy", busy); c.classList.toggle("error", error);
+}
+const shortNum = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
+// Top bar: the town's actual residents, the simulated residents, and the town budget (when a verified source gives it)
+function updateStats() {
+  const pop = townSpec && townSpec.population;
+  $("st-pop").textContent = pop ? shortNum(pop) : "synthetic";
+  $("st-pop").parentElement.title = pop ? `Real population: ${Math.round(pop).toLocaleString()} (${townSpec.population_source || "source n/a"})` : "Synthetic town: no real population";
+  $("st-sim").textContent = String(residents.length);
+  $("st-sim").parentElement.title = `${residents.length} simulated residents` + (pop ? `, each standing for about ${Math.round(pop / residents.length).toLocaleString()} real people` : "");
+  const b = townProfile && townProfile.budget;
+  $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : "unknown";
+  $("st-bud").parentElement.title = b ? `${b.fiscal_year || "Current"} ${b.total_kind} (source: ${b.url})` : "No verified budget document yet (Exa Dude looks for one on a town's first live trial)";
+  $("town-stats").classList.remove("hidden");
 }
 
 // Landing
@@ -501,7 +578,8 @@ $("city-form").addEventListener("submit", async (e) => {
   await enterTown(name);
 });
 async function enterTown(name, real = true) {
-  await makeTown(name, real);
+  if (real && window.TOWN_TRIAL_API) showLoading(`Building ${name}`, "Fetching real map data from OpenStreetMap");
+  try { await makeTown(name, real); } finally { hideLoading(); }
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
@@ -510,10 +588,8 @@ async function enterTown(name, real = true) {
   TOWN_VIEW();
   const sp = townSpec;
   setBanner(!!window.TOWN_TRIAL_API && !liveDisabled);
-  toast(sp ? `Built ${sp.display_name.split(",").slice(0, 2).join(",")}: ${sp.places.length} real places, ${residents.length} residents` +
-             (sp.population ? ` (each represents ~${Math.round(sp.population / residents.length)} people; mix: ${sp.census ? "Census" : "model default"}).` : ".") +
-             " Type an idea below to test it." :
-             `${townNote ? townNote + " " : ""}Built ${name}: ${residents.length} residents. Type an idea below to test it.`, 7000);
+  updateStats();
+  if (townNote) toast(townNote, 7000, true);  // real map data failed: say so (the town is synthetic)
 }
 
 // Prompt
@@ -521,7 +597,7 @@ document.querySelectorAll("[data-prompt]").forEach((c) => c.addEventListener("cl
 $("prompt-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const prompt = $("prompt-input").value.trim();
-  if (!prompt) { toast("Type a policy idea first, or pick an example."); return; }
+  if (!prompt) { const i = $("prompt-input"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); i.focus(); return; }
   trialPrompt = prompt;
   startTrial(prompt);
 });
@@ -543,13 +619,13 @@ function startTrial(prompt) {
     mode, prompt, town, residents, emit, heaven, researchers,
     onChange: () => renderPanels(true),
     onView: (x) => { startReplay(x); renderPanels(true); },
-    setBusy: (b) => b && toast("Dee is fanning experiments out to Modal..."),
+    setBusy: (b) => b && setStatus("Dee is fanning experiments out to Modal", true),
   });
   afterTrialStart();
 }
 async function startLiveTrial(prompt) {
   if (research && research.stop) research.stop();
-  toast("Starting a live trial on the backend...");
+  setStatus("Starting the trial on the backend", true);
   try {
     const live = await createLive({
       api: window.TOWN_TRIAL_API, city: town.name, prompt, emit, heaven, researchers, town,
@@ -567,6 +643,8 @@ async function startLiveTrial(prompt) {
 function offerDemo(err, prompt) {
   const t = $("toast");
   t.innerHTML = "";
+  t.classList.add("error");
+  setStatus("Backend error", false, true);
   t.append(`Backend error: ${err.message}. `);
   const b = document.createElement("button");
   b.textContent = "Continue in demo mode";
@@ -601,15 +679,12 @@ function beginTrial(m) {
 function afterTrialStart() {
   for (const r of Object.values(researchers)) r.moveTo(heaven.stations[r.spec.station].stand);
   updateRunbar();
-  toast(mode === "perception"
-    ? "Perception trial: each resident is a past.dev identity. Watch ? turn into ! as the notice spreads. Researchers work in HEAVEN."
-    : mode === "town" ? "Town trial: Bo is framing your question (which places, which metric, any budget limit). Researchers work in HEAVEN."
-    : "Service trial: watch residents visit the library. Researchers work in HEAVEN.", 5200);
+  setStatus("The gods are starting the trial on Olympus", true);
   renderPanels(true);
 }
 
 // ---------- keyboard camera ----------
-// WASD pan (relative to the view), E/Q up/down, arrows orbit/tilt, O/I zoom out/in.
+// WASD pan (relative to the view), E/Q up/down, Up/Down arrows forward/back, Left/Right arrows orbit, O/I zoom out/in.
 const keys = new Set();
 const CAM_KEYS = new Set(["w", "a", "s", "d", "e", "q", "o", "i", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
 const keyName = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
@@ -641,13 +716,37 @@ function keyboardCamera(dt) {
   _sph.setFromVector3(_off);
   if (keys.has("ArrowLeft")) _sph.theta += 1.6 * dt;
   if (keys.has("ArrowRight")) _sph.theta -= 1.6 * dt;
-  if (keys.has("ArrowUp")) _sph.phi += 1.0 * dt;
-  if (keys.has("ArrowDown")) _sph.phi -= 1.0 * dt;
+  if (keys.has("ArrowUp")) { controls.target.addScaledVector(_fwd, pan); }
+  if (keys.has("ArrowDown")) { controls.target.addScaledVector(_fwd, -pan); }
   if (keys.has("o")) _sph.radius *= 1 + 1.4 * dt;
   if (keys.has("i")) _sph.radius *= 1 - 1.4 * dt;
   _sph.phi = THREE.MathUtils.clamp(_sph.phi, 0.08, controls.maxPolarAngle);
   _sph.radius = THREE.MathUtils.clamp(_sph.radius, controls.minDistance, controls.maxDistance);
   camera.position.copy(controls.target).add(_off.setFromSpherical(_sph));
+}
+
+// ---------- wheel zoom with momentum ----------
+let zoomVel = 0, zoomAt = null;
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+  zoomVel = THREE.MathUtils.clamp(zoomVel + Math.sign(d) * Math.min(Math.abs(d), 240) * 0.012, -6, 6);
+  zoomAt = { x: e.clientX, y: e.clientY };
+  fly = null; follow = false; controls.autoRotate = false;
+}, { passive: false });
+const _zr = new THREE.Raycaster(), _zp = new THREE.Plane(), _zhit = new THREE.Vector3();
+function wheelZoom(dt) {
+  if (Math.abs(zoomVel) < 0.01) { zoomVel = 0; return; }
+  const f = Math.exp(zoomVel * dt);  // > 1 zooms out, < 1 zooms in
+  _off.copy(camera.position).sub(controls.target);
+  const r0 = _off.length(), r1 = THREE.MathUtils.clamp(r0 * f, controls.minDistance, controls.maxDistance);
+  if (zoomAt && r1 < r0) {  // zooming in: drift the target toward the point under the cursor
+    _zr.setFromCamera(new THREE.Vector2((zoomAt.x / window.innerWidth) * 2 - 1, -(zoomAt.y / window.innerHeight) * 2 + 1), camera);
+    _zp.set(new THREE.Vector3(0, 1, 0), -controls.target.y);
+    if (_zr.ray.intersectPlane(_zp, _zhit)) controls.target.lerp(_zhit, 1 - r1 / r0);
+  }
+  camera.position.copy(controls.target).add(_off.setLength(r1));
+  zoomVel *= Math.exp(-dt * 5);  // drag
 }
 
 // ---------- main loop ----------
@@ -672,11 +771,12 @@ function frame() {
   for (const r of Object.values(researchers)) r.update(dt);
   for (const v of Object.values(views)) v.cheer = cheering;
   celebration.update(dt);
+  updateRitual(dt);
   // The best policy is found when the brief arrives: let the celebration play for 3 s, then show the results. Don't wait for
   // the backend to finish: follow-up steps after the brief (e.g. past.dev recall checks) can take a while and don't change the result.
   if (!summaryDone && briefAt && research) {
     if (!doneAt) { doneAt = briefAt; $("mode-badge").classList.add("hidden"); }
-    if (performance.now() - doneAt >= 3000) finishTrial();
+    if (performance.now() - doneAt >= (cheering ? 3000 : 1000)) finishTrial();  // no celebration (nothing to recommend): show it sooner
   }
   if (research && speed > 0) research.update(dt * Math.min(speed, 3));
   heaven.update(dt, t);
@@ -692,13 +792,18 @@ function frame() {
     if (p) { const d = new THREE.Vector3(p.x, 0, p.z).sub(controls.target); controls.target.add(d.multiplyScalar(0.08)); camera.position.add(d); }
   }
   keyboardCamera(dt);
+  wheelZoom(dt);
   updateHover(t);
   const sp = selectedPos();
   marker.visible = !!sp;
   if (sp) { marker.position.set(sp.x, sp.y > 5 ? sp.y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
   controls.update();
   if (inTown) { $("clock").textContent = model ? UI.clockText(model.state.tick, TICKS_PER_DAY) : ""; renderPanels(); }
+  const sh = ritual.shake;  // a little camera shake when the shockwave hits
+  const shx = sh ? (Math.random() - 0.5) * sh * 0.8 : 0, shy = sh ? (Math.random() - 0.5) * sh * 0.8 : 0;
+  camera.position.x += shx; camera.position.y += shy;
   renderer.render(scene, camera);
+  camera.position.x -= shx; camera.position.y -= shy;
   placeLabels();
   requestAnimationFrame(frame);
 }

@@ -345,7 +345,7 @@ class TownTrial(LiveTrial):
         self.set_scope(out)
         if not out["representable"]:
             rb, err2 = self.attempt("bo", "research brief", lambda e: self.bo.research_brief(self.city, self.prompt))
-            self.emit("BRIEF", agent="bo", say="This needs data, not a simulation", recommend="none", label="Research brief (no simulation)",
+            self.emit("BRIEF", agent="bo", say="This needs data, not a simulation", recommend="none", label="Research brief (no simulation)", no_sim=True,
                       summary=(rb or {}).get("reason", "The idea can't be expressed with the supported actions."),
                       assumptions="No simulated number is reported for ideas outside the supported actions.",
                       pilot=(rb or {}).get("data_plan", "Collect local data on the idea before simulating it."), scripted=bool(err2))
@@ -457,12 +457,31 @@ class TownTrial(LiveTrial):
             pb = Budget(exa=3, llm=3)
             pada = Ada(pb, LLM(pb))
             pada.place_terms = list(self.ada.place_terms)
-            prof, fresh = TP.build(self.city, pada, self.spec), True
-            if cache is not None:
-                try:
-                    cache[TP._key(self.city)] = prof
-                except Exception as ex:
-                    self.note(f"Couldn't cache the town profile ({type(ex).__name__}).", level="info", agent="eli")
+            city, spec = self.city, self.spec
+
+            def build_and_cache():
+                p = TP.build(city, pada, spec)
+                if cache is not None:
+                    try:
+                        cache[TP._key(city)] = p
+                    except Exception:
+                        pass
+                return p
+            # Capped so a big town's first visit can't hold up the trial: if the profile isn't ready in time, the trial goes on
+            # without it, and the build finishes in the background and is cached for the next trial of this town.
+            from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+            ex = ThreadPoolExecutor(1)
+            fut = ex.submit(build_and_cache)
+            ex.shutdown(wait=False)
+            try:
+                prof, fresh = fut.result(timeout=TP.BUILD_CAP_S), True
+            except FutureTimeout:
+                self.note(f"Exa Dude is still researching {self.city}'s budget and channels (over {TP.BUILD_CAP_S} s); continuing without the town "
+                          "profile this time. It will be cached for the next trial of this town.", level="info", agent="exa")
+                return
+            except Exception as err:
+                self.note(f"Town profile failed ({type(err).__name__}); continuing with labelled defaults.", agent="exa")
+                return
         if not prof:
             self.note("No town profile: Exa search is unavailable, so the town's budget documents and channels are unknown (labelled defaults).", agent="exa")
             return

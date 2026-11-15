@@ -1,4 +1,4 @@
-// Heaven: a floating island above the town where the researcher agents live.
+// Olympus: a floating island above the town where the researcher agents live.
 import * as THREE from "three";
 import { box, mat } from "./voxel.js";
 
@@ -9,7 +9,7 @@ export const RESEARCHERS = [
   { id: "bo", name: "Bo", role: "Designer", does: "Turns the idea into allowed policy actions and proposes revisions.", robe: 0xffd34d, skin: 0xb07a55, hair: 0x1b1530, station: "drafting" },
   { id: "cy", name: "Cy", role: "Reviewer", does: "Checks causal assumptions and blocks unsupported changes.", robe: 0xff9f43, skin: 0xd9a07a, hair: 0xb3412f, station: "court" },
   { id: "dee", name: "Dee", role: "Runner", does: "Fans experiments out to Modal workers and collects results.", robe: 0x5be37d, skin: 0x8a5a3c, hair: 0x5a3a22, station: "portal" },
-  { id: "eli", name: "Eli", role: "Archivist", does: "Keeps shared memory in past.dev: evidence, handoffs, audiences.", robe: 0xff7ad9, skin: 0xf5d6c0, hair: 0xe0c068, station: "archive" },
+  { id: "eli", name: "Past Dev", role: "Memory & audiences god", does: "Keeps the team's shared memory in past.dev (evidence, handoffs between gods, decisions) and the residents' identities and audiences: who has heard what, and when.", robe: 0xff7ad9, skin: 0xf5d6c0, hair: 0xe0c068, station: "archive" },
   { id: "treasurer", name: "Treasurer", role: "Budget god", does: "Costs every proposal line by line and checks it against the town's sourced budget: a funding source, a gap, or budget unverified. Advises only; never changes the budget.", robe: 0xe8c24a, skin: 0xc68e62, hair: 0x2b2b2b, station: "treasury" },
 ];
 
@@ -67,10 +67,35 @@ export function buildHeaven(scene) {
   group.add(box(3, 0.12, 40, 0xf7f1e6, 0, 0, 0));
   group.add(box(40, 0.12, 3, 0xf7f1e6, 0, 0, 0));
   for (const o of [-1.7, 1.7]) { group.add(box(0.3, 0.16, 40, 0, o, 0, 0, gold)); group.add(box(40, 0.16, 0.3, 0, 0, 0, o, gold)); }
-  group.add(box(5, 0.8, 5, 0xffffff, 0, 0, 0));
-  group.add(box(3.6, 0.3, 3.6, 0x8fd3ff, 0, 0.8, 0));
-  group.add(box(0.8, 2.6, 0.8, 0xffffff, 0, 0.8, 0));
-  group.add(box(1.6, 0.4, 1.6, 0xffd34d, 0, 3.4, 0));
+  // Altar of trials (centre): a stepped marble altar; each policy run lays a scroll on it
+  const altar = new THREE.Group();
+  altar.add(box(6, 0.5, 6, 0xffffff, 0, 0, 0));
+  altar.add(box(4.6, 0.6, 4.6, 0xf3eefc, 0, 0.5, 0));
+  altar.add(box(2.4, 1.6, 2.4, 0xffffff, 0, 1.1, 0));
+  altar.add(box(3.2, 0.35, 2.6, 0, 0, 2.7, 0, gold));
+  const runeMat = new THREE.MeshBasicMaterial({ color: 0x9ff0ff, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+  const rune = new THREE.Mesh(new THREE.RingGeometry(3.6, 4.1, 32), runeMat);
+  rune.rotation.x = -Math.PI / 2; rune.position.y = 0.55;
+  altar.add(rune);
+  altar.traverse((o) => { if (o.isMesh) o.userData.pick = { kind: "station", id: "altar" }; });
+  group.add(altar);
+  const scrolls = [];
+  const parchment = new THREE.MeshLambertMaterial({ color: 0xf6e7c1, emissive: 0xffe2a0, emissiveIntensity: 0.25 });
+  // Lay a new scroll on the altar (older scrolls stack beside it, up to 5)
+  function placeScroll() {
+    const s = new THREE.Group();
+    const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 2.2, 10), parchment);
+    roll.rotation.z = Math.PI / 2; s.add(roll);
+    for (const x of [-1.2, 1.2]) { const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.22, 10), gold); cap.rotation.z = Math.PI / 2; cap.position.x = x; s.add(cap); }
+    const ribbon = box(0.3, 0.7, 0.68, 0xd94a5a, 0, -0.34, 0); s.add(ribbon);
+    s.position.set(0, 7, 0);
+    altar.add(s);
+    scrolls.forEach((o, k) => { o.userData.slot = k + 1; });
+    s.userData = { t: 0, slot: 0 };
+    scrolls.unshift(s);
+    while (scrolls.length > 5) altar.remove(scrolls.pop());
+    runeMat.opacity = 1;
+  }
 
   const stations = {};
   const station = (id, x, z, label, build) => {
@@ -196,6 +221,16 @@ export function buildHeaven(scene) {
     const mp = moteGeo.attributes.position;
     for (let k = 0; k < mp.count; k++) { let y = mp.getY(k) + dt * 0.6; if (y > 16) y = 0; mp.setY(k, y); mp.setX(k, mp.getX(k) + Math.sin(time + k) * dt * 0.2); }
     mp.needsUpdate = true;
+    for (const s of scrolls) {  // the new scroll floats down onto the altar; older ones slide aside
+      s.userData.t += dt;
+      const tgt = s.userData.slot === 0 ? { x: 0, y: 3.35, z: 0 } : { x: -2.4 + (s.userData.slot - 1) * 1.2, y: 1.15, z: 2.6 };
+      s.position.x += (tgt.x - s.position.x) * Math.min(1, dt * 6);
+      s.position.y += (tgt.y - s.position.y) * Math.min(1, dt * 5);
+      s.position.z += (tgt.z - s.position.z) * Math.min(1, dt * 6);
+      s.rotation.y = s.userData.slot === 0 ? Math.sin(time * 1.5) * 0.15 : 0.3;
+    }
+    runeMat.opacity = Math.max(0.35, runeMat.opacity - dt * 0.8);
+    rune.rotation.z += dt * 0.4;
     const glow = group.children.find((g) => g.userData && g.userData.glow);
     if (glow) glow.userData.glow.material.opacity = 0.55 + Math.sin(time * 3) * 0.2;
     for (let k = drops.length - 1; k >= 0; k--) {
@@ -211,5 +246,6 @@ export function buildHeaven(scene) {
     }
   }
 
-  return { group, stations, update, drop };
+  stations.altar = { id: "altar", x: 0, z: 0, label: "ALTAR OF TRIALS", stand: { x: 0, z: 4.6 }, labelY: HEAVEN_Y + 7 };
+  return { group, stations, update, drop, placeScroll, altarWorld: new THREE.Vector3(0, HEAVEN_Y + 3.4, 0) };
 }

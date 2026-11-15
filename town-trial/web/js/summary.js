@@ -53,6 +53,8 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
   const base = exps.find((x) => x.role === "baseline") || exps[0];
   const voicesEv = [...events].reverse().find((e) => e.type === "VOICES");
   const out = { prompt, city, mode, when: new Date().toISOString(), metricLabel: P.label, brief: brief || null, best: null, tiles: [], why: [], steps: [], others: [], voices: null };
+  // No simulation possible (the question is outside the model) or no option met a limit: the popup turns red
+  out.fail = brief && brief.recommend === "none" ? (brief.no_sim || /no simulation/i.test(brief.label || "") ? "nosim" : "noneworks") : null;
   out.steps = events.filter((e) => RESEARCH.has(e.type)).map((e) => ({ seq: e.seq, clock: e.clock, agent: e.agent, type: e.type, text: stepText(e), scripted: !!e.scripted, level: e.level }));
   if (!best || !best.result) return out;
   out.best = { id: best.id, label: best.label, change: best.change, role: ROLE[best.role] || best.role };

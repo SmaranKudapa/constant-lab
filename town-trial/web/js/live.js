@@ -11,7 +11,7 @@ const STATION = {
   MEMORY_WRITE: "archive", MEMORY_READ: "archive", AUDIENCE: "archive", VOICES: "archive",
   CLAIM: "drafting", PROPOSE: "drafting", BRIEF: "drafting",
   REVIEW: "court", FAILURE: "court", HELD_OUT: "court",
-  RUN_START: "portal", RUN_DONE: "portal",
+  RUN_START: "altar", RUN_DONE: "portal",
   BUDGET_CHECK: "treasury", COMPARABLE: "lookout", TOWN_PROFILE: "lookout", PILOT: "drafting", CHAIN: "court",
 };
 const STATE_EVENTS = new Set(["EXPERIMENT", "HELD_OUT_TABLE"]); // rebuild panels, not log cards
