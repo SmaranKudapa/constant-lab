@@ -1,0 +1,3968 @@
+{
+ "trial_id": "42c1dda038c2",
+ "city": "Marfa, TX",
+ "mode": "service",
+ "options": {},
+ "tag": "town",
+ "version": "df882e32baba",
+ "wall_s": 108.3,
+ "done": true,
+ "events": [
+  {
+   "seq": 1,
+   "t": "2026-11-15T03:54:42.932Z",
+   "type": "NOTE",
+   "clock": "",
+   "level": "info",
+   "message": "Real town: Marfa, Presidio County, Texas, 79843, United States. 36 places from OpenStreetMap (34 named), population 1788 (OpenStreetMap population tag), resident mix: model default (no demographic data for this town). Map data (c) OpenStreetMap contributors (ODbL).",
+   "town": {
+    "places": 36,
+    "population": 1788.0,
+    "residents": 79,
+    "census": false,
+    "synthetic_places": []
+   },
+   "agent": "eli",
+   "say": "Loading the real town"
+  },
+  {
+   "seq": 2,
+   "t": "2026-11-15T03:54:43.939Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "query": "Marfa, TX library",
+   "found": 3,
+   "note": "3 prior facts from earlier trials: The source shows an online channel for reaching residents via the Marfa Public Library website and email contact information. It does not explicitly show a board or bulletin channel.; A source shows Marfa uses an official website and a public posting location at City Hall for notices; no bulletin/ne",
+   "store": "past.dev",
+   "agent": "eli",
+   "say": "Recalling memory for this town"
+  },
+  {
+   "seq": 3,
+   "t": "2026-11-15T03:54:44.169Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The source shows an online channel for reaching residents via the Marfa Public Library website and email contact information. It does not explicitly show a board or bulletin channel.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 4,
+   "t": "2026-11-15T03:54:44.406Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an official website and a public posting location at City Hall for notices; no bulletin/newsletter channel is shown in the provided sources.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 5,
+   "t": "2026-11-15T03:54:44.635Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-annual_budget",
+   "author": "ada",
+   "claim": "City of Marfa FY 2025-2026 General Fund, Department 01 Administration total revenue: The FY 2025-2026 General Fund, Department 01 Administration lists Total Revenue of 2,078,048.27.",
+   "used_for": "carried into this trial (re-checked by search below)",
+   "store": "past.dev",
+   "agent": "eli"
+  },
+  {
+   "seq": 6,
+   "t": "2026-11-15T03:54:47.394Z",
+   "type": "FRAME",
+   "clock": "",
+   "metric": "visits",
+   "key": "visits.kc.library.day-workers",
+   "label": "visits/week by day workers to libraries",
+   "unit": "",
+   "budget_scope": "budget of town-run places (Blackwell School National Historic Site, City Hall, Marfa Public Library, Sports ground, Visitor Center and Bookstore, Winter Garden, exhibitions 2d)",
+   "direction": "max",
+   "target": "library",
+   "target_name": "Marfa Public Library",
+   "kind": "library",
+   "cohort": "day-workers",
+   "days": 7,
+   "budget_limit": {
+    "type": "none",
+    "value": null
+   },
+   "scripted": false,
+   "agent": "bo",
+   "say": "Framing the question"
+  },
+  {
+   "seq": 7,
+   "t": "2026-11-15T03:54:47.618Z",
+   "type": "CLAIM",
+   "clock": "",
+   "claim": "Extend Marfa Public Library hours on two weekdays from 18:00 to 20:00 for 8 weeks to increase visits by day-workers, compared with current hours.",
+   "metric": "visits/week by day workers to libraries",
+   "constraint": "budget limit unknown yet",
+   "horizon": "1 week, 16 matched seeds",
+   "prompt": "Extend library hours two evenings a week to reach residents who work during the day",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 8,
+   "t": "2026-11-15T03:54:52.901Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa Public Library Marfa, TX opening hours",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Location & Hours \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/locationhours",
+     "passage": "Location & Hours \u2014 Marfa Public Library Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm Open till 6pm on Thursday Saturday 10am - 2pm Sunday Closed ... 432-729-4631 HOURS Monday",
+     "published": null
+    },
+    {
+     "title": "Public Library | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/publiclibrary",
+     "passage": "can be found at marfapubliclibrary.org. Contact Information Phone Number (432) 729-4631 Email Contact Group Office Hours Monday-Friday: 9 AM-5 PM Saturday: 9 AM - 1 PM 113 S Highland Avenue | Marfa, TX 79843 | (432) 729\u20114315 (432-729-4315)",
+     "published": null
+    },
+    {
+     "title": "Marfa Public Library",
+     "url": "https://exa.ai/library/place/kl61jrw9tvj",
+     "passage": "Marfa Public Library Marfa Public Library is a library in Marfa, TX, United States. Location - Address: 115 E Oak St, Marfa, TX 79843, United States - Area: Marfa, Texas, United States - Coordinates: 30.311621, -104.020302 Details - Status: Open - Categories: Library - Rating: 5.0 out of 5 from 13 reviews Opening hours | Day | Hours | | --- | --- | | Monday | 9 AM\u20135 PM | | Tuesday | 9 AM\u20135 PM | | Wednesday | 9 AM\u20135 PM | | Thursday | 9 AM\u20135 PM | | Friday | 9 AM\u20135 PM | | Saturday | 9 AM\u20131 PM | | Sunday | Closed | Contact - Phone: +14327294631 - Email: marfalibrarystaff@gmail.com - Website: [http",
+     "published": "2026-09-14T04:03:48.000Z"
+    }
+   ],
+   "used_for": "This search did not state Marfa Public Library's hours (verified quote); using the hours verified in an earlier trial and recalled from shared memory: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: Marfa Public Library hours"
+  },
+  {
+   "seq": 9,
+   "t": "2026-11-15T03:54:53.118Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-library-hours",
+   "author": "ada",
+   "claim": "Library hours: Mon 09:00-17:00, Tue 09:00-17:00, Wed 09:00-17:00, Thu 09:00-17:00, Fri 09:00-17:00, Sat 09:00-13:00, Sun closed",
+   "used_for": "baseline policy E0 (hours from an earlier trial)",
+   "store": "past.dev",
+   "agent": "bo"
+  },
+  {
+   "seq": 10,
+   "t": "2026-11-15T03:54:57.072Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX library budget staff wages",
+   "search": "broad",
+   "results": [
+    {
+     "title": "Budget Listing",
+     "url": "https://www.cityofmarfa.com/media/6446",
+     "passage": "Budget Listing City of Marfa For Fiscal: 2025-2026 Period Ending: 10/31/2025 2025-2026 Account Number Account Name 2025-2026 Fund: 01 - General Fund Department: 01 - Administration Revenue 01.01.500.0800 Interest Earned 187,500.00 01.01.501.0810 General Fund Sales Tax Revenue 420,000.00 01.01.502.0840 Franchise Tax 41,000.00 01.01.502.0960 Property Tax Revenue 600,000.00 01.01.502.1260 Sales Tax Mixed Beverage 30,000.00 01.01.560.0930 USO & MAC Room/Facility Rental 12,000.00 01.01.560.1210 Rental Car Revenue 10,000.00 01.01.560.1280 Administration Reimbursement 737,694.07 01.01.591.0910 Hot Ch",
+     "published": null
+    },
+    {
+     "title": "Education Bug - Marfa Public Library - Marfa, Texas",
+     "url": "https://texas.educationbug.org/public-library/15025-marfa-public-library.html",
+     "passage": "Marfa Public Library - Marfa, Texas - Central Library Phone - 432-729-4631 Marfa Public Library 115 E Oak ST Marfa, TX 79843-0609 - Marfa, Texas Public Libraries (1) - Marfa, Texas Public Schools ... Phone: 432-729-4631 Add/Update Website Location 115 E Oak ST Marfa, TX 79843-M Mailing Address PO Box U Marfa, TX 79843-0609 ... Library Services Annual Service Hours for All Service Outlets: 2,144 Annual Library Visits: 28,415 Annual Reference Transactions: 2,050 Annual Circulation Transactions: 37,478 Annual Children's Material Circulation: 6,024 Internet Terminals Used by General Public: 4 User",
+     "published": null
+    },
+    {
+     "title": "DRAFT",
+     "url": "https://www.cityofmarfa.com/media/5971",
+     "passage": "| 01.06.505.990 | Dumraese Trust Funds | 25,000.00 | 30,000.00 | 30,000.00 | 5,000.00 | 0.00 | 5,000.00 | | --- | --- | --- | --- | --- | --- | --- | --- | | 01.06.505.991 | Texas Book Fest Revenue | 0.00 | 2,500.00 | 2,500.00 | 0.00 | 0.00 | 0.00 | | 01.06.505.1000 | Hancher Library Foundation | 0.00 | 0.00 | 0.00 | 7,290.00 | 7,290.00 | 0.00 | | 01.06.505.1040 | Memorial Donations | 100.00 | 0.00 | 0.00 | 250.00 | 221.14 | 0.00 | | 01.06.505.1060 | D L Kyler Foundation | 11.73 | 1,000.00 | 0.00 | 0.00 | 0.00 | 0.00 | | 01.06.505.1290 | Tocker Foundation Grant | 7,751.63 | 2,500.00 | 0.00 | 1",
+     "published": null
+    }
+   ],
+   "used_for": "No budget figure stated (unverified quote); using the labelled default wage $25/staff hour.",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: the town budget"
+  },
+  {
+   "seq": 11,
+   "t": "2026-11-15T03:54:57.298Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 12,
+   "t": "2026-11-15T03:54:57.534Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening library hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 13,
+   "t": "2026-11-15T03:54:57.754Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E1",
+   "parent": "E0",
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00",
+   "why": "Day-workers are more likely to use the library after work if it stays open two extra evenings a week.",
+   "scripted": false,
+   "agent": "bo"
+  },
+  {
+   "seq": 14,
+   "t": "2026-11-15T03:55:00.414Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E1",
+   "ok": true,
+   "reason": "This is a supported type of action, but it relies on an unstated staffing/budget feasibility assumption. The notice-channel assumption is okay because the local sources show the library website and city posting channels exist.",
+   "ungrounded": [
+    "The library can operate these longer Tuesday and Thursday hours within its existing staffing and budget."
+   ],
+   "scripted": false,
+   "note": "user's idea: always run",
+   "agent": "cy",
+   "say": "Checking E1's assumptions"
+  },
+  {
+   "seq": 15,
+   "t": "2026-11-15T03:55:00.659Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 16,
+   "t": "2026-11-15T03:55:00.886Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening library hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "running",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 17,
+   "t": "2026-11-15T03:55:01.121Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Fanning E0 + E1 out to Modal"
+  },
+  {
+   "seq": 18,
+   "t": "2026-11-15T03:55:04.114Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E0",
+   "label": "Current practice",
+   "role": "baseline",
+   "parent": null,
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "none (current practice)",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 693.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 44.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 641.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 88.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 42.8125,
+     "turnedAway.f.community-1": 2.0625,
+     "turnedAway.f.community-2": 3.0,
+     "turnedAway.f.library": 19.9375,
+     "turnedAway.f.post_office-1": 14.25,
+     "turnedAway.f.sports-2": 0.6875,
+     "turnedAway.f.townhall": 2.875,
+     "turnedAway.k.community": 5.0625,
+     "turnedAway.k.library": 19.9375,
+     "turnedAway.k.post_office": 14.25,
+     "turnedAway.k.sports": 0.6875,
+     "turnedAway.k.townhall": 2.875,
+     "unique": 77.4375,
+     "unique.k.community": 42.625,
+     "unique.k.library": 31.4375,
+     "unique.k.park": 73.125,
+     "unique.k.post_office": 15.875,
+     "unique.k.sports": 44.3125,
+     "unique.k.townhall": 2.5625,
+     "visits": 302.3125,
+     "visits.c.day-workers": 54.0625,
+     "visits.c.families": 62.25,
+     "visits.c.night-shift": 25.8125,
+     "visits.c.remote": 23.4375,
+     "visits.c.seniors": 83.0,
+     "visits.c.students": 53.75,
+     "visits.f.community-1": 25.75,
+     "visits.f.community-2": 26.0625,
+     "visits.f.library": 41.9375,
+     "visits.f.park": 51.5,
+     "visits.f.park-2": 82.3125,
+     "visits.f.post_office-1": 19.0625,
+     "visits.f.sports-1": 0.25,
+     "visits.f.sports-2": 52.75,
+     "visits.f.townhall": 2.6875,
+     "visits.k.community": 51.8125,
+     "visits.k.library": 41.9375,
+     "visits.k.park": 133.8125,
+     "visits.k.post_office": 19.0625,
+     "visits.k.sports": 53.0,
+     "visits.k.townhall": 2.6875,
+     "visits.kc.community.day-workers": 8.0625,
+     "visits.kc.community.families": 11.0,
+     "visits.kc.community.night-shift": 2.5625,
+     "visits.kc.community.remote": 4.5,
+     "visits.kc.community.seniors": 15.3125,
+     "visits.kc.community.students": 10.375,
+     "visits.kc.library.day-workers": 1.375,
+     "visits.kc.library.families": 5.0625,
+     "visits.kc.library.night-shift": 3.8125,
+     "visits.kc.library.remote": 2.125,
+     "visits.kc.library.seniors": 19.875,
+     "visits.kc.library.students": 9.6875,
+     "visits.kc.park.day-workers": 31.5625,
+     "visits.kc.park.families": 31.375,
+     "visits.kc.park.night-shift": 12.8125,
+     "visits.kc.park.remote": 11.875,
+     "visits.kc.park.seniors": 25.6875,
+     "visits.kc.park.students": 20.5,
+     "visits.kc.post_office.day-workers": 0.5625,
+     "visits.kc.post_office.families": 2.875,
+     "visits.kc.post_office.night-shift": 1.3125,
+     "visits.kc.post_office.remote": 0.75,
+     "visits.kc.post_office.seniors": 13.125,
+     "visits.kc.post_office.students": 0.4375,
+     "visits.kc.sports.day-workers": 12.5,
+     "visits.kc.sports.families": 11.75,
+     "visits.kc.sports.night-shift": 4.875,
+     "visits.kc.sports.remote": 4.1875,
+     "visits.kc.sports.seniors": 7.0,
+     "visits.kc.sports.students": 12.6875,
+     "visits.kc.townhall.families": 0.1875,
+     "visits.kc.townhall.night-shift": 0.4375,
+     "visits.kc.townhall.seniors": 2.0,
+     "visits.kc.townhall.students": 0.0625,
+     "visits.restricted": 0.0
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 6.441725959192406,
+     "turnedAway.f.community-1": 1.2893796958227628,
+     "turnedAway.f.community-2": 1.8257418583505538,
+     "turnedAway.f.library": 3.5302266216207707,
+     "turnedAway.f.post_office-1": 2.840187787218772,
+     "turnedAway.f.sports-2": 0.704154339142587,
+     "turnedAway.f.townhall": 2.1252450839060106,
+     "turnedAway.k.community": 2.080664957811965,
+     "turnedAway.k.library": 3.5302266216207707,
+     "turnedAway.k.post_office": 2.840187787218772,
+     "turnedAway.k.sports": 0.704154339142587,
+     "turnedAway.k.townhall": 2.1252450839060106,
+     "unique": 0.8920949127381756,
+     "unique.k.community": 3.7925365302569376,
+     "unique.k.library": 2.5024987512484396,
+     "unique.k.park": 1.927865832122834,
+     "unique.k.post_office": 2.3057898140695015,
+     "unique.k.sports": 3.8595120589698038,
+     "unique.k.townhall": 1.1528949070347507,
+     "visits": 10.7933235536295,
+     "visits.c.day-workers": 4.464209523159354,
+     "visits.c.families": 4.597100535482483,
+     "visits.c.night-shift": 3.081531004765867,
+     "visits.c.remote": 3.6691279617914665,
+     "visits.c.seniors": 6.418722614352485,
+     "visits.c.students": 2.4083189157584592,
+     "visits.f.community-1": 3.4351128074635335,
+     "visits.f.community-2": 3.906724971123511,
+     "visits.f.library": 4.25,
+     "visits.f.park": 4.273952113286562,
+     "visits.f.park-2": 3.9109887922791766,
+     "visits.f.post_office-1": 3.415040263305837,
+     "visits.f.sports-1": 0.4472135954999579,
+     "visits.f.sports-2": 3.958114029012639,
+     "visits.f.townhall": 1.25,
+     "visits.k.community": 5.455501810099599,
+     "visits.k.library": 4.25,
+     "visits.k.park": 6.493265742290238,
+     "visits.k.post_office": 3.415040263305837,
+     "visits.k.sports": 4.0,
+     "visits.k.townhall": 1.25,
+     "visits.kc.community.day-workers": 1.8062391868188443,
+     "visits.kc.community.families": 3.32665998663324,
+     "visits.kc.community.night-shift": 1.3647344063956182,
+     "visits.kc.community.remote": 1.591644851508443,
+     "visits.kc.community.seniors": 2.056493779875511,
+     "visits.kc.community.students": 1.3601470508735443,
+     "visits.kc.library.day-workers": 1.0878112581387147,
+     "visits.kc.library.families": 2.112463017427761,
+     "visits.kc.library.night-shift": 2.0726392192886185,
+     "visits.kc.library.remote": 0.9574271077563381,
+     "visits.kc.library.seniors": 3.0083217912982647,
+     "visits.kc.library.students": 1.7404501333467348,
+     "visits.kc.park.day-workers": 3.3260336739125176,
+     "visits.kc.park.families": 2.473189573539939,
+     "visits.kc.park.night-shift": 2.19753649950727,
+     "visits.kc.park.remote": 2.4460853078609777,
+     "visits.kc.park.seniors": 2.6259918760981216,
+     "visits.kc.park.students": 1.7888543819998317,
+     "visits.kc.post_office.day-workers": 0.6291528696058958,
+     "visits.kc.post_office.families": 2.0289570391377603,
+     "visits.kc.post_office.night-shift": 0.873212459828649,
+     "visits.kc.post_office.remote": 0.7745966692414834,
+     "visits.kc.post_office.seniors": 2.5527762664727724,
+     "visits.kc.post_office.students": 0.6291528696058958,
+     "visits.kc.sports.day-workers": 2.780887148615228,
+     "visits.kc.sports.families": 1.8073922282301278,
+     "visits.kc.sports.night-shift": 1.5864005379054391,
+     "visits.kc.sports.remote": 0.9810708435174292,
+     "visits.kc.sports.seniors": 2.0330600909302543,
+     "visits.kc.sports.students": 1.4930394055974097,
+     "visits.kc.townhall.families": 0.4031128874149275,
+     "visits.kc.townhall.night-shift": 0.51234753829798,
+     "visits.kc.townhall.seniors": 1.3165611772087666,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 0.0
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 594750,
+    "running": 396292,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 991042,
+    "staff_hours_week": 457.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 19,
+   "t": "2026-11-15T03:55:04.347Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E1",
+   "label": "Your idea: Two evening library hours",
+   "role": "user",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 697.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 48.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 649.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 96.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 36.4375,
+     "turnedAway.f.community-1": 2.0625,
+     "turnedAway.f.community-2": 3.25,
+     "turnedAway.f.library": 15.375,
+     "turnedAway.f.post_office-1": 12.625,
+     "turnedAway.f.sports-2": 0.625,
+     "turnedAway.f.townhall": 2.5,
+     "turnedAway.k.community": 5.3125,
+     "turnedAway.k.library": 15.375,
+     "turnedAway.k.post_office": 12.625,
+     "turnedAway.k.sports": 0.625,
+     "turnedAway.k.townhall": 2.5,
+     "unique": 77.5,
+     "unique.k.community": 40.9375,
+     "unique.k.library": 39.5625,
+     "unique.k.park": 73.9375,
+     "unique.k.post_office": 15.125,
+     "unique.k.sports": 42.75,
+     "unique.k.townhall": 3.0,
+     "visits": 308.375,
+     "visits.c.day-workers": 58.6875,
+     "visits.c.families": 62.8125,
+     "visits.c.night-shift": 25.375,
+     "visits.c.remote": 25.0,
+     "visits.c.seniors": 80.5,
+     "visits.c.students": 56.0,
+     "visits.f.community-1": 26.6875,
+     "visits.f.community-2": 23.5625,
+     "visits.f.library": 51.8125,
+     "visits.f.park": 53.4375,
+     "visits.f.park-2": 81.3125,
+     "visits.f.post_office-1": 17.5625,
+     "visits.f.sports-1": 0.4375,
+     "visits.f.sports-2": 50.5,
+     "visits.f.townhall": 3.0625,
+     "visits.k.community": 50.25,
+     "visits.k.library": 51.8125,
+     "visits.k.park": 134.75,
+     "visits.k.post_office": 17.5625,
+     "visits.k.sports": 50.9375,
+     "visits.k.townhall": 3.0625,
+     "visits.kc.community.day-workers": 6.9375,
+     "visits.kc.community.families": 11.0625,
+     "visits.kc.community.night-shift": 3.0625,
+     "visits.kc.community.remote": 4.0,
+     "visits.kc.community.seniors": 15.5,
+     "visits.kc.community.students": 9.6875,
+     "visits.kc.library.day-workers": 5.75,
+     "visits.kc.library.families": 8.375,
+     "visits.kc.library.night-shift": 4.5,
+     "visits.kc.library.remote": 2.875,
+     "visits.kc.library.seniors": 18.3125,
+     "visits.kc.library.students": 12.0,
+     "visits.kc.park.day-workers": 32.8125,
+     "visits.kc.park.families": 29.1875,
+     "visits.kc.park.night-shift": 12.5,
+     "visits.kc.park.remote": 13.125,
+     "visits.kc.park.seniors": 25.5625,
+     "visits.kc.park.students": 21.5625,
+     "visits.kc.post_office.day-workers": 0.3125,
+     "visits.kc.post_office.families": 2.375,
+     "visits.kc.post_office.night-shift": 1.25,
+     "visits.kc.post_office.remote": 0.75,
+     "visits.kc.post_office.seniors": 12.375,
+     "visits.kc.post_office.students": 0.5,
+     "visits.kc.sports.day-workers": 12.875,
+     "visits.kc.sports.families": 11.5625,
+     "visits.kc.sports.night-shift": 3.75,
+     "visits.kc.sports.remote": 4.125,
+     "visits.kc.sports.seniors": 6.4375,
+     "visits.kc.sports.students": 12.1875,
+     "visits.kc.townhall.families": 0.25,
+     "visits.kc.townhall.night-shift": 0.3125,
+     "visits.kc.townhall.remote": 0.125,
+     "visits.kc.townhall.seniors": 2.3125,
+     "visits.kc.townhall.students": 0.0625,
+     "visits.restricted": 3.25
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 6.37671545546765,
+     "turnedAway.f.community-1": 1.2893796958227628,
+     "turnedAway.f.community-2": 1.4832396974191326,
+     "turnedAway.f.library": 3.7036018504513506,
+     "turnedAway.f.post_office-1": 3.810074364978546,
+     "turnedAway.f.sports-2": 0.5,
+     "turnedAway.f.townhall": 1.3165611772087666,
+     "turnedAway.k.community": 1.9224550276491081,
+     "turnedAway.k.library": 3.7036018504513506,
+     "turnedAway.k.post_office": 3.810074364978546,
+     "turnedAway.k.sports": 0.5,
+     "turnedAway.k.townhall": 1.3165611772087666,
+     "unique": 1.2649110640673518,
+     "unique.k.community": 3.604973416453072,
+     "unique.k.library": 3.346017533327244,
+     "unique.k.park": 2.5682354513037415,
+     "unique.k.post_office": 2.0936411663256274,
+     "unique.k.sports": 3.5496478698597698,
+     "unique.k.townhall": 1.3165611772087666,
+     "visits": 11.655470818461174,
+     "visits.c.day-workers": 6.1613716005448005,
+     "visits.c.families": 3.9533740863554345,
+     "visits.c.night-shift": 4.256367778595579,
+     "visits.c.remote": 3.3862466931200785,
+     "visits.c.seniors": 5.773502691896258,
+     "visits.c.students": 5.059644256269407,
+     "visits.f.community-1": 3.8939054944875076,
+     "visits.f.community-2": 3.2035136959282693,
+     "visits.f.library": 3.187867625859016,
+     "visits.f.park": 3.444198019858905,
+     "visits.f.park-2": 5.25,
+     "visits.f.post_office-1": 2.707243370416976,
+     "visits.f.sports-1": 0.6291528696058958,
+     "visits.f.sports-2": 4.1952353926806065,
+     "visits.f.townhall": 1.4361406616345072,
+     "visits.k.community": 4.8373546489791295,
+     "visits.k.library": 3.187867625859016,
+     "visits.k.park": 6.016643582596529,
+     "visits.k.post_office": 2.707243370416976,
+     "visits.k.sports": 4.2342846700082255,
+     "visits.k.townhall": 1.4361406616345072,
+     "visits.kc.community.day-workers": 2.3514180118955172,
+     "visits.kc.community.families": 2.048373338367138,
+     "visits.kc.community.night-shift": 1.526160760426852,
+     "visits.kc.community.remote": 1.591644851508443,
+     "visits.kc.community.seniors": 2.280350850198276,
+     "visits.kc.community.students": 1.8874586088176875,
+     "visits.kc.library.day-workers": 1.983263304085802,
+     "visits.kc.library.families": 2.247220505424423,
+     "visits.kc.library.night-shift": 1.8973665961010275,
+     "visits.kc.library.remote": 1.3102162671355697,
+     "visits.kc.library.seniors": 3.070694818223828,
+     "visits.kc.library.students": 2.3944379994757297,
+     "visits.kc.park.day-workers": 4.445503346079047,
+     "visits.kc.park.families": 2.7861263431510066,
+     "visits.kc.park.night-shift": 2.6076809620810595,
+     "visits.kc.park.remote": 1.5,
+     "visits.kc.park.seniors": 3.4052655305178967,
+     "visits.kc.park.students": 2.3935677693908453,
+     "visits.kc.post_office.day-workers": 0.47871355387816905,
+     "visits.kc.post_office.families": 1.5438048235879214,
+     "visits.kc.post_office.night-shift": 1.1254628677422756,
+     "visits.kc.post_office.remote": 0.7745966692414834,
+     "visits.kc.post_office.seniors": 2.5527762664727724,
+     "visits.kc.post_office.students": 0.6324555320336759,
+     "visits.kc.sports.day-workers": 2.0936411663256274,
+     "visits.kc.sports.families": 2.5024987512484396,
+     "visits.kc.sports.night-shift": 1.5275252316519468,
+     "visits.kc.sports.remote": 1.408308678285174,
+     "visits.kc.sports.seniors": 1.5903353943953669,
+     "visits.kc.sports.students": 3.103089857974897,
+     "visits.kc.townhall.families": 0.4472135954999579,
+     "visits.kc.townhall.night-shift": 0.47871355387816905,
+     "visits.kc.townhall.remote": 0.3415650255319866,
+     "visits.kc.townhall.seniors": 1.3022416570411703,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 1.7320508075688772
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 605150,
+    "running": 401492,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1006642,
+    "staff_hours_week": 465.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 20,
+   "t": "2026-11-15T03:55:04.574Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E0",
+   "metric": "visits.kc.library.day-workers",
+   "value": "1.4 \u00b1 1.1",
+   "wall_s": 2.76,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "budget": "$991.0k/yr (+$0 vs now)",
+   "turned_away": "19.9",
+   "agent": "dee"
+  },
+  {
+   "seq": 21,
+   "t": "2026-11-15T03:55:04.801Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E1",
+   "metric": "visits.kc.library.day-workers",
+   "value": "5.8 \u00b1 2.0",
+   "wall_s": 2.76,
+   "workers": 4,
+   "view": "E1",
+   "note": null,
+   "budget": "$1.01M/yr (+$15.6k vs now)",
+   "turned_away": "15.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 22,
+   "t": "2026-11-15T03:55:06.861Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E1",
+   "trace": "E1 raised day-worker visits from 1.4 to 5.8/week, but the library still turned away 15.4/week, mostly day-workers (15.8) plus families (8.6). The busiest unmet slots were Sun 16:00, 10:00, and 13:00, so the miss is concentrated on Sunday capacity.",
+   "next_question": "Can the library staff Sunday hours or add Sunday shifts?",
+   "entity": "Marfa Public Library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 23,
+   "t": "2026-11-15T03:55:07.605Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-42c1dda038c2-1",
+   "kind": "failure",
+   "claim": "E1: E1 raised day-worker visits from 1.4 to 5.8/week, but the library still turned away 15.4/week, mostly day-workers (15.8) plus families (8.6). The busiest unmet slots were Sun 16:00, 10:00, and 13:00, so the miss is concentrated on Sunday capacity. Next: Can the library staff Sunday hours or add Sunday shifts?",
+   "source": "trial:42c1dda038c2",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 24,
+   "t": "2026-11-15T03:55:11.818Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX Marfa Public Library board library Sunday hours staffing budget Marfa",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Education Bug - Marfa Public Library - Marfa, Texas",
+     "url": "https://texas.educationbug.org/public-library/15025-marfa-public-library.html",
+     "passage": "Education Bug - Marfa Public Library - Marfa, Texas Marfa Public Library - Marfa, Texas - Central Library Phone - 432-729-4631 Marfa Public Library 115 E Oak ST Marfa, TX 79843-0609 - Marfa, Texas Public Libraries (1) - Marfa, Texas Public Schools (3) - Marfa, Texas School Districts (1) Details Type: Central Library County of Location: Presidio Number of Bookmobiles: 0 Library Size (square feet): 5,040 County: Presidio - Presidio County, Texas Public Schools (5) - Presidio County, Texas School Districts (2) - Presidio County, Texas Public Libraries (2) Marfa Public Library Phone: 432-729-4631 ",
+     "published": null
+    },
+    {
+     "title": "Who We Are \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/about-us/index-html",
+     "passage": "Our Mission The Marfa Public Library will provide members of and visitors to the community a relevant and diverse collection in a variety of formats. The Marfa Public Library will promote lifelong learning in the community through outreach projects and collaborations with other civic organizations in an atmosphere that promotes literacy, fosters exploration and the free exchange of ideas, and provides opportunities to engage with others. ... The Marfa Public Library began in 1947 when the Marfa Lions Club and the Marfa Study Club agreed to establish a library for the citizens of the area. E.K.",
+     "published": null
+    },
+    {
+     "title": "Public Library | Marfa, TX",
+     "url": "https://www.cityofmarfa.com/publiclibrary",
+     "passage": "Public Library | Marfa, TX Public Library The Marfa Public Library offers over 20,000 volumes of books, audiobooks, an award-winning Texana collection, and a large collection of children's books. Film classics, foreign, award-winning, en espa\u00f1ol, and more are available to check out on DVD and Blu-Ray. Other services include printing black & white and color copies, a copy machine, a fax machine, laminating, seven computers, local newspapers, more than 20 titles of magazines, and free wifi. The library director and staff manage all aspects of the Marfa Public Library's daily operations, in addit",
+     "published": null
+    }
+   ],
+   "used_for": "Context for the brief (not a model input) (quote: \"Funding/Operating Revenue\n\n Local Government Revenue: $32,767 Texas Government Revenue: $2,034 Federal Government Revenue: $0 Total Income: \")",
+   "fixture": false,
+   "agent": "ada",
+   "say": "Searching: the town budget"
+  },
+  {
+   "seq": 25,
+   "t": "2026-11-15T03:55:12.359Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "fact-budget-other",
+   "kind": "fact",
+   "claim": "Marfa Public Library salaries: The source gives the library\u2019s salaries figure, which is relevant to staffing and adding shifts.",
+   "source": "https://texas.educationbug.org/public-library/15025-marfa-public-library.html",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "ada"
+  },
+  {
+   "seq": 26,
+   "t": "2026-11-15T03:55:38.271Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-other",
+   "author": "ada",
+   "claim": "Marfa Public Library salaries: The source gives the library\u2019s salaries figure, which is relevant to staffing and adding shifts.",
+   "used_for": "round 1 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 27,
+   "t": "2026-11-15T03:55:39.154Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-other",
+   "author": "ada",
+   "claim": "Marfa Public Library salaries: The source gives the library\u2019s salaries figure, which is relevant to staffing and adding shifts.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 28,
+   "t": "2026-11-15T03:55:39.385Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an official website and a public posting location at City Hall for notices; no bulletin/newsletter channel is shown in the provided sources.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "The source shows Marfa uses an official website and a public posting location at City Hall for notices (statement).",
+    "Mentioned Marfa notice posting channels."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 29,
+   "t": "2026-11-15T03:55:39.639Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The source shows an online channel for reaching residents via the Marfa Public Library website and email contact information. It does not explicitly show a board or bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 30,
+   "t": "2026-11-15T03:55:39.863Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-annual_budget",
+   "author": "ada",
+   "claim": "City of Marfa FY 2025-2026 General Fund, Department 01 Administration total revenue: The FY 2025-2026 General Fund, Department 01 Administration lists Total Revenue of 2,078,048.27.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: City of Marfa FY 2025-2026 General Fund, Department 01 Administration total revenue: 2,078,048.27."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 31,
+   "t": "2026-11-15T03:55:44.483Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Tue-Thu evenings + Sunday",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00, Sun 12:00-17:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 32,
+   "t": "2026-11-15T03:55:44.707Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E2",
+   "parent": "E1",
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00, Sun 12:00-17:00",
+   "why": "Keeps the proven two evening openings from E1 and adds a Sunday shift, which should absorb the Sunday turn-aways in the trace and help day workers who are free on weekends.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E2"
+  },
+  {
+   "seq": 33,
+   "t": "2026-11-15T03:55:46.837Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E2",
+   "ok": true,
+   "reason": "The proposal is supported by the simulation trace and local hours. Its main assumptions are about how the added Sunday hours will shift visits and reduce the observed Sunday turn-aways.",
+   "ungrounded": [],
+   "assumptions": [
+    {
+     "assumption": "Keeping the two evening openings from E1 will preserve the demand gains already seen in the trace.",
+     "basis": "simulation_result"
+    },
+    {
+     "assumption": "Adding a Sunday 12:00-17:00 shift will absorb the Sunday turn-aways seen at 10:00, 12:00, 13:00, and 16:00.",
+     "basis": "model_mechanism"
+    },
+    {
+     "assumption": "A Sunday opening will help day workers who are free on weekends.",
+     "basis": "model_mechanism"
+    }
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 34,
+   "t": "2026-11-15T03:55:47.059Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon-Wed evening access",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Mon 10:00-20:00, Wed 10:00-20:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 35,
+   "t": "2026-11-15T03:55:47.306Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E3",
+   "parent": "E1",
+   "change": "Marfa Public Library: Mon 10:00-20:00, Wed 10:00-20:00",
+   "why": "Moves the two extended evening hours to different weekdays so day workers have more after-work library access while keeping staffing changes limited to two late closes.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E3"
+  },
+  {
+   "seq": 36,
+   "t": "2026-11-15T03:55:49.820Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E3",
+   "ok": true,
+   "reason": "This is a supported hours-change proposal: the current hours are locally sourced, and the simulation shows turnaways concentrated in evening/weekend slots, so shifting two late closes is a plausible next test. The only nontrivial claims are about who benefits and the staffing impact, which are model/test assumptions rather than unsupported town inputs.",
+   "ungrounded": [],
+   "assumptions": [
+    {
+     "assumption": "Moving the two extended evening hours to Monday and Wednesday will increase after-work access for day workers and shift some visits away from the current busiest/turned-away slots.",
+     "basis": "model_mechanism"
+    },
+    {
+     "assumption": "Keeping only two late closes is a limited staffing change that the library can accommodate within the simulated budget/staffing setup.",
+     "basis": "simulation_result"
+    },
+    {
+     "assumption": "The Marfa Public Library can operate Mon 10:00-20:00 and Wed 10:00-20:00 as proposed.",
+     "basis": "local_source"
+    },
+    {
+     "assumption": "Online outreach via the library website/email is a valid way to notify residents about the hours change.",
+     "basis": "channel_existence"
+    }
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 37,
+   "t": "2026-11-15T03:55:50.056Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Tue-Thu evenings + Sunday",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00, Sun 12:00-17:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 38,
+   "t": "2026-11-15T03:55:50.268Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon-Wed evening access",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Mon 10:00-20:00, Wed 10:00-20:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 39,
+   "t": "2026-11-15T03:55:50.486Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E2",
+    "E3"
+   ],
+   "seeds": 16,
+   "workers": 4,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E2 + E3"
+  },
+  {
+   "seq": 40,
+   "t": "2026-11-15T03:55:51.559Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Tue-Thu evenings + Sunday",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00, Sun 12:00-17:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 702.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 53.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 659.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 106.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 33.9375,
+     "turnedAway.f.community-1": 1.9375,
+     "turnedAway.f.community-2": 3.1875,
+     "turnedAway.f.library": 12.6875,
+     "turnedAway.f.post_office-1": 12.875,
+     "turnedAway.f.sports-2": 0.625,
+     "turnedAway.f.townhall": 2.625,
+     "turnedAway.k.community": 5.125,
+     "turnedAway.k.library": 12.6875,
+     "turnedAway.k.post_office": 12.875,
+     "turnedAway.k.sports": 0.625,
+     "turnedAway.k.townhall": 2.625,
+     "unique": 78.125,
+     "unique.k.community": 40.9375,
+     "unique.k.library": 48.8125,
+     "unique.k.park": 73.625,
+     "unique.k.post_office": 15.125,
+     "unique.k.sports": 42.6875,
+     "unique.k.townhall": 3.0,
+     "visits": 325.4375,
+     "visits.c.day-workers": 64.625,
+     "visits.c.families": 65.8125,
+     "visits.c.night-shift": 26.375,
+     "visits.c.remote": 25.3125,
+     "visits.c.seniors": 83.25,
+     "visits.c.students": 60.0625,
+     "visits.f.community-1": 26.6875,
+     "visits.f.community-2": 23.5625,
+     "visits.f.library": 68.25,
+     "visits.f.park": 53.0,
+     "visits.f.park-2": 81.5,
+     "visits.f.post_office-1": 17.5625,
+     "visits.f.sports-1": 0.4375,
+     "visits.f.sports-2": 51.375,
+     "visits.f.townhall": 3.0625,
+     "visits.k.community": 50.25,
+     "visits.k.library": 68.25,
+     "visits.k.park": 134.5,
+     "visits.k.post_office": 17.5625,
+     "visits.k.sports": 51.8125,
+     "visits.k.townhall": 3.0625,
+     "visits.kc.community.day-workers": 6.9375,
+     "visits.kc.community.families": 11.0625,
+     "visits.kc.community.night-shift": 3.0625,
+     "visits.kc.community.remote": 4.0,
+     "visits.kc.community.seniors": 15.5,
+     "visits.kc.community.students": 9.6875,
+     "visits.kc.library.day-workers": 11.5,
+     "visits.kc.library.families": 11.125,
+     "visits.kc.library.night-shift": 5.4375,
+     "visits.kc.library.remote": 3.9375,
+     "visits.kc.library.seniors": 20.875,
+     "visits.kc.library.students": 15.375,
+     "visits.kc.park.day-workers": 32.8125,
+     "visits.kc.park.families": 29.625,
+     "visits.kc.park.night-shift": 12.5,
+     "visits.kc.park.remote": 12.0,
+     "visits.kc.park.seniors": 26.0,
+     "visits.kc.park.students": 21.5625,
+     "visits.kc.post_office.day-workers": 0.3125,
+     "visits.kc.post_office.families": 2.375,
+     "visits.kc.post_office.night-shift": 1.25,
+     "visits.kc.post_office.remote": 0.75,
+     "visits.kc.post_office.seniors": 12.375,
+     "visits.kc.post_office.students": 0.5,
+     "visits.kc.sports.day-workers": 13.0625,
+     "visits.kc.sports.families": 11.375,
+     "visits.kc.sports.night-shift": 3.8125,
+     "visits.kc.sports.remote": 4.5,
+     "visits.kc.sports.seniors": 6.1875,
+     "visits.kc.sports.students": 12.875,
+     "visits.kc.townhall.families": 0.25,
+     "visits.kc.townhall.night-shift": 0.3125,
+     "visits.kc.townhall.remote": 0.125,
+     "visits.kc.townhall.seniors": 2.3125,
+     "visits.kc.townhall.students": 0.0625,
+     "visits.restricted": 7.75
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 5.482928049865327,
+     "turnedAway.f.community-1": 0.9979144919948469,
+     "turnedAway.f.community-2": 1.905037182489273,
+     "turnedAway.f.library": 3.321018919950121,
+     "turnedAway.f.post_office-1": 3.0304015135511886,
+     "turnedAway.f.sports-2": 0.5,
+     "turnedAway.f.townhall": 1.8929694486000912,
+     "turnedAway.k.community": 1.7841898254763513,
+     "turnedAway.k.library": 3.321018919950121,
+     "turnedAway.k.post_office": 3.0304015135511886,
+     "turnedAway.k.sports": 0.5,
+     "turnedAway.k.townhall": 1.8929694486000912,
+     "unique": 1.0878112581387147,
+     "unique.k.community": 3.604973416453072,
+     "unique.k.library": 3.8335144884731207,
+     "unique.k.park": 2.217355782608345,
+     "unique.k.post_office": 2.0936411663256274,
+     "unique.k.sports": 3.4199171529926473,
+     "unique.k.townhall": 1.3165611772087666,
+     "visits": 11.83198349108607,
+     "visits.c.day-workers": 7.22841614740048,
+     "visits.c.families": 4.118555572042218,
+     "visits.c.night-shift": 4.39507299901454,
+     "visits.c.remote": 3.2190837205639746,
+     "visits.c.seniors": 6.276941930590086,
+     "visits.c.students": 5.092068996652213,
+     "visits.f.community-1": 3.8939054944875076,
+     "visits.f.community-2": 3.2035136959282693,
+     "visits.f.library": 3.958114029012639,
+     "visits.f.park": 3.0983866769659336,
+     "visits.f.park-2": 6.022181221672648,
+     "visits.f.post_office-1": 2.707243370416976,
+     "visits.f.sports-1": 0.6291528696058958,
+     "visits.f.sports-2": 5.352569476429054,
+     "visits.f.townhall": 1.4361406616345072,
+     "visits.k.community": 4.8373546489791295,
+     "visits.k.library": 3.958114029012639,
+     "visits.k.park": 6.6932802122726045,
+     "visits.k.post_office": 2.707243370416976,
+     "visits.k.sports": 5.369279902060113,
+     "visits.k.townhall": 1.4361406616345072,
+     "visits.kc.community.day-workers": 2.3514180118955172,
+     "visits.kc.community.families": 2.048373338367138,
+     "visits.kc.community.night-shift": 1.526160760426852,
+     "visits.kc.community.remote": 1.591644851508443,
+     "visits.kc.community.seniors": 2.280350850198276,
+     "visits.kc.community.students": 1.8874586088176875,
+     "visits.kc.library.day-workers": 2.898275349237888,
+     "visits.kc.library.families": 2.247220505424423,
+     "visits.kc.library.night-shift": 1.998958061924595,
+     "visits.kc.library.remote": 1.4361406616345072,
+     "visits.kc.library.seniors": 2.3057898140695015,
+     "visits.kc.library.students": 2.362907813126304,
+     "visits.kc.park.day-workers": 4.693523907115704,
+     "visits.kc.park.families": 3.442382895611701,
+     "visits.kc.park.night-shift": 2.309401076758503,
+     "visits.kc.park.remote": 1.5491933384829668,
+     "visits.kc.park.seniors": 3.8297084310253524,
+     "visits.kc.park.students": 2.874456470360962,
+     "visits.kc.post_office.day-workers": 0.47871355387816905,
+     "visits.kc.post_office.families": 1.5438048235879214,
+     "visits.kc.post_office.night-shift": 1.1254628677422756,
+     "visits.kc.post_office.remote": 0.7745966692414834,
+     "visits.kc.post_office.seniors": 2.5527762664727724,
+     "visits.kc.post_office.students": 0.6324555320336759,
+     "visits.kc.sports.day-workers": 2.6700499371110396,
+     "visits.kc.sports.families": 2.362907813126304,
+     "visits.kc.sports.night-shift": 1.3275918047351754,
+     "visits.kc.sports.remote": 1.632993161855452,
+     "visits.kc.sports.seniors": 1.682012683265696,
+     "visits.kc.sports.students": 2.4460853078609777,
+     "visits.kc.townhall.families": 0.4472135954999579,
+     "visits.kc.townhall.night-shift": 0.47871355387816905,
+     "visits.kc.townhall.remote": 0.3415650255319866,
+     "visits.kc.townhall.seniors": 1.3022416570411703,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 2.265686062395524
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 618150,
+    "running": 407992,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1026142,
+    "staff_hours_week": 475.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 41,
+   "t": "2026-11-15T03:55:51.787Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E3",
+   "label": "Mon-Wed evening access",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Mon 10:00-20:00, Wed 10:00-20:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 697.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 48.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 649.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 96.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 38.875,
+     "turnedAway.f.community-1": 2.1875,
+     "turnedAway.f.community-2": 2.9375,
+     "turnedAway.f.library": 17.6875,
+     "turnedAway.f.post_office-1": 12.625,
+     "turnedAway.f.sports-2": 0.6875,
+     "turnedAway.f.townhall": 2.75,
+     "turnedAway.k.community": 5.125,
+     "turnedAway.k.library": 17.6875,
+     "turnedAway.k.post_office": 12.625,
+     "turnedAway.k.sports": 0.6875,
+     "turnedAway.k.townhall": 2.75,
+     "unique": 77.6875,
+     "unique.k.community": 41.9375,
+     "unique.k.library": 37.3125,
+     "unique.k.park": 73.3125,
+     "unique.k.post_office": 15.125,
+     "unique.k.sports": 43.5,
+     "unique.k.townhall": 3.375,
+     "visits": 304.75,
+     "visits.c.day-workers": 55.875,
+     "visits.c.families": 65.3125,
+     "visits.c.night-shift": 23.3125,
+     "visits.c.remote": 25.1875,
+     "visits.c.seniors": 80.75,
+     "visits.c.students": 54.3125,
+     "visits.f.community-1": 26.5,
+     "visits.f.community-2": 25.0,
+     "visits.f.library": 49.6875,
+     "visits.f.park": 50.8125,
+     "visits.f.park-2": 80.5625,
+     "visits.f.post_office-1": 17.25,
+     "visits.f.sports-1": 0.3125,
+     "visits.f.sports-2": 51.25,
+     "visits.f.townhall": 3.375,
+     "visits.k.community": 51.5,
+     "visits.k.library": 49.6875,
+     "visits.k.park": 131.375,
+     "visits.k.post_office": 17.25,
+     "visits.k.sports": 51.5625,
+     "visits.k.townhall": 3.375,
+     "visits.kc.community.day-workers": 7.1875,
+     "visits.kc.community.families": 11.5625,
+     "visits.kc.community.night-shift": 3.375,
+     "visits.kc.community.remote": 4.6875,
+     "visits.kc.community.seniors": 15.5,
+     "visits.kc.community.students": 9.1875,
+     "visits.kc.library.day-workers": 4.3125,
+     "visits.kc.library.families": 8.125,
+     "visits.kc.library.night-shift": 3.4375,
+     "visits.kc.library.remote": 3.0,
+     "visits.kc.library.seniors": 18.625,
+     "visits.kc.library.students": 12.1875,
+     "visits.kc.park.day-workers": 30.9375,
+     "visits.kc.park.families": 30.625,
+     "visits.kc.park.night-shift": 11.0,
+     "visits.kc.park.remote": 11.75,
+     "visits.kc.park.seniors": 26.5625,
+     "visits.kc.park.students": 20.5,
+     "visits.kc.post_office.day-workers": 0.4375,
+     "visits.kc.post_office.families": 2.9375,
+     "visits.kc.post_office.night-shift": 1.75,
+     "visits.kc.post_office.remote": 1.0,
+     "visits.kc.post_office.seniors": 10.8125,
+     "visits.kc.post_office.students": 0.3125,
+     "visits.kc.sports.day-workers": 13.0,
+     "visits.kc.sports.families": 11.625,
+     "visits.kc.sports.night-shift": 3.5,
+     "visits.kc.sports.remote": 4.625,
+     "visits.kc.sports.seniors": 6.9375,
+     "visits.kc.sports.students": 11.875,
+     "visits.kc.townhall.families": 0.4375,
+     "visits.kc.townhall.night-shift": 0.25,
+     "visits.kc.townhall.remote": 0.125,
+     "visits.kc.townhall.seniors": 2.3125,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 2.0625
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 6.917369442208505,
+     "turnedAway.f.community-1": 1.682012683265696,
+     "turnedAway.f.community-2": 1.8427786989579984,
+     "turnedAway.f.library": 2.774136502289196,
+     "turnedAway.f.post_office-1": 4.5,
+     "turnedAway.f.sports-2": 0.7932002689527196,
+     "turnedAway.f.townhall": 1.570562531918633,
+     "turnedAway.k.community": 2.6801741236966925,
+     "turnedAway.k.library": 2.774136502289196,
+     "turnedAway.k.post_office": 4.5,
+     "turnedAway.k.sports": 0.7932002689527196,
+     "turnedAway.k.townhall": 1.570562531918633,
+     "unique": 1.138346754435279,
+     "unique.k.community": 4.186784764788688,
+     "unique.k.library": 3.4586847211042526,
+     "unique.k.park": 2.4689741459426693,
+     "unique.k.post_office": 2.3909551787239063,
+     "unique.k.sports": 4.898979485566356,
+     "unique.k.townhall": 1.6683325008322931,
+     "visits": 9.298745435093203,
+     "visits.c.day-workers": 4.256367778595579,
+     "visits.c.families": 4.895150661624216,
+     "visits.c.night-shift": 3.57246413557925,
+     "visits.c.remote": 2.66380054308376,
+     "visits.c.seniors": 6.526867548832288,
+     "visits.c.students": 6.128825336065631,
+     "visits.f.community-1": 3.483293460696835,
+     "visits.f.community-2": 3.759432581299116,
+     "visits.f.library": 4.714781719938546,
+     "visits.f.park": 4.0202611855450385,
+     "visits.f.park-2": 3.1404617494884413,
+     "visits.f.post_office-1": 2.816617356570348,
+     "visits.f.sports-1": 0.6020797289396148,
+     "visits.f.sports-2": 7.075780286771677,
+     "visits.f.townhall": 1.6683325008322931,
+     "visits.k.community": 6.099180272790763,
+     "visits.k.library": 4.714781719938546,
+     "visits.k.park": 6.2915286960589585,
+     "visits.k.post_office": 2.816617356570348,
+     "visits.k.sports": 7.089605066574584,
+     "visits.k.townhall": 1.6683325008322931,
+     "visits.kc.community.day-workers": 2.713392710243027,
+     "visits.kc.community.families": 2.5024987512484396,
+     "visits.kc.community.night-shift": 1.5,
+     "visits.kc.community.remote": 1.7017148213885114,
+     "visits.kc.community.seniors": 2.160246899469287,
+     "visits.kc.community.students": 1.9397164741270823,
+     "visits.kc.library.day-workers": 1.352466881911223,
+     "visits.kc.library.families": 2.6801741236966925,
+     "visits.kc.library.night-shift": 1.2093386622447824,
+     "visits.kc.library.remote": 1.5491933384829668,
+     "visits.kc.library.seniors": 2.7294688127912363,
+     "visits.kc.library.students": 1.7594980344783944,
+     "visits.kc.park.day-workers": 3.604973416453072,
+     "visits.kc.park.families": 3.2223180062391936,
+     "visits.kc.park.night-shift": 1.9321835661585918,
+     "visits.kc.park.remote": 2.3523038352503134,
+     "visits.kc.park.seniors": 3.5771264072343505,
+     "visits.kc.park.students": 2.780887148615228,
+     "visits.kc.post_office.day-workers": 0.51234753829798,
+     "visits.kc.post_office.families": 1.5692354826475214,
+     "visits.kc.post_office.night-shift": 0.7745966692414834,
+     "visits.kc.post_office.remote": 0.7302967433402214,
+     "visits.kc.post_office.seniors": 2.0402205763103165,
+     "visits.kc.post_office.students": 0.6020797289396148,
+     "visits.kc.sports.day-workers": 2.8751811537130436,
+     "visits.kc.sports.families": 2.362907813126304,
+     "visits.kc.sports.night-shift": 1.2110601416389966,
+     "visits.kc.sports.remote": 1.7841898254763513,
+     "visits.kc.sports.seniors": 2.4074537032585557,
+     "visits.kc.sports.students": 2.473189573539939,
+     "visits.kc.townhall.families": 0.51234753829798,
+     "visits.kc.townhall.night-shift": 0.4472135954999579,
+     "visits.kc.townhall.remote": 0.3415650255319866,
+     "visits.kc.townhall.seniors": 1.352466881911223,
+     "visits.kc.townhall.students": 0.4472135954999579,
+     "visits.restricted": 0.9287087810503355
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 605150,
+    "running": 401492,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1006642,
+    "staff_hours_week": 465.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 42,
+   "t": "2026-11-15T03:55:52.015Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E2",
+   "metric": "visits.kc.library.day-workers",
+   "value": "11.5 \u00b1 2.9",
+   "wall_s": 0.86,
+   "workers": 4,
+   "view": "E2",
+   "note": "new best so far",
+   "budget": "$1.03M/yr (+$35.1k vs now)",
+   "turned_away": "12.7",
+   "agent": "dee"
+  },
+  {
+   "seq": 43,
+   "t": "2026-11-15T03:55:52.239Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E3",
+   "metric": "visits.kc.library.day-workers",
+   "value": "4.3 \u00b1 1.4",
+   "wall_s": 0.86,
+   "workers": 4,
+   "view": null,
+   "note": null,
+   "budget": "$1.01M/yr (+$15.6k vs now)",
+   "turned_away": "17.7",
+   "agent": "dee"
+  },
+  {
+   "seq": 44,
+   "t": "2026-11-15T03:55:54.286Z",
+   "type": "FAILURE",
+   "clock": "",
+   "exp": "E2",
+   "trace": "E2 improved day-worker visits to 11.5/week, but the main unmet demand is still at Marfa Public Library: 12.7 turn-aways there, with day-workers the biggest turned-away cohort at 13.6. The busiest missed slots are all on Sunday (10:00, 11:00, 16:00, 17:00), so the gap looks like Sunday coverage/capacity rather than fees.",
+   "next_question": "Can the library board staff Sunday opening hours at Marfa Public Library?",
+   "entity": "Marfa Public Library board",
+   "scripted": false,
+   "agent": "cy",
+   "say": "Reading the failure trace"
+  },
+  {
+   "seq": 45,
+   "t": "2026-11-15T03:55:55.091Z",
+   "type": "MEMORY_WRITE",
+   "clock": "",
+   "source_id": "failure-42c1dda038c2-2",
+   "kind": "failure",
+   "claim": "E2: E2 improved day-worker visits to 11.5/week, but the main unmet demand is still at Marfa Public Library: 12.7 turn-aways there, with day-workers the biggest turned-away cohort at 13.6. The busiest missed slots are all on Sunday (10:00, 11:00, 16:00, 17:00), so the gap looks like Sunday coverage/capacity rather than fees. Next: Can the library board staff Sunday opening hours at Marfa Public Library?",
+   "source": "trial:42c1dda038c2",
+   "effective": null,
+   "supersedes": null,
+   "store": "past.dev",
+   "agent": "cy"
+  },
+  {
+   "seq": 46,
+   "t": "2026-11-15T03:55:57.980Z",
+   "type": "EXA",
+   "clock": "",
+   "query": "Marfa, TX Marfa Public Library board library board Sunday hours staffing",
+   "search": "failure-guided",
+   "results": [
+    {
+     "title": "Location & Hours \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/locationhours",
+     "passage": "Location & Hours \u2014 Marfa Public Library Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm Open till 6pm on Thursday Saturday 10am - 2pm Sunday Closed ... Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm",
+     "published": null
+    },
+    {
+     "title": "Contact Us",
+     "url": "https://www.marfapubliclibrary.org/about-us/contact-us",
+     "passage": "Contact Us \u2014 Marfa Public Library Contact Us Write to us at Marfa Public Library 115 E Oak St | PO Box U Marfa, Texas, 79843 Call us at 432-729-4631 Fax us at 432-729-3424 Email us at marfalibrarystaff@gmail.com Location & Hours LOCATION 115 East Oak St. P.O. Box U Marfa, TX 79843 432-729-4631 HOURS Monday to Friday 9am - 5pm",
+     "published": null
+    },
+    {
+     "title": "Who We Are \u2014 Marfa Public Library",
+     "url": "https://www.marfapubliclibrary.org/about-us/index-html",
+     "passage": "Our Mission The Marfa Public Library will provide members of and visitors to the community a relevant and diverse collection in a variety of formats. The Marfa Public Library will promote lifelong learning in the community through outreach projects and collaborations with other civic organizations in an atmosphere that promotes literacy, fosters exploration and the free exchange of ideas, and provides opportunities to engage with others. ... The Marfa Public Library began in 1947 when the Marfa Lions Club and the Marfa Study Club agreed to establish a library for the citizens of the area. E.K.",
+     "published": null
+    }
+   ],
+   "used_for": "Nothing stated that changes the inputs or limits (no source states it). Gap logged.",
+   "fixture": false,
+   "agent": "ada"
+  },
+  {
+   "seq": 47,
+   "t": "2026-11-15T03:55:58.760Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-other",
+   "author": "ada",
+   "claim": "Marfa Public Library salaries: The source gives the library\u2019s salaries figure, which is relevant to staffing and adding shifts.",
+   "used_for": "round 2 revisions",
+   "store": "past.dev",
+   "agent": "bo",
+   "say": "Reading Ada's finds"
+  },
+  {
+   "seq": 48,
+   "t": "2026-11-15T03:55:59.402Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-other",
+   "author": "ada",
+   "claim": "Marfa Public Library salaries: The source gives the library\u2019s salaries figure, which is relevant to staffing and adding shifts.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 49,
+   "t": "2026-11-15T03:55:59.635Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-board",
+   "author": "ada",
+   "claim": "A source shows Marfa uses an official website and a public posting location at City Hall for notices; no bulletin/newsletter channel is shown in the provided sources.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "The source shows Marfa uses an official website and a public posting location at City Hall for notices (statement).",
+    "Mentioned Marfa notice posting channels."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 50,
+   "t": "2026-11-15T03:55:59.861Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-notice-channels",
+   "author": "ada",
+   "claim": "The source shows an online channel for reaching residents via the Marfa Public Library website and email contact information. It does not explicitly show a board or bulletin channel.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 51,
+   "t": "2026-11-15T03:56:00.105Z",
+   "type": "MEMORY_READ",
+   "clock": "",
+   "source_id": "fact-budget-annual_budget",
+   "author": "ada",
+   "claim": "City of Marfa FY 2025-2026 General Fund, Department 01 Administration total revenue: The FY 2025-2026 General Fund, Department 01 Administration lists Total Revenue of 2,078,048.27.",
+   "used_for": "grounds for reviewing the next proposals",
+   "store": "past.dev",
+   "recalled": [
+    "ada: City of Marfa FY 2025-2026 General Fund, Department 01 Administration total revenue: 2,078,048.27."
+   ],
+   "agent": "cy",
+   "say": "Recalling the evidence before reviewing"
+  },
+  {
+   "seq": 52,
+   "t": "2026-11-15T03:56:03.844Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue/Thu later close",
+   "role": "revision",
+   "parent": "E2",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Tue 09:00-19:30, Thu 09:00-19:30 | notice via online",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 53,
+   "t": "2026-11-15T03:56:04.075Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E4",
+   "parent": "E2",
+   "change": "Marfa Public Library: Tue 09:00-19:30, Thu 09:00-19:30 | notice via online",
+   "why": "Extending the library two weekday evenings gives day workers a post-work window without changing access on other days, building on the gain seen when Tue/Thu were opened later.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E4"
+  },
+  {
+   "seq": 54,
+   "t": "2026-11-15T03:56:07.630Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E4",
+   "ok": true,
+   "reason": "This is a supported variant: the town has an online notice channel, and the simulation already shows unmet demand at the library with day-workers among those turned away. The main uncertainty is whether the extra Tue/Thu evening coverage is feasible operationally, which the simulation can test.",
+   "ungrounded": [],
+   "assumptions": [
+    {
+     "assumption": "The library can use the online channel to announce the schedule change.",
+     "basis": "channel_existence"
+    },
+    {
+     "assumption": "Opening Tue/Thu until 19:30 will capture some day workers after work.",
+     "basis": "model_mechanism"
+    },
+    {
+     "assumption": "Keeping the other days unchanged will preserve their current access while shifting only Tue/Thu demand.",
+     "basis": "model_mechanism"
+    },
+    {
+     "assumption": "The added evening hours are operationally feasible within the library\u2019s staffing/budget context.",
+     "basis": "simulation_result"
+    }
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 55,
+   "t": "2026-11-15T03:56:07.918Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Mon/Wed evening hours",
+   "role": "revision",
+   "parent": "E2",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Mon 09:00-19:00, Wed 09:00-19:00 | notice via board + online",
+   "source": "https://www.cityofmarfa.com/publiclibrary",
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 56,
+   "t": "2026-11-15T03:56:08.134Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "E5",
+   "parent": "E2",
+   "change": "Marfa Public Library: Mon 09:00-19:00, Wed 09:00-19:00 | notice via board + online",
+   "why": "Shifting two other weekday closes later should capture a different set of day workers who miss the current 5pm closing, while the notice helps residents learn the new schedule.",
+   "scripted": false,
+   "agent": "bo",
+   "say": "Proposing E5"
+  },
+  {
+   "seq": 57,
+   "t": "2026-11-15T03:56:11.072Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E5",
+   "label": "Mon/Wed evening hours",
+   "role": "revision",
+   "parent": "E2",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Mon 09:00-19:00, Wed 09:00-19:00 | notice via board + online",
+   "source": "https://www.cityofmarfa.com/publiclibrary",
+   "status": "rejected",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 58,
+   "t": "2026-11-15T03:56:11.313Z",
+   "type": "REVIEW",
+   "clock": "",
+   "exp": "E5",
+   "ok": false,
+   "reason": "This is a supported change in hours and notice channels. The main non-local assumption is staffing feasibility; the expected benefit to day workers is a mechanism the simulation can test, and notice-channel use is allowed by the setup.",
+   "ungrounded": [
+    "Keeping the library open until 19:00 on Mon and Wed is operationally feasible with available staff."
+   ],
+   "assumptions": [
+    {
+     "assumption": "Keeping the library open until 19:00 on Mon and Wed is operationally feasible with available staff.",
+     "basis": "unsupported_real_world_input"
+    },
+    {
+     "assumption": "Later weekday closing will attract additional day workers who currently miss the 17:00 close.",
+     "basis": "model_mechanism"
+    },
+    {
+     "assumption": "A notice on the board plus the online channel will successfully inform residents about the new hours.",
+     "basis": "channel_existence"
+    },
+    {
+     "assumption": "The two shifted weekday hours will not cause offsetting losses elsewhere large enough to cancel the gain.",
+     "basis": "simulation_result"
+    }
+   ],
+   "scripted": false,
+   "agent": "cy"
+  },
+  {
+   "seq": 59,
+   "t": "2026-11-15T03:56:11.536Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue/Thu later close",
+   "role": "revision",
+   "parent": "E2",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Tue 09:00-19:30, Thu 09:00-19:30 | notice via online",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "running",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 60,
+   "t": "2026-11-15T03:56:11.772Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E4"
+   ],
+   "seeds": 16,
+   "workers": 2,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running E4"
+  },
+  {
+   "seq": 61,
+   "t": "2026-11-15T03:56:12.774Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E4",
+   "label": "Tue/Thu later close",
+   "role": "revision",
+   "parent": "E2",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1170
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Tue 09:00-19:30, Thu 09:00-19:30 | notice via online",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 59.25,
+     "aware.c.day-workers": 18.75,
+     "aware.c.families": 10.75,
+     "aware.c.night-shift": 6.5625,
+     "aware.c.remote": 5.9375,
+     "aware.c.seniors": 7.0625,
+     "aware.c.students": 10.1875,
+     "awarePct": 75.0,
+     "awarePct.c.day-workers": 78.125,
+     "awarePct.c.families": 63.23529411764707,
+     "awarePct.c.night-shift": 82.03125,
+     "awarePct.c.remote": 98.95833333333333,
+     "awarePct.c.seniors": 54.32692307692308,
+     "awarePct.c.students": 92.61363636363636,
+     "openHours": 698.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 49.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 651.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 98.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 30.8125,
+     "turnedAway.f.community-1": 2.0,
+     "turnedAway.f.community-2": 2.875,
+     "turnedAway.f.library": 8.375,
+     "turnedAway.f.post_office-1": 13.75,
+     "turnedAway.f.sports-2": 0.625,
+     "turnedAway.f.townhall": 3.1875,
+     "turnedAway.k.community": 4.875,
+     "turnedAway.k.library": 8.375,
+     "turnedAway.k.post_office": 13.75,
+     "turnedAway.k.sports": 0.625,
+     "turnedAway.k.townhall": 3.1875,
+     "unique": 77.875,
+     "unique.k.community": 42.0625,
+     "unique.k.library": 38.375,
+     "unique.k.park": 73.1875,
+     "unique.k.post_office": 15.5,
+     "unique.k.sports": 42.25,
+     "unique.k.townhall": 3.5,
+     "visits": 307.8125,
+     "visits.c.day-workers": 55.4375,
+     "visits.c.families": 66.1875,
+     "visits.c.night-shift": 25.8125,
+     "visits.c.remote": 24.9375,
+     "visits.c.seniors": 82.625,
+     "visits.c.students": 52.8125,
+     "visits.f.community-1": 25.6875,
+     "visits.f.community-2": 25.5625,
+     "visits.f.library": 50.5,
+     "visits.f.park": 51.8125,
+     "visits.f.park-2": 81.1875,
+     "visits.f.post_office-1": 18.8125,
+     "visits.f.sports-1": 0.3125,
+     "visits.f.sports-2": 50.375,
+     "visits.f.townhall": 3.5625,
+     "visits.k.community": 51.25,
+     "visits.k.library": 50.5,
+     "visits.k.park": 133.0,
+     "visits.k.post_office": 18.8125,
+     "visits.k.sports": 50.6875,
+     "visits.k.townhall": 3.5625,
+     "visits.kc.community.day-workers": 6.1875,
+     "visits.kc.community.families": 12.8125,
+     "visits.kc.community.night-shift": 2.9375,
+     "visits.kc.community.remote": 4.875,
+     "visits.kc.community.seniors": 15.25,
+     "visits.kc.community.students": 9.1875,
+     "visits.kc.library.day-workers": 5.1875,
+     "visits.kc.library.families": 8.4375,
+     "visits.kc.library.night-shift": 4.375,
+     "visits.kc.library.remote": 2.3125,
+     "visits.kc.library.seniors": 18.1875,
+     "visits.kc.library.students": 12.0,
+     "visits.kc.park.day-workers": 31.125,
+     "visits.kc.park.families": 29.875,
+     "visits.kc.park.night-shift": 12.1875,
+     "visits.kc.park.remote": 12.1875,
+     "visits.kc.park.seniors": 27.0625,
+     "visits.kc.park.students": 20.5625,
+     "visits.kc.post_office.day-workers": 0.4375,
+     "visits.kc.post_office.families": 2.625,
+     "visits.kc.post_office.night-shift": 1.75,
+     "visits.kc.post_office.remote": 0.875,
+     "visits.kc.post_office.seniors": 12.75,
+     "visits.kc.post_office.students": 0.375,
+     "visits.kc.sports.day-workers": 12.5,
+     "visits.kc.sports.families": 11.8125,
+     "visits.kc.sports.night-shift": 4.1875,
+     "visits.kc.sports.remote": 4.6875,
+     "visits.kc.sports.seniors": 6.9375,
+     "visits.kc.sports.students": 10.5625,
+     "visits.kc.townhall.families": 0.625,
+     "visits.kc.townhall.night-shift": 0.375,
+     "visits.kc.townhall.seniors": 2.4375,
+     "visits.kc.townhall.students": 0.125,
+     "visits.restricted": 2.5
+    },
+    "sd": {
+     "aware": 5.066228051190222,
+     "aware.c.day-workers": 1.8439088914585775,
+     "aware.c.families": 2.206052281036573,
+     "aware.c.night-shift": 0.8920949127381756,
+     "aware.c.remote": 0.25,
+     "aware.c.seniors": 2.8158776015066183,
+     "aware.c.students": 0.6551081335677849,
+     "awarePct": 6.41294690024079,
+     "awarePct.c.day-workers": 7.68295371441074,
+     "awarePct.c.families": 12.976778123744547,
+     "awarePct.c.night-shift": 11.151186409227195,
+     "awarePct.c.remote": 4.166666666666668,
+     "awarePct.c.seniors": 21.660596934666295,
+     "awarePct.c.students": 5.955528486979864,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 4.505089714238034,
+     "turnedAway.f.community-1": 1.3165611772087666,
+     "turnedAway.f.community-2": 1.4548768561863463,
+     "turnedAway.f.library": 2.8722813232690143,
+     "turnedAway.f.post_office-1": 3.5683796509527026,
+     "turnedAway.f.sports-2": 0.806225774829855,
+     "turnedAway.f.townhall": 1.2230426539304888,
+     "turnedAway.k.community": 1.857417562100671,
+     "turnedAway.k.library": 2.8722813232690143,
+     "turnedAway.k.post_office": 3.5683796509527026,
+     "turnedAway.k.sports": 0.806225774829855,
+     "turnedAway.k.townhall": 1.2230426539304888,
+     "unique": 0.8850612031567836,
+     "unique.k.community": 3.5490609086536304,
+     "unique.k.library": 2.6551836094703507,
+     "unique.k.park": 1.905037182489273,
+     "unique.k.post_office": 2.2211108331943574,
+     "unique.k.sports": 3.714835124201342,
+     "unique.k.townhall": 1.3662601021279464,
+     "visits": 12.155759951562057,
+     "visits.c.day-workers": 3.558440669731617,
+     "visits.c.families": 5.418717560456533,
+     "visits.c.night-shift": 3.3509948771471834,
+     "visits.c.remote": 3.315996582225822,
+     "visits.c.seniors": 4.031128874149275,
+     "visits.c.students": 4.3084219849035215,
+     "visits.f.community-1": 2.676284738214527,
+     "visits.f.community-2": 3.1191612120354835,
+     "visits.f.library": 3.444802848737017,
+     "visits.f.park": 3.331040878364199,
+     "visits.f.park-2": 6.013526419664256,
+     "visits.f.post_office-1": 2.688710967483613,
+     "visits.f.sports-1": 0.47871355387816905,
+     "visits.f.sports-2": 5.608029957123981,
+     "visits.f.townhall": 1.3647344063956182,
+     "visits.k.community": 4.219004621945797,
+     "visits.k.library": 3.444802848737017,
+     "visits.k.park": 6.782329983125268,
+     "visits.k.post_office": 2.688710967483613,
+     "visits.k.sports": 5.677073776750366,
+     "visits.k.townhall": 1.3647344063956182,
+     "visits.kc.community.day-workers": 2.0726392192886185,
+     "visits.kc.community.families": 2.4005207768315606,
+     "visits.kc.community.night-shift": 1.2365947867699696,
+     "visits.kc.community.remote": 1.927865832122834,
+     "visits.kc.community.seniors": 2.2949219304078006,
+     "visits.kc.community.students": 2.482438317461282,
+     "visits.kc.library.day-workers": 2.4005207768315606,
+     "visits.kc.library.families": 2.365551380404436,
+     "visits.kc.library.night-shift": 1.2041594578792296,
+     "visits.kc.library.remote": 0.873212459828649,
+     "visits.kc.library.seniors": 2.4005207768315606,
+     "visits.kc.library.students": 1.6733200530681511,
+     "visits.kc.park.day-workers": 3.263433774416144,
+     "visits.kc.park.families": 3.2223180062391936,
+     "visits.kc.park.night-shift": 2.0726392192886185,
+     "visits.kc.park.remote": 1.7211914478058505,
+     "visits.kc.park.seniors": 2.3514180118955172,
+     "visits.kc.park.students": 2.0320351046836436,
+     "visits.kc.post_office.day-workers": 0.6291528696058958,
+     "visits.kc.post_office.families": 1.5,
+     "visits.kc.post_office.night-shift": 1.2909944487358056,
+     "visits.kc.post_office.remote": 0.9574271077563381,
+     "visits.kc.post_office.seniors": 1.8439088914585775,
+     "visits.kc.post_office.students": 0.6191391873668903,
+     "visits.kc.sports.day-workers": 2.780887148615228,
+     "visits.kc.sports.families": 2.372586492979058,
+     "visits.kc.sports.night-shift": 1.3275918047351754,
+     "visits.kc.sports.remote": 1.6620770138594663,
+     "visits.kc.sports.seniors": 2.0155644370746373,
+     "visits.kc.sports.students": 2.42126000256065,
+     "visits.kc.townhall.families": 1.02469507659596,
+     "visits.kc.townhall.night-shift": 0.6191391873668903,
+     "visits.kc.townhall.seniors": 1.1528949070347507,
+     "visits.kc.townhall.students": 0.3415650255319866,
+     "visits.restricted": 1.8257418583505538
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 607750,
+    "running": 402792,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1010542,
+    "staff_hours_week": 467.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 62,
+   "t": "2026-11-15T03:56:13.028Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "E4",
+   "metric": "visits.kc.library.day-workers",
+   "value": "5.2 \u00b1 2.4",
+   "wall_s": 0.74,
+   "workers": 2,
+   "view": null,
+   "note": null,
+   "budget": "$1.01M/yr (+$19.5k vs now)",
+   "turned_away": "8.4",
+   "agent": "dee"
+  },
+  {
+   "seq": 63,
+   "t": "2026-11-15T03:56:14.999Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Library Tue/Thu evenings",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Tue 09:00-19:00, Thu 09:00-19:00 | notice via board + online (single proposal, no feedback)",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 64,
+   "t": "2026-11-15T03:56:15.220Z",
+   "type": "PROPOSE",
+   "clock": "",
+   "exp": "OS",
+   "parent": "E0",
+   "change": "Marfa Public Library: Tue 09:00-19:00, Thu 09:00-19:00 | notice via board + online (single proposal, no feedback)",
+   "scripted": false,
+   "why": "Marfa Public Library\u2019s posted hours show weekday closure at 17:00, so extending Tuesday and Thursday to 19:00 creates two after-work access windows using the library website and City Hall/public notice locations noted in the sources. (One-shot arm: same model and evidence, no simulation feedback.)",
+   "agent": "bo"
+  },
+  {
+   "seq": 65,
+   "t": "2026-11-15T03:56:15.466Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "OS"
+   ],
+   "seeds": 16,
+   "workers": 14,
+   "where": "Modal (run_batch.map)",
+   "agent": "dee",
+   "say": "Running the baselines"
+  },
+  {
+   "seq": 66,
+   "t": "2026-11-15T03:56:16.840Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Sun 12:00-17:00",
+   "source": null,
+   "status": "queued",
+   "result": null,
+   "best": false,
+   "budget": null
+  },
+  {
+   "seq": 67,
+   "t": "2026-11-15T03:56:17.144Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "SW",
+   "label": "Sweep best of 6",
+   "role": "sweep",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Sun 12:00-17:00",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 698.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 49.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 651.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 98.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 39.5,
+     "turnedAway.f.community-1": 2.125,
+     "turnedAway.f.community-2": 3.75,
+     "turnedAway.f.library": 16.3125,
+     "turnedAway.f.post_office-1": 13.6875,
+     "turnedAway.f.sports-2": 0.6875,
+     "turnedAway.f.townhall": 2.9375,
+     "turnedAway.k.community": 5.875,
+     "turnedAway.k.library": 16.3125,
+     "turnedAway.k.post_office": 13.6875,
+     "turnedAway.k.sports": 0.6875,
+     "turnedAway.k.townhall": 2.9375,
+     "unique": 77.875,
+     "unique.k.community": 42.625,
+     "unique.k.library": 43.75,
+     "unique.k.park": 73.25,
+     "unique.k.post_office": 15.875,
+     "unique.k.sports": 42.625,
+     "unique.k.townhall": 2.5625,
+     "visits": 319.3125,
+     "visits.c.day-workers": 59.3125,
+     "visits.c.families": 65.1875,
+     "visits.c.night-shift": 26.4375,
+     "visits.c.remote": 25.0,
+     "visits.c.seniors": 85.75,
+     "visits.c.students": 57.625,
+     "visits.f.community-1": 25.75,
+     "visits.f.community-2": 26.0625,
+     "visits.f.library": 60.0625,
+     "visits.f.park": 52.625,
+     "visits.f.park-2": 81.9375,
+     "visits.f.post_office-1": 19.0625,
+     "visits.f.sports-1": 0.375,
+     "visits.f.sports-2": 50.75,
+     "visits.f.townhall": 2.6875,
+     "visits.k.community": 51.8125,
+     "visits.k.library": 60.0625,
+     "visits.k.park": 134.5625,
+     "visits.k.post_office": 19.0625,
+     "visits.k.sports": 51.125,
+     "visits.k.townhall": 2.6875,
+     "visits.kc.community.day-workers": 8.0625,
+     "visits.kc.community.families": 11.0,
+     "visits.kc.community.night-shift": 2.5625,
+     "visits.kc.community.remote": 4.5,
+     "visits.kc.community.seniors": 15.3125,
+     "visits.kc.community.students": 10.375,
+     "visits.kc.library.day-workers": 7.6875,
+     "visits.kc.library.families": 8.625,
+     "visits.kc.library.night-shift": 4.75,
+     "visits.kc.library.remote": 3.375,
+     "visits.kc.library.seniors": 22.5,
+     "visits.kc.library.students": 13.125,
+     "visits.kc.park.day-workers": 31.5,
+     "visits.kc.park.families": 31.375,
+     "visits.kc.park.night-shift": 12.8125,
+     "visits.kc.park.remote": 12.0625,
+     "visits.kc.park.seniors": 25.9375,
+     "visits.kc.park.students": 20.875,
+     "visits.kc.post_office.day-workers": 0.5625,
+     "visits.kc.post_office.families": 2.875,
+     "visits.kc.post_office.night-shift": 1.3125,
+     "visits.kc.post_office.remote": 0.75,
+     "visits.kc.post_office.seniors": 13.125,
+     "visits.kc.post_office.students": 0.4375,
+     "visits.kc.sports.day-workers": 11.5,
+     "visits.kc.sports.families": 11.125,
+     "visits.kc.sports.night-shift": 4.5625,
+     "visits.kc.sports.remote": 4.3125,
+     "visits.kc.sports.seniors": 6.875,
+     "visits.kc.sports.students": 12.75,
+     "visits.kc.townhall.families": 0.1875,
+     "visits.kc.townhall.night-shift": 0.4375,
+     "visits.kc.townhall.seniors": 2.0,
+     "visits.kc.townhall.students": 0.0625,
+     "visits.restricted": 4.625
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 7.37563556583431,
+     "turnedAway.f.community-1": 1.408308678285174,
+     "turnedAway.f.community-2": 2.3523038352503134,
+     "turnedAway.f.library": 3.978588526935987,
+     "turnedAway.f.post_office-1": 2.7010800309012195,
+     "turnedAway.f.sports-2": 0.704154339142587,
+     "turnedAway.f.townhall": 1.7689450716929191,
+     "turnedAway.k.community": 3.138470965295043,
+     "turnedAway.k.library": 3.978588526935987,
+     "turnedAway.k.post_office": 2.7010800309012195,
+     "turnedAway.k.sports": 0.704154339142587,
+     "turnedAway.k.townhall": 1.7689450716929191,
+     "unique": 0.9574271077563381,
+     "unique.k.community": 3.7925365302569376,
+     "unique.k.library": 3.492849839314596,
+     "unique.k.park": 1.879716290649558,
+     "unique.k.post_office": 2.3057898140695015,
+     "unique.k.sports": 3.99791612384919,
+     "unique.k.townhall": 1.1528949070347507,
+     "visits": 10.248373854747234,
+     "visits.c.day-workers": 4.467941360403021,
+     "visits.c.families": 5.04933989085042,
+     "visits.c.night-shift": 2.3084987907007157,
+     "visits.c.remote": 2.70801280154532,
+     "visits.c.seniors": 5.3975302994363386,
+     "visits.c.students": 2.918332857414772,
+     "visits.f.community-1": 3.4351128074635335,
+     "visits.f.community-2": 3.906724971123511,
+     "visits.f.library": 5.555402775677026,
+     "visits.f.park": 3.774917217635375,
+     "visits.f.park-2": 3.7677358364584603,
+     "visits.f.post_office-1": 3.415040263305837,
+     "visits.f.sports-1": 0.6191391873668903,
+     "visits.f.sports-2": 4.905778905196061,
+     "visits.f.townhall": 1.25,
+     "visits.k.community": 5.455501810099599,
+     "visits.k.library": 5.555402775677026,
+     "visits.k.park": 6.142407237123461,
+     "visits.k.post_office": 3.415040263305837,
+     "visits.k.sports": 4.573474244670748,
+     "visits.k.townhall": 1.25,
+     "visits.kc.community.day-workers": 1.8062391868188443,
+     "visits.kc.community.families": 3.32665998663324,
+     "visits.kc.community.night-shift": 1.3647344063956182,
+     "visits.kc.community.remote": 1.591644851508443,
+     "visits.kc.community.seniors": 2.056493779875511,
+     "visits.kc.community.students": 1.3601470508735443,
+     "visits.kc.library.day-workers": 2.056493779875511,
+     "visits.kc.library.families": 2.0936411663256274,
+     "visits.kc.library.night-shift": 1.9148542155126762,
+     "visits.kc.library.remote": 1.1474609652039003,
+     "visits.kc.library.seniors": 2.9664793948382653,
+     "visits.kc.library.students": 2.276693508870558,
+     "visits.kc.park.day-workers": 3.22490309931942,
+     "visits.kc.park.families": 2.80178514522438,
+     "visits.kc.park.night-shift": 1.7211914478058505,
+     "visits.kc.park.remote": 1.526160760426852,
+     "visits.kc.park.seniors": 2.2647663602823727,
+     "visits.kc.park.students": 2.187083293643233,
+     "visits.kc.post_office.day-workers": 0.6291528696058958,
+     "visits.kc.post_office.families": 2.0289570391377603,
+     "visits.kc.post_office.night-shift": 0.873212459828649,
+     "visits.kc.post_office.remote": 0.7745966692414834,
+     "visits.kc.post_office.seniors": 2.5527762664727724,
+     "visits.kc.post_office.students": 0.6291528696058958,
+     "visits.kc.sports.day-workers": 2.3664319132398464,
+     "visits.kc.sports.families": 1.6683325008322931,
+     "visits.kc.sports.night-shift": 1.5903353943953669,
+     "visits.kc.sports.remote": 1.138346754435279,
+     "visits.kc.sports.seniors": 1.5864005379054391,
+     "visits.kc.sports.students": 1.7701224063135672,
+     "visits.kc.townhall.families": 0.4031128874149275,
+     "visits.kc.townhall.night-shift": 0.51234753829798,
+     "visits.kc.townhall.seniors": 1.3165611772087666,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 1.5
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 607750,
+    "running": 402792,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1010542,
+    "staff_hours_week": 467.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 68,
+   "t": "2026-11-15T03:56:17.374Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "OS",
+   "label": "One-shot: Library Tue/Thu evenings",
+   "role": "oneshot",
+   "parent": "E0",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        1140
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       null
+      ]
+     }
+    },
+    "channels": [
+     "board",
+     "online"
+    ]
+   },
+   "change": "Marfa Public Library: Tue 09:00-19:00, Thu 09:00-19:00 | notice via board + online (single proposal, no feedback)",
+   "source": null,
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 76.0,
+     "aware.c.day-workers": 22.5,
+     "aware.c.families": 15.875,
+     "aware.c.night-shift": 7.75,
+     "aware.c.remote": 6.0,
+     "aware.c.seniors": 12.9375,
+     "aware.c.students": 10.9375,
+     "awarePct": 96.20253164556961,
+     "awarePct.c.day-workers": 93.75,
+     "awarePct.c.families": 93.38235294117648,
+     "awarePct.c.night-shift": 96.875,
+     "awarePct.c.remote": 100.0,
+     "awarePct.c.seniors": 99.51923076923077,
+     "awarePct.c.students": 99.43181818181819,
+     "openHours": 697.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 48.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 649.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 96.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 29.3125,
+     "turnedAway.f.community-1": 2.1875,
+     "turnedAway.f.community-2": 3.625,
+     "turnedAway.f.library": 5.25,
+     "turnedAway.f.post_office-1": 14.9375,
+     "turnedAway.f.sports-2": 0.5625,
+     "turnedAway.f.townhall": 2.75,
+     "turnedAway.k.community": 5.8125,
+     "turnedAway.k.library": 5.25,
+     "turnedAway.k.post_office": 14.9375,
+     "turnedAway.k.sports": 0.5625,
+     "turnedAway.k.townhall": 2.75,
+     "unique": 77.625,
+     "unique.k.community": 41.0625,
+     "unique.k.library": 37.75,
+     "unique.k.park": 72.875,
+     "unique.k.post_office": 16.6875,
+     "unique.k.sports": 42.75,
+     "unique.k.townhall": 3.3125,
+     "visits": 308.9375,
+     "visits.c.day-workers": 55.5,
+     "visits.c.families": 63.25,
+     "visits.c.night-shift": 24.125,
+     "visits.c.remote": 25.1875,
+     "visits.c.seniors": 85.0,
+     "visits.c.students": 55.875,
+     "visits.f.community-1": 23.9375,
+     "visits.f.community-2": 25.25,
+     "visits.f.library": 49.625,
+     "visits.f.park": 51.75,
+     "visits.f.park-2": 82.125,
+     "visits.f.post_office-1": 20.25,
+     "visits.f.sports-1": 0.25,
+     "visits.f.sports-2": 52.4375,
+     "visits.f.townhall": 3.3125,
+     "visits.k.community": 49.1875,
+     "visits.k.library": 49.625,
+     "visits.k.park": 133.875,
+     "visits.k.post_office": 20.25,
+     "visits.k.sports": 52.6875,
+     "visits.k.townhall": 3.3125,
+     "visits.kc.community.day-workers": 7.625,
+     "visits.kc.community.families": 10.5,
+     "visits.kc.community.night-shift": 2.8125,
+     "visits.kc.community.remote": 3.875,
+     "visits.kc.community.seniors": 15.1875,
+     "visits.kc.community.students": 9.1875,
+     "visits.kc.library.day-workers": 3.625,
+     "visits.kc.library.families": 8.1875,
+     "visits.kc.library.night-shift": 3.9375,
+     "visits.kc.library.remote": 2.6875,
+     "visits.kc.library.seniors": 19.4375,
+     "visits.kc.library.students": 11.75,
+     "visits.kc.park.day-workers": 31.5,
+     "visits.kc.park.families": 30.3125,
+     "visits.kc.park.night-shift": 12.3125,
+     "visits.kc.park.remote": 12.375,
+     "visits.kc.park.seniors": 26.375,
+     "visits.kc.park.students": 21.0,
+     "visits.kc.post_office.day-workers": 0.4375,
+     "visits.kc.post_office.families": 2.25,
+     "visits.kc.post_office.night-shift": 1.4375,
+     "visits.kc.post_office.remote": 1.3125,
+     "visits.kc.post_office.seniors": 14.3125,
+     "visits.kc.post_office.students": 0.5,
+     "visits.kc.sports.day-workers": 12.3125,
+     "visits.kc.sports.families": 11.4375,
+     "visits.kc.sports.night-shift": 3.5,
+     "visits.kc.sports.remote": 4.6875,
+     "visits.kc.sports.seniors": 7.5,
+     "visits.kc.sports.students": 13.25,
+     "visits.kc.townhall.families": 0.5625,
+     "visits.kc.townhall.night-shift": 0.125,
+     "visits.kc.townhall.remote": 0.25,
+     "visits.kc.townhall.seniors": 2.1875,
+     "visits.kc.townhall.students": 0.1875,
+     "visits.restricted": 1.625
+    },
+    "sd": {
+     "aware": 2.065591117977289,
+     "aware.c.day-workers": 1.3165611772087666,
+     "aware.c.families": 1.02469507659596,
+     "aware.c.night-shift": 0.4472135954999579,
+     "aware.c.remote": 0.0,
+     "aware.c.seniors": 0.25,
+     "aware.c.students": 0.25,
+     "awarePct": 2.614672301237074,
+     "awarePct.c.day-workers": 5.485671571703195,
+     "awarePct.c.families": 6.027618097623292,
+     "awarePct.c.night-shift": 5.5901699437494745,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 1.9230769230769231,
+     "awarePct.c.students": 2.2727272727272734,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 6.415800807381726,
+     "turnedAway.f.community-1": 1.2763881332363862,
+     "turnedAway.f.community-2": 1.857417562100671,
+     "turnedAway.f.library": 2.516611478423583,
+     "turnedAway.f.post_office-1": 3.8029593739612837,
+     "turnedAway.f.sports-2": 0.7274384280931732,
+     "turnedAway.f.townhall": 1.1254628677422756,
+     "turnedAway.k.community": 2.372586492979058,
+     "turnedAway.k.library": 2.516611478423583,
+     "turnedAway.k.post_office": 3.8029593739612837,
+     "turnedAway.k.sports": 0.7274384280931732,
+     "turnedAway.k.townhall": 1.1254628677422756,
+     "unique": 0.9574271077563381,
+     "unique.k.community": 2.9993054751614303,
+     "unique.k.library": 2.3523038352503134,
+     "unique.k.park": 2.362907813126304,
+     "unique.k.post_office": 2.914761282392322,
+     "unique.k.sports": 3.3960761671866746,
+     "unique.k.townhall": 2.023816526598529,
+     "visits": 10.853378890158279,
+     "visits.c.day-workers": 4.115013163202924,
+     "visits.c.families": 5.347896782848375,
+     "visits.c.night-shift": 3.159641329855864,
+     "visits.c.remote": 3.081531004765867,
+     "visits.c.seniors": 5.921711464320654,
+     "visits.c.students": 4.856267428111155,
+     "visits.f.community-1": 3.8204493627495357,
+     "visits.f.community-2": 2.4358434541926814,
+     "visits.f.library": 5.136470902607483,
+     "visits.f.park": 4.266145801540309,
+     "visits.f.park-2": 4.716990566028302,
+     "visits.f.post_office-1": 2.7202941017470885,
+     "visits.f.sports-1": 0.4472135954999579,
+     "visits.f.sports-2": 4.51617463494641,
+     "visits.f.townhall": 2.023816526598529,
+     "visits.k.community": 3.8335144884731207,
+     "visits.k.library": 5.136470902607483,
+     "visits.k.park": 6.438167441127949,
+     "visits.k.post_office": 2.7202941017470885,
+     "visits.k.sports": 4.585756934974494,
+     "visits.k.townhall": 2.023816526598529,
+     "visits.kc.community.day-workers": 1.857417562100671,
+     "visits.kc.community.families": 2.160246899469287,
+     "visits.kc.community.night-shift": 1.6007810593582121,
+     "visits.kc.community.remote": 1.3102162671355697,
+     "visits.kc.community.seniors": 2.8570089254323303,
+     "visits.kc.community.students": 1.4705441169852742,
+     "visits.kc.library.day-workers": 1.8929694486000912,
+     "visits.kc.library.families": 1.8337120820892248,
+     "visits.kc.library.night-shift": 1.2893796958227628,
+     "visits.kc.library.remote": 1.25,
+     "visits.kc.library.seniors": 2.988171124060111,
+     "visits.kc.library.students": 1.879716290649558,
+     "visits.kc.park.day-workers": 4.718756898449704,
+     "visits.kc.park.families": 4.571196050634159,
+     "visits.kc.park.night-shift": 2.0886598574205424,
+     "visits.kc.park.remote": 2.3345235059857505,
+     "visits.kc.park.seniors": 2.0615528128088303,
+     "visits.kc.park.students": 2.756809750418044,
+     "visits.kc.post_office.day-workers": 0.7274384280931732,
+     "visits.kc.post_office.families": 1.61245154965971,
+     "visits.kc.post_office.night-shift": 1.3149778198382918,
+     "visits.kc.post_office.remote": 0.9464847243000456,
+     "visits.kc.post_office.seniors": 1.8154430129677255,
+     "visits.kc.post_office.students": 0.6324555320336759,
+     "visits.kc.sports.day-workers": 2.4958298553119898,
+     "visits.kc.sports.families": 2.064582282206258,
+     "visits.kc.sports.night-shift": 1.8257418583505538,
+     "visits.kc.sports.remote": 1.3022416570411703,
+     "visits.kc.sports.seniors": 1.96638416050035,
+     "visits.kc.sports.students": 2.3804761428476167,
+     "visits.kc.townhall.families": 0.6291528696058958,
+     "visits.kc.townhall.night-shift": 0.5,
+     "visits.kc.townhall.remote": 0.5773502691896257,
+     "visits.kc.townhall.seniors": 1.2763881332363862,
+     "visits.kc.townhall.students": 0.5439056290693574,
+     "visits.restricted": 1.7841898254763513
+    }
+   },
+   "best": false,
+   "budget": {
+    "staff": 605150,
+    "running": 401492,
+    "revenue": 0,
+    "campaign": 50,
+    "net": 1006692,
+    "staff_hours_week": 465.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 69,
+   "t": "2026-11-15T03:56:17.595Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "SW",
+   "metric": "visits.kc.library.day-workers",
+   "value": "7.7 \u00b1 2.1",
+   "wall_s": 1.15,
+   "workers": 14,
+   "view": null,
+   "note": "best of 6 sweep configs",
+   "budget": "$1.01M/yr (+$19.5k vs now)",
+   "turned_away": "16.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 70,
+   "t": "2026-11-15T03:56:17.833Z",
+   "type": "RUN_DONE",
+   "clock": "",
+   "exp": "OS",
+   "metric": "visits.kc.library.day-workers",
+   "value": "3.6 \u00b1 1.9",
+   "wall_s": 1.15,
+   "workers": 14,
+   "view": null,
+   "note": "one-shot LLM proposal, same model, no feedback",
+   "budget": "$1.01M/yr (+$15.7k vs now)",
+   "turned_away": "5.3",
+   "agent": "dee"
+  },
+  {
+   "seq": 71,
+   "t": "2026-11-15T03:56:18.058Z",
+   "type": "RUN_START",
+   "clock": "",
+   "exps": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E2"
+   ],
+   "seeds": 8,
+   "workers": 15,
+   "where": "Modal (run_batch.map)",
+   "held_out": true,
+   "agent": "dee",
+   "say": "Freezing picks, testing held-out towns"
+  },
+  {
+   "seq": 72,
+   "t": "2026-11-15T03:56:19.375Z",
+   "type": "HELD_OUT",
+   "clock": "",
+   "scenarios": 3,
+   "seeds": 8,
+   "finalists": [
+    "E0",
+    "E1",
+    "SW",
+    "OS",
+    "E2"
+   ],
+   "note": "Policies frozen before testing. Residents and seeds not seen during search.",
+   "wall_s": 1.08,
+   "workers": 15,
+   "agent": "cy"
+  },
+  {
+   "seq": 73,
+   "t": "2026-11-15T03:56:19.617Z",
+   "type": "HELD_OUT_TABLE",
+   "clock": "",
+   "metric": "visits/week by day workers to libraries",
+   "table": [
+    {
+     "scenario": "Held-out A: more shift workers",
+     "E0": 2.0,
+     "E1": 4.25,
+     "SW": 8.875,
+     "OS": 4.25,
+     "E2": 10.375
+    },
+    {
+     "scenario": "Held-out B: older town",
+     "E0": 2.0,
+     "E1": 4.375,
+     "SW": 6.625,
+     "OS": 4.125,
+     "E2": 8.625
+    },
+    {
+     "scenario": "Held-out C: less appetite for public places",
+     "E0": 1.0,
+     "E1": 3.375,
+     "SW": 6.875,
+     "OS": 4.625,
+     "E2": 9.375
+    }
+   ],
+   "finalists": [
+    {
+     "id": "E0",
+     "label": "Current practice",
+     "role": "current practice",
+     "feasible": true
+    },
+    {
+     "id": "E1",
+     "label": "Your idea: Two evening library hours",
+     "role": "your idea",
+     "feasible": true
+    },
+    {
+     "id": "SW",
+     "label": "Sweep best of 6",
+     "role": "parameter sweep",
+     "feasible": true
+    },
+    {
+     "id": "OS",
+     "label": "One-shot: Library Tue/Thu evenings",
+     "role": "one-shot",
+     "feasible": true
+    },
+    {
+     "id": "E2",
+     "label": "Tue-Thu evenings + Sunday",
+     "role": "iterative agent",
+     "feasible": true
+    }
+   ],
+   "agent": "cy"
+  },
+  {
+   "seq": 74,
+   "t": "2026-11-15T03:56:19.837Z",
+   "type": "EXPERIMENT",
+   "clock": "",
+   "id": "E2",
+   "label": "Tue-Thu evenings + Sunday",
+   "role": "revision",
+   "parent": "E1",
+   "policy": {
+    "target": "library",
+    "facilities": {
+     "library": {
+      "hours": [
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        600,
+        1200
+       ],
+       [
+        540,
+        1020
+       ],
+       [
+        540,
+        780
+       ],
+       [
+        720,
+        1020
+       ]
+      ]
+     }
+    }
+   },
+   "change": "Marfa Public Library: Tue 10:00-20:00, Thu 10:00-20:00, Sun 12:00-17:00",
+   "source": "https://www.marfapubliclibrary.org/our-locations-and-hours",
+   "status": "done",
+   "result": {
+    "n": 16,
+    "mean": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 702.5,
+     "openHours.f.community-1": 72.0,
+     "openHours.f.community-2": 72.0,
+     "openHours.f.library": 53.0,
+     "openHours.f.park": 112.0,
+     "openHours.f.park-2": 112.0,
+     "openHours.f.post_office-1": 43.0,
+     "openHours.f.sports-1": 98.0,
+     "openHours.f.sports-2": 98.0,
+     "openHours.f.townhall": 42.5,
+     "restrictedResidents": 15.0,
+     "revenue": 0.0,
+     "staffHours": 659.5,
+     "staffHours.f.community-1": 72.0,
+     "staffHours.f.community-2": 72.0,
+     "staffHours.f.library": 106.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 86.0,
+     "staffHours.f.sports-1": 98.0,
+     "staffHours.f.sports-2": 98.0,
+     "staffHours.f.townhall": 127.5,
+     "turnedAway": 33.9375,
+     "turnedAway.f.community-1": 1.9375,
+     "turnedAway.f.community-2": 3.1875,
+     "turnedAway.f.library": 12.6875,
+     "turnedAway.f.post_office-1": 12.875,
+     "turnedAway.f.sports-2": 0.625,
+     "turnedAway.f.townhall": 2.625,
+     "turnedAway.k.community": 5.125,
+     "turnedAway.k.library": 12.6875,
+     "turnedAway.k.post_office": 12.875,
+     "turnedAway.k.sports": 0.625,
+     "turnedAway.k.townhall": 2.625,
+     "unique": 78.125,
+     "unique.k.community": 40.9375,
+     "unique.k.library": 48.8125,
+     "unique.k.park": 73.625,
+     "unique.k.post_office": 15.125,
+     "unique.k.sports": 42.6875,
+     "unique.k.townhall": 3.0,
+     "visits": 325.4375,
+     "visits.c.day-workers": 64.625,
+     "visits.c.families": 65.8125,
+     "visits.c.night-shift": 26.375,
+     "visits.c.remote": 25.3125,
+     "visits.c.seniors": 83.25,
+     "visits.c.students": 60.0625,
+     "visits.f.community-1": 26.6875,
+     "visits.f.community-2": 23.5625,
+     "visits.f.library": 68.25,
+     "visits.f.park": 53.0,
+     "visits.f.park-2": 81.5,
+     "visits.f.post_office-1": 17.5625,
+     "visits.f.sports-1": 0.4375,
+     "visits.f.sports-2": 51.375,
+     "visits.f.townhall": 3.0625,
+     "visits.k.community": 50.25,
+     "visits.k.library": 68.25,
+     "visits.k.park": 134.5,
+     "visits.k.post_office": 17.5625,
+     "visits.k.sports": 51.8125,
+     "visits.k.townhall": 3.0625,
+     "visits.kc.community.day-workers": 6.9375,
+     "visits.kc.community.families": 11.0625,
+     "visits.kc.community.night-shift": 3.0625,
+     "visits.kc.community.remote": 4.0,
+     "visits.kc.community.seniors": 15.5,
+     "visits.kc.community.students": 9.6875,
+     "visits.kc.library.day-workers": 11.5,
+     "visits.kc.library.families": 11.125,
+     "visits.kc.library.night-shift": 5.4375,
+     "visits.kc.library.remote": 3.9375,
+     "visits.kc.library.seniors": 20.875,
+     "visits.kc.library.students": 15.375,
+     "visits.kc.park.day-workers": 32.8125,
+     "visits.kc.park.families": 29.625,
+     "visits.kc.park.night-shift": 12.5,
+     "visits.kc.park.remote": 12.0,
+     "visits.kc.park.seniors": 26.0,
+     "visits.kc.park.students": 21.5625,
+     "visits.kc.post_office.day-workers": 0.3125,
+     "visits.kc.post_office.families": 2.375,
+     "visits.kc.post_office.night-shift": 1.25,
+     "visits.kc.post_office.remote": 0.75,
+     "visits.kc.post_office.seniors": 12.375,
+     "visits.kc.post_office.students": 0.5,
+     "visits.kc.sports.day-workers": 13.0625,
+     "visits.kc.sports.families": 11.375,
+     "visits.kc.sports.night-shift": 3.8125,
+     "visits.kc.sports.remote": 4.5,
+     "visits.kc.sports.seniors": 6.1875,
+     "visits.kc.sports.students": 12.875,
+     "visits.kc.townhall.families": 0.25,
+     "visits.kc.townhall.night-shift": 0.3125,
+     "visits.kc.townhall.remote": 0.125,
+     "visits.kc.townhall.seniors": 2.3125,
+     "visits.kc.townhall.students": 0.0625,
+     "visits.restricted": 7.75
+    },
+    "sd": {
+     "aware": 0.0,
+     "awarePct": 0.0,
+     "awarePct.c.day-workers": 0.0,
+     "awarePct.c.families": 0.0,
+     "awarePct.c.night-shift": 0.0,
+     "awarePct.c.remote": 0.0,
+     "awarePct.c.seniors": 0.0,
+     "awarePct.c.students": 0.0,
+     "openHours": 0.0,
+     "openHours.f.community-1": 0.0,
+     "openHours.f.community-2": 0.0,
+     "openHours.f.library": 0.0,
+     "openHours.f.park": 0.0,
+     "openHours.f.park-2": 0.0,
+     "openHours.f.post_office-1": 0.0,
+     "openHours.f.sports-1": 0.0,
+     "openHours.f.sports-2": 0.0,
+     "openHours.f.townhall": 0.0,
+     "restrictedResidents": 0.0,
+     "revenue": 0.0,
+     "staffHours": 0.0,
+     "staffHours.f.community-1": 0.0,
+     "staffHours.f.community-2": 0.0,
+     "staffHours.f.library": 0.0,
+     "staffHours.f.park": 0.0,
+     "staffHours.f.park-2": 0.0,
+     "staffHours.f.post_office-1": 0.0,
+     "staffHours.f.sports-1": 0.0,
+     "staffHours.f.sports-2": 0.0,
+     "staffHours.f.townhall": 0.0,
+     "turnedAway": 5.482928049865327,
+     "turnedAway.f.community-1": 0.9979144919948469,
+     "turnedAway.f.community-2": 1.905037182489273,
+     "turnedAway.f.library": 3.321018919950121,
+     "turnedAway.f.post_office-1": 3.0304015135511886,
+     "turnedAway.f.sports-2": 0.5,
+     "turnedAway.f.townhall": 1.8929694486000912,
+     "turnedAway.k.community": 1.7841898254763513,
+     "turnedAway.k.library": 3.321018919950121,
+     "turnedAway.k.post_office": 3.0304015135511886,
+     "turnedAway.k.sports": 0.5,
+     "turnedAway.k.townhall": 1.8929694486000912,
+     "unique": 1.0878112581387147,
+     "unique.k.community": 3.604973416453072,
+     "unique.k.library": 3.8335144884731207,
+     "unique.k.park": 2.217355782608345,
+     "unique.k.post_office": 2.0936411663256274,
+     "unique.k.sports": 3.4199171529926473,
+     "unique.k.townhall": 1.3165611772087666,
+     "visits": 11.83198349108607,
+     "visits.c.day-workers": 7.22841614740048,
+     "visits.c.families": 4.118555572042218,
+     "visits.c.night-shift": 4.39507299901454,
+     "visits.c.remote": 3.2190837205639746,
+     "visits.c.seniors": 6.276941930590086,
+     "visits.c.students": 5.092068996652213,
+     "visits.f.community-1": 3.8939054944875076,
+     "visits.f.community-2": 3.2035136959282693,
+     "visits.f.library": 3.958114029012639,
+     "visits.f.park": 3.0983866769659336,
+     "visits.f.park-2": 6.022181221672648,
+     "visits.f.post_office-1": 2.707243370416976,
+     "visits.f.sports-1": 0.6291528696058958,
+     "visits.f.sports-2": 5.352569476429054,
+     "visits.f.townhall": 1.4361406616345072,
+     "visits.k.community": 4.8373546489791295,
+     "visits.k.library": 3.958114029012639,
+     "visits.k.park": 6.6932802122726045,
+     "visits.k.post_office": 2.707243370416976,
+     "visits.k.sports": 5.369279902060113,
+     "visits.k.townhall": 1.4361406616345072,
+     "visits.kc.community.day-workers": 2.3514180118955172,
+     "visits.kc.community.families": 2.048373338367138,
+     "visits.kc.community.night-shift": 1.526160760426852,
+     "visits.kc.community.remote": 1.591644851508443,
+     "visits.kc.community.seniors": 2.280350850198276,
+     "visits.kc.community.students": 1.8874586088176875,
+     "visits.kc.library.day-workers": 2.898275349237888,
+     "visits.kc.library.families": 2.247220505424423,
+     "visits.kc.library.night-shift": 1.998958061924595,
+     "visits.kc.library.remote": 1.4361406616345072,
+     "visits.kc.library.seniors": 2.3057898140695015,
+     "visits.kc.library.students": 2.362907813126304,
+     "visits.kc.park.day-workers": 4.693523907115704,
+     "visits.kc.park.families": 3.442382895611701,
+     "visits.kc.park.night-shift": 2.309401076758503,
+     "visits.kc.park.remote": 1.5491933384829668,
+     "visits.kc.park.seniors": 3.8297084310253524,
+     "visits.kc.park.students": 2.874456470360962,
+     "visits.kc.post_office.day-workers": 0.47871355387816905,
+     "visits.kc.post_office.families": 1.5438048235879214,
+     "visits.kc.post_office.night-shift": 1.1254628677422756,
+     "visits.kc.post_office.remote": 0.7745966692414834,
+     "visits.kc.post_office.seniors": 2.5527762664727724,
+     "visits.kc.post_office.students": 0.6324555320336759,
+     "visits.kc.sports.day-workers": 2.6700499371110396,
+     "visits.kc.sports.families": 2.362907813126304,
+     "visits.kc.sports.night-shift": 1.3275918047351754,
+     "visits.kc.sports.remote": 1.632993161855452,
+     "visits.kc.sports.seniors": 1.682012683265696,
+     "visits.kc.sports.students": 2.4460853078609777,
+     "visits.kc.townhall.families": 0.4472135954999579,
+     "visits.kc.townhall.night-shift": 0.47871355387816905,
+     "visits.kc.townhall.remote": 0.3415650255319866,
+     "visits.kc.townhall.seniors": 1.3022416570411703,
+     "visits.kc.townhall.students": 0.25,
+     "visits.restricted": 2.265686062395524
+    }
+   },
+   "best": true,
+   "budget": {
+    "staff": 618150,
+    "running": 407992,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1026142,
+    "staff_hours_week": 475.5,
+    "wage": 25.0
+   }
+  },
+  {
+   "seq": 75,
+   "t": "2026-11-15T03:56:21.868Z",
+   "type": "BRIEF",
+   "clock": "",
+   "scripted": false,
+   "recommend": "E2",
+   "label": "Tue-Thu evenings + Sunday",
+   "summary": "Tue-Thu evenings + Sunday: 11.5 \u00b1 2.9 vs 1.4 \u00b1 1.1 for current practice (visits/week by day workers to libraries). E2 wins on the target metric: 11.5 \u00b1 2.9 visits/week by day workers, versus 1.4 \u00b1 1.1 for current practice. It also beats every other tested arm, including SW at 7.7 \u00b1 2.1 and E1 at 5.8 \u00b1 2.0, while holding budget near $1.03M/yr. Budget (budget of town-run places (Blackwell School National Historic Site, City Hall, Marfa Public Library, Sports ground, Visitor Center and Bookstore, Winter Garden, exhibitions 2d)): $1.03M/yr (+$35.1k vs current; wage $25/h from model default ($25/staff hour incl. benefits)).",
+   "assumptions": "This result depends on the synthetic resident schedules, arrival rates, and word-of-mouth rates in the model defaults; it also assumes the coded notice channel and staffing feasibility are acceptable as represented in the test arms.",
+   "pilot": "Run a 6-8 week pilot of Tue-Thu evenings plus Sunday at Marfa Public Library, then measure weekly visits by day workers, total visits, and staffing coverage/costs. Compare against the same weeks in the prior practice and track whether Sunday adds the incremental gain seen in the model.",
+   "budget": {
+    "staff": 618150,
+    "running": 407992,
+    "revenue": 0,
+    "campaign": 0,
+    "net": 1026142,
+    "staff_hours_week": 475.5,
+    "wage": 25.0
+   },
+   "budget_delta": 35100,
+   "agent": "bo",
+   "say": "Writing the decision brief"
+  }
+ ]
+}

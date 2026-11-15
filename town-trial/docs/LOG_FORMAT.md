@@ -23,6 +23,7 @@ Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 
 | `EXPERIMENT` | `id, label, role` (`baseline`/`user`/`revision`/`sweep`/`oneshot`), `parent, policy, change, source, status` (`queued`/`running`/`done`/`infeasible`/`rejected`), `result: {n, mean, sd}`, `best` | Upsert: the latest event for an `id` wins. Rebuilds the Experiments tab; not shown as a log card. |
 | `HELD_OUT_TABLE` | `finalists[{id,label,role,feasible}], table[{scenario, <id>: value}], metric` | Feeds the held-out table. Not shown as a log card. |
 | `NOTE` | `level` (`info`/`warn`/`error`), `message` | A fallback, failure or stop, logged so nothing fails silently. |
+| `FRAME` | `metric` (`visits`/`unique_visitors`/`visits_restricted`/`turned_away`/`awareness`/`net_cost`), `key, label, unit, direction` (`max`/`min`), `target, target_name, kind, cohort, days, budget_limit, budget_scope` | Town mode: how Bo framed the question. The Experiments tab ranks by `key` in `direction`. |
 
 Optional fields on research events (backend):
 - `say`: the short line the researcher says while acting the event out.
@@ -31,11 +32,13 @@ Optional fields on research events (backend):
 - `store` on `MEMORY_*` / `AUDIENCE`: `past.dev`, `local-fallback`, or `scripted`.
 - `wall_s, workers` on `RUN_DONE` / `HELD_OUT`: wall time of the fan-out and the number of workers.
 - `view` on `RUN_DONE`: experiment id the viewer should replay now (`BRIEF` replays `recommend`).
+- `budget` on `EXPERIMENT` (town mode): `{staff, running, revenue, campaign, net, staff_hours_week, wage}` in $/year for the places in `FRAME.budget_scope`; on `RUN_DONE` a text summary with the change vs current practice; on `BRIEF` the recommended policy's budget and `budget_delta`.
+- `assumptions` on `REVIEW`: Cy's classification of each assumption (`simulation_result`, `model_mechanism`, `local_source`, `channel_existence`, `unsupported_real_world_input`); code rejects only the last.
 
 ## Town events (the run being watched)
 
 | type | fields | meaning |
 |---|---|---|
-| `VISIT` | `resident, name, cohort, restricted` | Entered the library. |
-| `TURNED_AWAY` | `resident, name, cohort, reason` | Library closed on arrival or while queueing. |
+| `VISIT` | `resident, name, cohort, restricted`, town mode: `facility, facilityName, kind` | Entered the library (or, in town mode, any public place). |
+| `TURNED_AWAY` | `resident, name, cohort, reason`, town mode: `facility, facilityName, kind` | Closed on arrival or while queueing. |
 | `LEARN` | `resident, name, cohort, via, from?, at` | Heard the notice (perception trials). Always followed by an `AUDIENCE update_traits`. |

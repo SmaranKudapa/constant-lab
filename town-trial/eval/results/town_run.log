@@ -1,0 +1,54 @@
+  town       service    Ely, MN          8c0f3c844089 73.8s done=True
+  town       service    Evart, MI        b442cca91585 83.3s done=True
+  town       service    Marfa, TX        42c1dda038c2 108.3s done=True
+  town       service    Hood River, OR   ad9e27bc1ab1 78.5s done=True
+  town       perception Marfa, TX        d2704e7ebf77 199.5s done=True
+  town       perception Ely, MN          a4c220cf2d2b 171.6s done=True
+  town       perception Hood River, OR   4ced8ac72d59 143.0s done=True
+Traceback (most recent call last):
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 222, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 210, in main
+    run_many([(t, m, {}, "town") for m in ("service", "perception") for t in TOWNS])
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 71, in run_many
+    return list(ex.map(lambda s: run_trial(*s), specs))
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 71, in <lambda>
+    return list(ex.map(lambda s: run_trial(*s), specs))
+                                 ~~~~~~~~~^^^^
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 57, in run_trial
+    d = _req("GET", f"/api/trials/{tid}/events?since=0")
+  File "C:\Users\smara\Documents\constant-lab\town-trial\eval\run_eval.py", line 42, in _req
+    return json.load(r)
+           ~~~~~~~~~^^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 293, in load
+    return loads(fp.read(),
+                 ~~~~~~~^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 495, in read
+    s = self._safe_read(self.length)
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 642, in _safe_read
+    data = self.fp.read(amt)
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\ssl.py", line 1304, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\smara\AppData\Local\Programs\Python\Python313\Lib\ssl.py", line 1138, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
