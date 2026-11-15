@@ -625,13 +625,14 @@ class TownTrial(LiveTrial):
             return
         best = max(feasible, key=self.value)
         self.set(best, best=True)
+        self.emit_voices(best, base)
         b = self.write_brief(best, base)
         d = best["budget"]["net"] - base["budget"]["net"]
         b["summary"] += (f" Budget ({self.scope_label}): {B.fmt_usd(best['budget']['net'])}/yr ({'+' if d >= 0 else ''}{B.fmt_usd(d)} vs current; "
                          f"wage ${self.wage:g}/h from {self.wage_source}).")
-        self.emit_voices(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
-                  summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], budget=best["budget"], budget_delta=d)
+                  summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], what=b["what"], reasoning=b["reasoning"],
+                  budget=best["budget"], budget_delta=d)
         self.after_brief(best)
 
     def is_awareness(self) -> bool:

@@ -69,12 +69,9 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
   }
   const ta = best.result.mean.turnedAway;
   if (ta !== undefined) out.tiles.push({ label: "Turned away / week", value: ta, text: ta.toFixed(1), sub: base && base.result && base.result.mean.turnedAway !== undefined ? `was ${base.result.mean.turnedAway.toFixed(1)}` : "", good: !(base && base.result) || ta <= base.result.mean.turnedAway });
-  const ran = exps.filter((x) => x.result).length, rej = exps.filter((x) => x.status === "rejected" || x.status === "infeasible").length;
-  out.tiles.push({ label: "Experiments", value: ran, text: `${ran} run`, sub: `${rej} rejected or infeasible · n=${best.result.n} seeds each`, good: true });
-  if (exps.heldOut) {
-    const H = exps.heldOut, vals = H.table.map((r) => r[best.id]).filter((v) => v !== undefined);
-    if (vals.length) { const m = vals.reduce((a, v) => a + v, 0) / vals.length; out.tiles.push({ label: "Held-out towns (avg)", value: m, text: fmtMetric(m, P), sub: `${vals.length} unseen scenarios`, good: true }); }
-  }
+  // What the policy is, and why it wins (Bo's brief; older briefs fall back to the summary)
+  out.what = (brief && brief.what) || `${best.label}: ${best.change}.`;
+  out.reasoning = (brief && brief.reasoning) || (brief && brief.summary) || "";
 
   // Why it wins: the reasoning of the winner and its ancestors, grouped by agent
   const chain = [];
@@ -86,6 +83,7 @@ export function buildSummary({ prompt, city, mode, events, exps, primary: P }) {
     (byAgent[s.agent || "system"] ||= []).push(s);
   }
   out.why = ["ada", "bo", "cy", "dee", "eli", "system"].filter((a) => byAgent[a]).map((a) => ({ agent: a, steps: byAgent[a].sort((p, q) => p.seq - q.seq) }));
+  out.sources = [...new Set(out.why.flatMap((g) => g.steps.flatMap((s) => s.sources)).filter((u) => /^https?:\/\//.test(u || "")))].slice(0, 4);
   out.chain = chain.map((x) => ({ id: x.id, label: x.label }));
   if (voicesEv && voicesEv.exp === best.id) out.voices = { scripted: !!voicesEv.scripted, note: voicesEv.note, list: voicesEv.voices };
 

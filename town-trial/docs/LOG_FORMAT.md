@@ -19,7 +19,7 @@ Common fields: `seq`, `t` (UTC ISO), `type`, `clock` (simulated time, e.g. `Tue 
 | `FAILURE` | `exp, trace, next_question` | What the trace shows and the next question to ask. |
 | `CONSTRAINT` | `constraint, source, previous, changes[]` | A sourced fact changed what's allowed. |
 | `HELD_OUT` | `finalists[], scenarios, seeds, note` | Frozen picks tested on unseen scenarios. |
-| `BRIEF` | `recommend, label, summary, assumptions, pilot` | The decision brief. |
+| `BRIEF` | `recommend, label, summary, what, reasoning, assumptions, pilot` | The decision brief. `what`: plain-language description of what the policy does and how it works; `reasoning`: concise why-it-wins (which residents it reaches and why, one headline number). The results popup shows these two; the log shows all fields. |
 | `EXPERIMENT` | `id, label, role` (`baseline`/`user`/`revision`/`sweep`/`oneshot`), `parent, policy, change, source, status` (`queued`/`running`/`done`/`infeasible`/`rejected`), `result: {n, mean, sd}`, `best` | Upsert: the latest event for an `id` wins. Rebuilds the Experiments tab; not shown as a log card. |
 | `VOICES` | `exp, base, voices[{cohort, label, role, stance` (`helped`/`hurt`/`unchanged`)`, quote, before, after, unit}], scripted, note` | How each group of residents would react to the recommended policy, emitted just before `BRIEF`. `stance`, `before`, `after` are simulator means computed in code; `role` and `quote` are LLM-written (or scripted if `scripted: true`). Not real residents. |
 | `HELD_OUT_TABLE` | `finalists[{id,label,role,feasible}], table[{scenario, <id>: value}], metric` | Feeds the held-out table. Not shown as a log card. |

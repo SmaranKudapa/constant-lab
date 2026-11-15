@@ -15,7 +15,7 @@ Shortcut URL params: `?city=Evart, MI&prompt=...&speed=16&view=heaven&hour=18.5`
 
 - **Dev mode:** type `DEV67` as the city to skip the backend and run the scripted demo loop on the sample town (labelled DEV MODE).
 - **Camera keys:** WASD pan, E/Q up/down, arrow keys orbit/tilt, O/I zoom out/in (mouse orbit/zoom still works).
-- **Results:** when a trial finishes, a popup shows the question, key numbers (metric vs current practice, budget change, staff hours, turned away, held-out score) and three tabs: *Why it wins* (the brief, what residents say, each agent's reasoning with sources), *Steps* (every agent action in order) and *Other experiments* (each one that wasn't picked and briefly why). The **TRIALS** button reopens past trials' popups (kept in this browser).
+- **Results:** 3 s after a trial finishes (while the celebration plays), a popup shows the question, key numbers (metric vs current practice, budget change, staff hours, turned away) and four tabs: *Policy* (what the policy does, and why it wins), *Residents* (how each group reacts), *Steps* (every agent action in order) and *Other experiments* (each one that wasn't picked and briefly why). Closing it ends the celebration. The **TRIALS** button reopens past trials' popups (kept in this browser), without the celebration.
 - **Resident voices:** each group's stance (helped / worse off / no change) and before/after numbers come from the simulator, computed in code; the role and one-line quote are LLM-written in live mode (`backend/agents/voices.py`) or scripted in demo mode, and always labelled as not real people.
 
 ### Deploy the frontend (Vercel)

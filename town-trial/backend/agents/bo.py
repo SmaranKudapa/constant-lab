@@ -61,7 +61,11 @@ class Bo:
         return self.llm.json("oneshot", PROPOSAL, SYSTEM, user)
 
     def brief(self, mode: str, context: str) -> dict:
-        schema = strict({"why": {"type": "string", "description": "one or two sentences on why the recommended policy wins, using only the numbers given"},
+        schema = strict({"what": {"type": "string", "description": "2-4 plain-language sentences explaining exactly what the recommended policy does and how it works in practice: "
+                                                             "which place, which days and times or channels, what changes for a resident who uses it. No statistics."},
+                         "reasoning": {"type": "string", "description": "2-3 sentences of actual reasoning for why it wins: which residents it reaches and why "
+                                                                  "(their schedules or habits), and the trade-off versus the alternatives. Use at most one number: the main result vs current practice."},
+                         "why": {"type": "string", "description": "one or two sentences on why the recommended policy wins, using only the numbers given"},
                          "assumptions": {"type": "string", "description": "the synthetic or unsourced inputs the result depends on"},
                          "pilot": {"type": "string", "description": "a small real-world pilot and what to measure"}})
         return self.llm.json("brief", schema, SYSTEM, context)
