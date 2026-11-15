@@ -14,6 +14,7 @@ import { openSummary, closeSummary, remember, initHistory } from "./popup.js";
 import { createCelebration } from "./celebrate.js";
 import { ANGEL_SCALE } from "./people.js";
 import { roleOf, reaction } from "./voices.js";
+import { createHover } from "./hover.js";
 
 const PIX = 3;            // render at 1/3 resolution, scale up with nearest-neighbour
 const TICK_SEC = 1.6;     // real seconds per 10 simulated minutes at 1x
@@ -73,6 +74,7 @@ for (const spec of RESEARCHERS) {
 }
 
 const celebration = createCelebration({ scene, heavenY: HEAVEN_Y });
+const hover = createHover(scene);
 
 // selection marker
 const marker = new THREE.Group();
@@ -134,7 +136,7 @@ async function makeTown(name, real = false) {
   views = {};
   for (const r of residents) views[r.id] = new Resident(r, town, scene);
   research = null; mode = null; viewExp = null; events = [];
-  endCelebration(); summaryDone = true;
+  endCelebration(); summaryDone = true; hover.set(null);
   $("log").innerHTML = "";
   startReplay(null);
   buildLabels();
@@ -336,18 +338,46 @@ const HEAVEN_VIEW = () => flyTo(new THREE.Vector3(48, HEAVEN_Y + 44, 66), new TH
 const ray = new THREE.Raycaster();
 let downAt = null;
 canvas.addEventListener("pointerdown", (e) => (downAt = { x: e.clientX, y: e.clientY }));
-canvas.addEventListener("pointerup", (e) => {
-  if (!downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6 || !inTown) return;
-  const ndc = new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+function pickAt(x, y) {
+  const ndc = new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const targets = [...Object.values(views).filter((v) => v.mesh.visible).map((v) => v.mesh), ...Object.values(researchers).map((r) => r.mesh), heaven.group, town.group];
   const hits = ray.intersectObjects(targets, true);
   for (const h of hits) {
     let o = h.object;
     while (o && !o.userData.pick) o = o.parent;
-    if (o) { select(o.userData.pick); return; }
+    if (o) return { pick: o.userData.pick, obj: o };
   }
+  return null;
+}
+// The whole clickable thing (a resident, an angel, a building, a station) for the hover highlight
+function pickRoot(hit) {
+  const p = hit.pick;
+  if (p.kind === "resident") return views[p.id] && views[p.id].mesh;
+  if (p.kind === "researcher") return researchers[p.id] && researchers[p.id].mesh;
+  if (p.kind === "building") return (town.byId[p.id] && town.byId[p.id].mesh) || null;
+  if (p.kind === "station") { let o = hit.obj; while (o.parent && o.parent !== heaven.group) o = o.parent; return o; }
+  return null;
+}
+canvas.addEventListener("pointerup", (e) => {
+  if (!downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6 || !inTown) return;
+  const hit = pickAt(e.clientX, e.clientY);
+  if (hit) select(hit.pick);
 });
+let hoverAt = null;
+canvas.addEventListener("pointermove", (e) => { hoverAt = e.buttons ? null : { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener("pointerleave", () => { hoverAt = null; hover.set(null); });
+let lastHover = 0;
+function updateHover(t) {
+  if (!inTown || !$("landing").classList.contains("hidden")) { hover.set(null); return; }
+  const now = performance.now();
+  if (hoverAt && now - lastHover > 70) {
+    lastHover = now;
+    const hit = pickAt(hoverAt.x, hoverAt.y);
+    hover.set(hit ? pickRoot(hit) : null);
+  } else if (!hoverAt) hover.set(null);
+  hover.update(t);
+}
 
 function select(pick) {
   selected = pick;
@@ -625,6 +655,7 @@ function frame() {
     if (p) { const d = new THREE.Vector3(p.x, 0, p.z).sub(controls.target); controls.target.add(d.multiplyScalar(0.08)); camera.position.add(d); }
   }
   keyboardCamera(dt);
+  updateHover(t);
   const sp = selectedPos();
   marker.visible = !!sp;
   if (sp) { marker.position.set(sp.x, sp.y > 5 ? sp.y + 0.1 : 0.15, sp.z); marker.rotation.y += dt; }
