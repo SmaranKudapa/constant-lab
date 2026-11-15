@@ -260,6 +260,7 @@ def build_spec(city: str) -> dict:
     pop = (c or {}).get("population") or (float(g["population_osm"]) if str(g.get("population_osm") or "").replace(".", "").isdigit() else None)
     residents = 72 if not pop else int(max(60, min(120, 40 + 12 * math.log10(max(pop, 10)))))
     return {
+        "census_checked": bool(os.environ.get("CENSUS_API_KEY")),
         "version": SPEC_VERSION, "city": city, "source": "osm", "display_name": g["display_name"], "osm": g["osm"],
         "center": {"lat": g["lat"], "lon": g["lon"]}, "radius_m": g["radius_m"],
         "population": pop, "population_source": ((c or {}).get("source") or ("OpenStreetMap population tag" if pop else None)),
@@ -281,6 +282,28 @@ def build_spec(city: str) -> dict:
 
 def norm_key(city: str) -> str:
     return "town:" + re.sub(r"\s+", " ", city.strip().lower())
+
+
+def enrich_census(spec: dict, city: str) -> dict:
+    """Add Census demographics to a spec built without them (once; marks census_checked). Same result every time, so the
+    browser and the simulator, which both read the stored spec, stay consistent."""
+    if spec.get("census_checked") or not os.environ.get("CENSUS_API_KEY"):
+        return spec
+    spec = dict(spec, census_checked=True)
+    try:
+        g = geocode(city)
+        c = census(g["address"], city)
+    except Exception as ex:
+        spec["census_note"] = f"Census lookup failed ({type(ex).__name__}); using defaults"
+        return spec
+    if not c:
+        return spec
+    mix, src = cohort_mix(c)
+    pop = c.get("population") or spec.get("population")
+    residents = int(max(60, min(120, 40 + 12 * math.log10(max(pop, 10))))) if pop else spec["residents"]
+    spec.update(census=c, census_note=None, cohort_mix=mix, cohort_mix_source=src, population=pop, population_source=c["source"],
+                residents=residents, each_resident_represents=round(pop / residents, 1) if pop else None)
+    return spec
 
 
 def status_key(city: str) -> str:
@@ -311,6 +334,9 @@ def lookup(city: str, cache, start_build) -> dict:
     """Non-blocking: {"status": "ready", "spec"} | {"status": "building"} | {"status": "error", "error"}."""
     spec = cache.get(norm_key(city), None) or prebuilt(city)
     if spec and spec.get("version") == SPEC_VERSION:
+        if not spec.get("census_checked") and os.environ.get("CENSUS_API_KEY"):
+            spec = enrich_census(spec, city)
+            cache[norm_key(city)] = spec
         return {"status": "ready", "spec": spec}
     st = cache.get(status_key(city), None) or {}
     fresh = time.time() - st.get("t", 0) < 300
@@ -327,6 +353,9 @@ def get_spec(city: str, cache) -> dict:
     k = norm_key(city)
     spec = cache.get(k, None) or prebuilt(city)
     if spec and spec.get("version") == SPEC_VERSION:
+        if not spec.get("census_checked") and os.environ.get("CENSUS_API_KEY"):
+            spec = enrich_census(spec, city)
+            cache[k] = spec
         return spec
     spec = build_spec(city)
     cache[k] = spec
