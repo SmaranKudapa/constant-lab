@@ -46,7 +46,7 @@ town-trial/web  ── POST /api/trials ─▶  town-trial-api   (FastAPI, asgi_
   - Modal report: the same workload run serially (one container) vs. fanned out. Wall time and estimated cost into `eval/results/modal_timing.json`.
   - Real-data anchor: use Exa to find a library that extended evening hours and published before/after visit counts. Set up the simulator with the "before" data, compare its prediction with the real "after" numbers, and report honestly whatever happens.
   - Optional: food-rescue domain as a transfer test.
-- [ ] **M5: ship (Sun 10 AM)**
+- [x] **M5: ship (Sun 10 AM)**: done. README sponsor pointers (file:line, checked) and memory table; PR https://github.com/SmaranKudapa/constant-lab/pull/2 (`main-backend` -> `main`, merges cleanly, not merged).
   - README: sponsor pointers (exact file:line of Exa calls and past.dev reads/writes), the memory table, how to deploy. Open the PR `main-backend` → `main`.
 
 ## API contract
