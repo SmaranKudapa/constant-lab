@@ -11,7 +11,7 @@ import time
 
 from agents.llm import strict
 
-PROFILE_VERSION = 1
+PROFILE_VERSION = 2
 
 BUDGET = strict({
     "found": {"type": "boolean"},
@@ -32,6 +32,23 @@ CHANNELS = strict({"found": {"type": "boolean"}, "channels": {"type": "array", "
 PLACES = strict({"found": {"type": "boolean"}, "places": {"type": "array", "items": strict({
     "name": {"type": "string"}, "role": {"type": "string", "description": "what it is / does for residents, a few words"},
     "address": {"type": ["string", "null"]}, "quote": {"type": "string"}, "url": {"type": "string"}})}})
+
+
+GENERIC = {"public", "the", "of", "and", "city", "town", "village", "county", "center", "centre", "community", "hall", "school", "district",
+           "elementary", "middle", "high", "area", "memorial", "municipal", "office", "building", "park"}
+KIND_WORDS = {"library", "school", "hall", "park", "pool", "clinic", "pharmacy", "museum", "church", "post", "fire", "police", "center", "centre"}
+
+
+def same_place(osm_name: str, exa_name: str, city: str) -> bool:
+    """Do an OpenStreetMap name and a name in a source mean the same place? ("Evart Public Library" ~ "Evart Library-Museum")"""
+    import re
+    town = {w for w in re.findall(r"[a-z]+", city.lower()) if len(w) > 2}
+    a, b = set(re.findall(r"[a-z]+", osm_name)), set(re.findall(r"[a-z]+", exa_name))
+    if osm_name in exa_name or exa_name in osm_name:
+        return True
+    distinct = (a & b) - GENERIC - town - KIND_WORDS
+    same_kind = bool((a & b) & KIND_WORDS)
+    return bool(distinct) or (same_kind and bool(a & b & town))
 
 
 def _key(city: str) -> str:
@@ -120,7 +137,7 @@ def build(city: str, ada, spec: dict | None) -> dict:
                     continue
                 name = p["name"].strip()
                 rec = {"name": name, "role": p["role"], "address": p.get("address"), "url": chk["url"], "published": chk.get("published")}
-                hit = next((o for o in osm if o and (o in name.lower() or name.lower() in o)), None)
+                hit = next((o for o in osm if o and same_place(o, name.lower(), city)), None)
                 (prof["places"] if hit else prof["exa_only_places"]).append({**rec, "on_map": bool(hit)})
                 src(chk["url"], res)
         except Exception as ex:
