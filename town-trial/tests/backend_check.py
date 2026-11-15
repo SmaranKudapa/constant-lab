@@ -94,5 +94,9 @@ exps = {e["id"]: e for e in evs if e["type"] == "EXPERIMENT"}
 check("town fallback: finishes", done and not err, err or "")
 check("town fallback: framed + briefed", any(e["type"] == "FRAME" for e in evs) and any(e["type"] == "BRIEF" for e in evs))
 check("town fallback: every run experiment has a budget", all(x.get("budget") for x in exps.values() if x.get("result")), str(len(exps)))
+# the pre-run budget estimate (used to reject proposals before running) must match the run's staff + running costs
+e0 = exps["E0"]
+est = tt.budget_of(tt.est_mean(e0["policy"]), e0["policy"])
+check("town: pre-run budget estimate == run budget (no fees)", abs(est["net"] - e0["budget"]["net"]) <= 1, f"{est['net']} vs {e0['budget']['net']}")
 
 sys.exit(1 if fails else 0)

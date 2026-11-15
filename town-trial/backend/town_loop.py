@@ -137,7 +137,8 @@ class TownTrial(LiveTrial):
             hrs = o.get("hours", f.get("hours")) or []
             oh = 0 if o.get("closed") else sum((x[1] - x[0]) / 60 for x in hrs if x)
             mean[f"openHours.f.{f['id']}"] = oh
-            mean["staffHours"] += oh * o.get("staff", f.get("staff", 1))
+            mean[f"staffHours.f.{f['id']}"] = oh * o.get("staff", f.get("staff", 1))  # budget.annual reads per-place staff hours
+            mean["staffHours"] += mean[f"staffHours.f.{f['id']}"]
         return mean
 
     def set_budget_constraint(self, kind: str, value: float | None, source: str, why: str) -> None:
