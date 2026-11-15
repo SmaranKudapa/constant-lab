@@ -45,7 +45,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
         return {"ok": True, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.get("/api/towns")
-    def town(city: str):
+    def town(city: str, retry: int = 0):
         """Real-town spec (OSM + Census), built in the background on first request and cached."""
         from towns import lookup
         if towns_cache is None or start_town_build is None:
@@ -53,7 +53,7 @@ def create_app(store: EventStore, start: Callable[..., None], towns_cache=None, 
         c = city.strip()
         if not c or len(c) > 80:
             raise HTTPException(400, "city must be 1-80 characters")
-        return lookup(c, towns_cache, start_town_build)
+        return lookup(c, towns_cache, start_town_build, retry=bool(retry))
 
     @app.get("/api/towns/profile")
     def town_profile(city: str):

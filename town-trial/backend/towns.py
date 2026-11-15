@@ -4,6 +4,8 @@ Sources (all free; every value records where it came from):
 - Nominatim (OpenStreetMap geocoder): the town's centre, extent, country/state, and OSM population if tagged.
 - Overpass (OpenStreetMap): real places within the town: library, schools, clinics, parks, shops, workplaces...
   with names and coordinates. Map data (c) OpenStreetMap contributors, ODbL.
+  If every Overpass server is down or overloaded, the same OpenStreetMap places come from Nominatim's search instead
+  (one category at a time inside the town's extent): sparser, but still real, named places (source "osm-nominatim").
 - US Census ACS 5-year profile (if CENSUS_API_KEY is set and the town is a US Census place): population,
   age, employment, households with children, college enrolment, working from home, median income.
   Without it, the resident mix uses the model's defaults, labelled as such.
@@ -70,8 +72,20 @@ def _get(url: str, params: dict | None = None, data: dict | None = None, timeout
     return r.json()
 
 
+def _nominatim(params: dict, tries: int = 4):
+    """Nominatim with retries (it rate-limits and has brief outages). Keeps to ~1 request/second per its usage policy."""
+    last = None
+    for k in range(tries):
+        try:
+            return _get("https://nominatim.openstreetmap.org/search", params, timeout=25)
+        except Exception as ex:
+            last = ex
+            time.sleep(1.5 * (k + 1))
+    raise RuntimeError(f"Nominatim failed: {last}")
+
+
 def geocode(city: str) -> dict:
-    res = _get("https://nominatim.openstreetmap.org/search", {"q": city, "format": "json", "limit": 8, "addressdetails": 1, "extratags": 1})
+    res = _nominatim({"q": city, "format": "json", "limit": 8, "addressdetails": 1, "extratags": 1})
     if not res:
         raise LookupError(f"OpenStreetMap has no place called {city!r}")
     # Prefer the town itself over a county or region with the same name (e.g. Hood River city, not Hood River County).
@@ -80,34 +94,84 @@ def geocode(city: str) -> dict:
     s, n, w, e = map(float, g["boundingbox"])
     lat, lon = float(g["lat"]), float(g["lon"])
     half_diag = 0.5 * math.hypot((n - s) * 110540, (e - w) * 111320 * math.cos(math.radians(lat)))
-    return {"lat": lat, "lon": lon, "display_name": g.get("display_name"), "osm": f"{g.get('osm_type')}/{g.get('osm_id')}",
+    return {"lat": lat, "lon": lon, "display_name": g.get("display_name"), "osm": f"{g.get('osm_type')}/{g.get('osm_id')}", "bbox": [s, n, w, e],
             "address": g.get("address", {}), "population_osm": (g.get("extratags") or {}).get("population"),
             "radius_m": int(min(2000, max(800, half_diag)))}
 
 
-def fetch_places(lat: float, lon: float, radius: int) -> list[dict]:
-    """Main Overpass server at full size, then a smaller area (dense cities like Berkeley can time out), then the mirrors.
-    Worst case stays under ~5 minutes so the browser's wait doesn't run out first."""
+def fetch_places(lat: float, lon: float, radius: int) -> tuple[list[dict], str]:
+    """Overpass (main server full size, then a smaller area, then mirrors), capped at ~100 s in total; if all of it
+    fails (public Overpass servers are often overloaded), the same OpenStreetMap places from Nominatim's search."""
     small = min(radius, 1200)
-    tries = [(OVERPASS[0], radius, 90), (OVERPASS[0], small, 60)] + [(u, small, 55) for u in OVERPASS[1:]]
-    last = None
+    tries = [(OVERPASS[0], radius, 60), (OVERPASS[0], small, 40), (OVERPASS[2], small, 30), (OVERPASS[1], small, 30), (OVERPASS[3], small, 25)]
+    t0, last = time.time(), None
     for url, r, to in tries:
+        left = 100 - (time.time() - t0)
+        if left < 10:
+            break
         try:
-            return _overpass(url, lat, lon, r, to)
+            els = _overpass(url, lat, lon, r, min(to, left))
+            if any(kind_of(e.get("tags", {})) for e in els):
+                return els, "osm"
+            last = RuntimeError("no places returned")
         except Exception as ex:  # try a smaller area / the next mirror
             last = ex
-    raise RuntimeError(f"Overpass failed: {last}")
+    try:
+        els = nominatim_places(lat, lon, radius)
+    except Exception as ex:
+        raise RuntimeError(f"Overpass failed ({last}); Nominatim fallback failed ({ex})")
+    if not els:
+        raise RuntimeError(f"Overpass failed ({last}); Nominatim found no places")
+    return els, "osm-nominatim"
+
+
+# Nominatim fallback: one search per category inside the town's extent. (search term, tags it maps to)
+NOMINATIM_CATS = [("library", None), ("school", None), ("park", None), ("playground", None), ("community centre", None),
+                  ("town hall", None), ("city hall", None), ("clinic", None), ("doctors", None), ("pharmacy", None), ("post office", None),
+                  ("fire station", None), ("police", None), ("cafe", None), ("restaurant", None), ("supermarket", None),
+                  ("bank", None), ("church", None), ("sports centre", None), ("office", None), ("shop", None)]
+
+
+def nominatim_places(lat: float, lon: float, radius: int) -> list[dict]:
+    """Real OSM places by category from Nominatim, returned in Overpass's element shape (type, id, lat, lon, tags)."""
+    dlat = radius / 110540
+    dlon = radius / (111320 * max(0.2, math.cos(math.radians(lat))))
+    vb = f"{lon - dlon},{lat + dlat},{lon + dlon},{lat - dlat}"
+    out, seen = [], set()
+    for term, _ in NOMINATIM_CATS:
+        try:
+            res = _nominatim({"q": term, "viewbox": vb, "bounded": 1, "format": "json", "limit": 12, "addressdetails": 1}, tries=2)
+        except Exception:
+            continue
+        finally:
+            time.sleep(1.05)  # Nominatim usage policy: at most one request per second
+        for r in res:
+            key = (r.get("osm_type"), r.get("osm_id"))
+            if key in seen:
+                continue
+            seen.add(key)
+            tags = {r.get("class", ""): r.get("type", "")}
+            if r.get("name"):
+                tags["name"] = r["name"]
+            out.append({"type": r.get("osm_type", "node"), "id": r.get("osm_id"), "lat": float(r["lat"]), "lon": float(r["lon"]), "tags": tags})
+            road = (r.get("address") or {}).get("road")
+            if road and ("road", road) not in seen:  # street names come from the places' addresses
+                seen.add(("road", road))
+                out.append({"type": "way", "id": f"road:{road}", "tags": {"highway": "residential", "name": road}})
+    return out
 
 
 def _overpass(url: str, lat: float, lon: float, radius: int, timeout: float) -> list[dict]:
     a = f"around:{radius},{lat},{lon}"
-    q = (f"[out:json][timeout:{int(timeout) - 5}];("
+    # Civic places in full; the very common kinds (food, shops, offices, streets) capped, so dense cities stay light
+    q = (f"[out:json][timeout:{max(5, int(timeout) - 5)}];"
          f'nwr({a})[amenity~"^(library|school|kindergarten|college|clinic|doctors|hospital|dentist|pharmacy|community_centre|social_centre|'
-         f'arts_centre|townhall|post_office|police|fire_station|place_of_worship|restaurant|cafe|fast_food|pub|bar|bank|swimming_pool)$"];'
-         f'nwr({a})[leisure~"^(park|playground|garden|sports_centre|swimming_pool|pitch|fitness_centre|stadium)$"];'
-         f"nwr({a})[shop];nwr({a})[office];way({a})[building~\"^(office|commercial|industrial)$\"];"
-         f'way({a})[highway~"^(primary|secondary|tertiary|residential|unclassified|living_street)$"][name];'
-         f");out tags center;")
+         f'arts_centre|townhall|post_office|police|fire_station|swimming_pool)$"];out tags center 400;'
+         f'nwr({a})[leisure~"^(park|playground|garden|sports_centre|swimming_pool|pitch|fitness_centre|stadium)$"];out tags center 200;'
+         f'nwr({a})[amenity~"^(place_of_worship|restaurant|cafe|fast_food|pub|bar|bank)$"];out tags center 200;'
+         f"nwr({a})[shop];out tags center 150;"
+         f"(nwr({a})[office];way({a})[building~\"^(office|commercial|industrial)$\"];);out tags center 100;"
+         f'way({a})[highway~"^(primary|secondary|tertiary|residential|unclassified|living_street)$"][name];out tags 300;')
     res = _get(url, data={"data": q}, timeout=timeout)
     remark = str(res.get("remark") or "")
     if "error" in remark.lower() or "timed out" in remark.lower():  # Overpass reports query timeouts as HTTP 200 + remark
@@ -213,12 +277,15 @@ def place_on_grid(center: dict, places: list[dict]) -> tuple[list[dict], list[di
 def build_spec(city: str) -> dict:
     t0 = time.time()
     g = geocode(city)
-    elements = fetch_places(g["lat"], g["lon"], g["radius_m"])
+    elements, source = fetch_places(g["lat"], g["lon"], g["radius_m"])
     counts, seen, raw, streets = {}, set(), [], {}
     for e in elements:
         t = e.get("tags", {})
-        if "highway" in t:
-            streets[t["name"]] = streets.get(t["name"], 0) + 1
+        # Named highway ways are streets. Shops/amenities in dense cities can also carry a highway tag with no name:
+        # those fall through to kind_of() (real shops/amenities still count; anything else is skipped).
+        nm = t.get("name")
+        if "highway" in t and nm and e.get("type") == "way":
+            streets[nm] = streets.get(nm, 0) + 1
             continue
         k = kind_of(t)
         if not k:
@@ -269,7 +336,7 @@ def build_spec(city: str) -> dict:
     residents = 72 if not pop else int(max(60, min(120, 40 + 12 * math.log10(max(pop, 10)))))
     return {
         "census_checked": bool(os.environ.get("CENSUS_API_KEY")),
-        "version": SPEC_VERSION, "city": city, "source": "osm", "display_name": g["display_name"], "osm": g["osm"],
+        "version": SPEC_VERSION, "city": city, "source": source, "built_at": time.time(), "display_name": g["display_name"], "osm": g["osm"],
         "center": {"lat": g["lat"], "lon": g["lon"]}, "radius_m": g["radius_m"],
         "population": pop, "population_source": ((c or {}).get("source") or ("OpenStreetMap population tag" if pop else None)),
         "census": c, "census_note": census_note or (None if c else ("set CENSUS_API_KEY for US demographics" if g["address"].get("country_code") == "us"
@@ -319,9 +386,13 @@ def status_key(city: str) -> str:
 
 
 def build_into(city: str, cache) -> None:
-    """Build a spec and store it (or the error) in the cache; run in the background."""
+    """Build a spec and store it (or the error) in the cache; run in the background. A rebuild that fails, or only
+    reaches the fallback again, keeps the town that is already cached."""
     try:
-        cache[norm_key(city)] = build_spec(city)
+        spec = build_spec(city)
+        old = cache.get(norm_key(city), None)
+        if not (old and old.get("source") == "osm" and spec.get("source") != "osm"):
+            cache[norm_key(city)] = spec
         cache[status_key(city)] = {"state": "ready", "t": time.time()}
     except Exception as ex:
         cache[status_key(city)] = {"state": "error", "t": time.time(), "error": f"{type(ex).__name__}: {str(ex)[:200]}"}
@@ -338,17 +409,21 @@ def prebuilt(city: str) -> dict | None:
     return None
 
 
-def lookup(city: str, cache, start_build) -> dict:
+def lookup(city: str, cache, start_build, retry: bool = False) -> dict:
     """Non-blocking: {"status": "ready", "spec"} | {"status": "building"} | {"status": "error", "error"}."""
     spec = cache.get(norm_key(city), None) or prebuilt(city)
+    st = cache.get(status_key(city), None) or {}
     if spec and spec.get("version") == SPEC_VERSION:
         if not spec.get("census_checked") and os.environ.get("CENSUS_API_KEY"):
             spec = enrich_census(spec, city)
             cache[norm_key(city)] = spec
+        # Built from the Nominatim fallback: serve it, and try Overpass again in the background (at most every 20 min)
+        if spec.get("source") == "osm-nominatim" and time.time() - max(spec.get("built_at", 0), st.get("t", 0)) > 1200:
+            cache[status_key(city)] = {"state": "building", "t": time.time()}
+            start_build(city)
         return {"status": "ready", "spec": spec}
-    st = cache.get(status_key(city), None) or {}
     fresh = time.time() - st.get("t", 0) < 420
-    if st.get("state") == "error" and time.time() - st.get("t", 0) < 45:  # map servers are flaky: retry soon after a failure
+    if st.get("state") == "error" and time.time() - st.get("t", 0) < 45 and not retry:  # map servers are flaky: retry soon after a failure
         return {"status": "error", "error": st["error"]}
     if st.get("state") != "building" or not fresh:
         cache[status_key(city)] = {"state": "building", "t": time.time()}

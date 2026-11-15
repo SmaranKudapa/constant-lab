@@ -157,16 +157,35 @@ async function loadSpec(name) {
   if (!api) return null;
   const base = api.replace(/\/+$/, "");
   const t0 = performance.now();
-  while (performance.now() - t0 < 360000) {
-    const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}`);
-    if (!r.ok) throw new Error(`${r.status}`);
-    const d = await r.json();
+  let retries = 0, retryNext = false, last = "timed out";
+  const sub = (extra) => showLoading(`Building ${name}`, `${extra || "Fetching real map data from OpenStreetMap"} · ${Math.round((performance.now() - t0) / 1000)} s · a town's first visit can take a minute or two`);
+  // Network blips and failed builds are retried (up to 3 times) before the town falls back to synthetic.
+  while (performance.now() - t0 < 420000) {
+    let d = null;
+    try {
+      const r = await fetch(`${base}/api/towns?city=${encodeURIComponent(name)}${retryNext ? "&retry=1" : ""}`);
+      retryNext = false;
+      if (r.status === 400) throw Object.assign(new Error("not a valid town name"), { fatal: true });
+      if (!r.ok) throw new Error(`server ${r.status}`);
+      d = await r.json();
+    } catch (err) {
+      if (err.fatal || ++retries > 3) throw err;
+      last = err.message; sub("Reconnecting to the map service");
+      await new Promise((res) => setTimeout(res, 3000 * retries));
+      continue;
+    }
     if (d.status === "ready") return d.spec;
-    if (d.status === "error") throw new Error(d.error);
-    showLoading(`Building ${name}`, `Fetching real map data from OpenStreetMap · ${Math.round((performance.now() - t0) / 1000)} s · a town's first visit can take a minute`);
+    if (d.status === "error") {
+      if (/no place called/i.test(d.error || "")) throw Object.assign(new Error(`OpenStreetMap has no place called "${name}"`), { fatal: true });
+      if (++retries > 3) throw new Error(d.error);
+      last = d.error; retryNext = true; sub("Map servers are busy, trying again");
+      await new Promise((res) => setTimeout(res, 2000));
+      continue;
+    }
+    sub();
     await new Promise((res) => setTimeout(res, 3000));
   }
-  throw new Error("timed out");
+  throw new Error(last);
 }
 
 async function makeTown(name, real = false) {
@@ -174,7 +193,11 @@ async function makeTown(name, real = false) {
   townNote = "";
   if (real) {
     try { spec = await loadSpec(name); }
-    catch (err) { townNote = `Couldn't load real map data (${err.message}); this is a synthetic town.`; }
+    catch (err) {
+      townNote = err.fatal ? `${err.message}. Showing a synthetic town; check the spelling, or add the state (e.g. "Springfield, IL").`
+        : `The map services didn't respond after several tries, so this is a synthetic town. Try again in a minute.`;
+      console.warn("town build failed:", err.message);
+    }
   }
   townSpec = spec;
   if (town) {
@@ -576,7 +599,7 @@ function setStatus(text, busy = true, error = false) {
   c.classList.remove("hidden");
   c.classList.toggle("busy", busy); c.classList.toggle("error", error);
 }
-const shortNum = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
+const shortNum = (n) => (n >= 1e9 ? `${(n / 1e9).toFixed(n >= 1e10 ? 0 : 1)}B` : n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}K` : String(Math.round(n)));
 // Top bar: the town's actual residents, the simulated residents, and the town budget (when a verified source gives it)
 // Exa Dude's town profile (budget, channels, verified places) starts building when the town loads, so the budget is in
 // the top bar before any trial. A trial's TOWN_PROFILE event replaces it.
@@ -613,7 +636,7 @@ function updateStats() {
   $("st-sim").textContent = String(residents.length);
   $("st-sim").parentElement.title = `${residents.length} simulated residents` + (pop ? `, each standing for about ${Math.round(pop / residents.length).toLocaleString()} real people` : "");
   const b = townProfile && townProfile.budget;
-  const searching = !b && !townProfile && profileState === "building";
+  const searching = !!townSpec && !b && !townProfile && profileState === "building";
   const est = estBudget(pop);
   $("st-bud").textContent = b && typeof b.total_budget_usd === "number" ? `$${shortNum(b.total_budget_usd)}` : searching ? "searching…" : !townSpec ? "synthetic" : est ? `$${shortNum(est)}` : "-";
   $("st-bud").classList.toggle("searching", searching);
@@ -643,6 +666,7 @@ async function enterTown(name, real = true) {
     loadProfile(name);  // the town budget is looked up while the map is being built
   }
   try { await makeTown(name, real); } finally { hideLoading(); }
+  if (!townSpec) { profileFor = ""; profileState = null; }  // no real town: stop looking for its budget
   $("town-name").textContent = name.toUpperCase();
   $("landing").classList.add("hidden");
   $("hud").classList.remove("hidden");
