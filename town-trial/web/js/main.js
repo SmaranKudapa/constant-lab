@@ -292,7 +292,7 @@ function selectedPos() {
 }
 function renderSelected() {
   const el = $("selected");
-  if (!selected) { el.classList.add("hidden"); marker.visible = false; return; }
+  if (!selected) { el.classList.add("hidden"); el._html = null; marker.visible = false; return; }
   el.classList.remove("hidden");
   $("side").classList.remove("collapsed");
   let html = "";
@@ -300,7 +300,7 @@ function renderSelected() {
   else if (selected.kind === "researcher") html = UI.researcherHTML(researchers[selected.id].spec, events);
   else if (selected.kind === "station") html = UI.stationHTML(selected.id, heaven.stations[selected.id].label, events);
   else if (selected.kind === "building") html = UI.buildingHTML(town.byId[selected.id], model, events);
-  el.innerHTML = html;
+  if (el._html !== html) { const top = el.scrollTop; el.innerHTML = html; el._html = html; el.scrollTop = top; }
 }
 $("selected").addEventListener("click", (e) => { if (e.target.closest("[data-close]")) select(null); });
 
