@@ -724,7 +724,17 @@ async function enterTown(name, real = true) {
 }
 
 // Prompt
-document.querySelectorAll("[data-prompt]").forEach((c) => c.addEventListener("click", () => { $("prompt-input").value = c.dataset.prompt; }));
+// The prompt box grows to show the whole question (up to 5 lines, then scrolls); Enter runs, Shift+Enter adds a line
+const promptBox = $("prompt-input");
+function fitPrompt() {
+  promptBox.style.height = "auto";
+  promptBox.style.height = `${Math.min(promptBox.scrollHeight + 6, 5 * 22 + 30)}px`;
+  if (typeof placeRunbar === "function") placeRunbar();
+}
+promptBox.addEventListener("input", fitPrompt);
+promptBox.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("prompt-form").requestSubmit(); } });
+window.addEventListener("resize", fitPrompt);
+document.querySelectorAll("[data-prompt]").forEach((c) => c.addEventListener("click", () => { promptBox.value = c.dataset.prompt; fitPrompt(); }));
 $("prompt-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const prompt = $("prompt-input").value.trim();
@@ -974,7 +984,7 @@ initHistory();
   const city = params.get("city");
   if (city) {
     await enterTown(city);
-    if (params.get("prompt")) { $("prompt-input").value = trialPrompt = params.get("prompt"); startTrial(params.get("prompt")); }
+    if (params.get("prompt")) { $("prompt-input").value = trialPrompt = params.get("prompt"); fitPrompt(); startTrial(params.get("prompt")); }
     if (params.get("view") === "heaven") { HEAVEN_VIEW(); setView("heaven"); }
     if (params.get("speed")) { const b = document.querySelector(`[data-speed="${params.get("speed")}"]`); if (b) b.click(); }
   } else {

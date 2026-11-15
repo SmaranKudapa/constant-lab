@@ -250,3 +250,7 @@
 #topbar .trials-wrap #trials-btn { height: 100%; }
 #toggle-sound.muted { text-decoration: line-through; opacity: .7; }
 #topbar #toggle-sound { font-family: "Segoe UI Symbol", "Apple Symbols", system-ui, sans-serif; font-size: 20px; line-height: 1; }
+
+/* ---------- prompt: a textarea that grows to show the whole question ---------- */
+#prompt-input { resize: none; overflow-y: auto; line-height: 22px; min-height: 48px; max-height: 140px; display: block; white-space: pre-wrap; word-break: break-word; }
+#prompt-form { align-items: flex-end; }
