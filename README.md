@@ -37,7 +37,9 @@ Simulator checks: `node town-trial/tests/sim_check.mjs`.
 
 ## Deploy (Vercel)
 
-In the project settings, set **Root Directory: `town-trial/web`**, Framework Preset: **Other**, no build command, no output directory. Then redeploy.
+Import the repository with its root as the Vercel Root Directory and Framework Preset **Other**. No build command is needed. The root `vercel.json` sets `town-trial/web` as the output directory, so the archived root `web/` viewer is not deployed.
+
+Connect the repository through Vercel's GitHub integration and set `main` as the production branch for automatic deployments. Without that integration, deploy `town-trial/web` manually after changes.
 
 The frontend finds the backend through `town-trial/web/config.js` (`window.TOWN_TRIAL_API`), or with `?api=<url>` on any deploy. Leave it empty for demo mode.
 
@@ -45,7 +47,7 @@ The frontend finds the backend through `town-trial/web/config.js` (`window.TOWN_
 
 | Branch | Owner | What |
 |---|---|---|
-| `main` | Frontend | The site Vercel deploys |
+| `main` | Frontend | Production source when Vercel's GitHub integration is connected |
 | `main-backend` | Backend (Claude Code) | Live agents, Exa, past.dev, Modal API. Merged into `main` by PR. Plan: `town-trial/docs/BACKEND_PLAN.md` |
 
 ## Memory: which store holds what (past.dev challenge)
