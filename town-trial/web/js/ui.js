@@ -99,7 +99,7 @@ export function experimentsHTML(exps, viewingId, P, events = [], openWhy = new S
     const H = exps.heldOut;
     html += `<h5>HELD-OUT TEST (frozen picks)</h5><table class="cmp"><tr><th>Scenario</th>${H.finalists.map((f) => `<th>${esc(f.id)}<br>${esc(f.role)}${f.feasible ? "" : " ✗"}</th>`).join("")}</tr>`;
     for (const row of H.table) html += `<tr><td>${esc(row.scenario)}</td>${H.finalists.map((f) => `<td>${fmtMetric(row[f.id], P)}</td>`).join("")}</tr>`;
-    html += `</table><p class="note">✗ = breaks a discovered constraint. Same search budget for sweep, one-shot and agent. Demo inputs are synthetic.</p>`;
+    html += `</table><p class="note">✗ = breaks a discovered constraint. Same search budget for sweep, one-shot and agent. Residents' schedules and demand rates are model defaults (labelled), not measurements.</p>`;
   }
   return html;
 }

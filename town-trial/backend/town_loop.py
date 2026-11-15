@@ -93,7 +93,7 @@ class TownTrial(LiveTrial):
             key, label, unit = "budget.net", "net annual cost (lower is better)", ""
         self.awareness = m == "awareness"
         self.days = 3 if self.awareness else 7
-        self.P = {"key": key, "label": label, "unit": unit, "dir": DIRECTION[m], "metric": m, "target": tgt}
+        self.P = {"key": key, "label": label, "unit": unit, "dir": DIRECTION[m], "metric": m, "target": tgt, "kind": kind}
 
     def mval(self, mean: dict, policy: dict) -> float:
         if self.P["key"] == "budget.net":
@@ -124,7 +124,8 @@ class TownTrial(LiveTrial):
         if self.target and (self.metric == "net_cost" or bl in ("cut_pct", "max_increase_usd", "no_increase")):
             self.scope, self.scope_label = {self.target}, f"{self.fac[self.target]['name']} budget"
         else:
-            ids = {i for i, f in self.fac.items() if f["kind"] in B.TOWN_FUNDED}
+            private = ("yoga", "fitness", "gym", "crossfit", "boulder", "climbing", "studio", "club", "golf", "martial", "dance", "pilates")
+            ids = {i for i, f in self.fac.items() if f["kind"] in B.TOWN_FUNDED and not any(w in f["name"].lower() for w in private)}
             self.scope, self.scope_label = ids, "budget of town-run places (" + ", ".join(sorted(self.fac[i]["name"] for i in ids))[:160] + ")"
 
 
@@ -475,7 +476,9 @@ class TownTrial(LiveTrial):
         context = (f"Question: {self.prompt}\n{focus}Metric ({'maximise' if self.P['dir'] > 0 else 'minimise'}): {self.P['label']}\n"
                    f"Results so far: {self.results_text()}\nFailure trace: {self.trace_text(best)}\nReviewer's question: {fail['next_question']}\n"
                    f"Constraints (enforced in code): {self.constraints_text()}\nWage used: ${self.wage:g}/staff hour ({self.wage_source})\n"
-                   f"Local sources: {self.evidence_text()}\nAlready tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
+                   + (f"Budget covers: {self.scope_label}. To stay within a budget limit you may offset new costs inside it (trim hours at "
+                      f"another place in it, or add a modest fee).\n" if self.constraint else "")
+                   + f"Local sources: {self.evidence_text()}\nAlready tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
 
         def validate(props):
             for p in props:
@@ -525,8 +528,16 @@ class TownTrial(LiveTrial):
             combos = [["online", "board"], ["online", "bulletin"], ["online", "board", "bulletin"], ["online", "newspaper"], ["online", "mailer"], ["board", "bulletin", "newspaper"]]
             sweep = [{"key": f"S{k + 1}", "policy": dict(self.base_policy, channels=c)} for k, c in enumerate(combos)]
         else:
-            tgt = self.target or next((f for f in self.fac if self.fac[f]["kind"] == self.P.get("kind")), None) or next(iter(self.fac), None)
+            kind = self.P.get("kind")
+            tgt = self.target or next((f for f in self.fac if self.fac[f]["kind"] == kind), None)
             sweep = []
+            if not tgt and kind in self.defaults:  # the town has no such place: try opening one in six different spots
+                spots = ["plaza"] + [i for i in sorted(self.places) if i != "plaza" and not i.startswith("home-")][:5]
+                for k, near in enumerate(spots[:6]):
+                    sweep.append({"key": f"S{k + 1}", "policy": {"target": None, "add": [{"id": f"new-{kind}-1", "kind": kind, "near": near,
+                                  "hours": self.defaults[kind]["hours"], "opCost": self.defaults[kind].get("opCost", 20)}]}})
+            elif not tgt:
+                tgt = next(iter(self.fac), None)
             if tgt:
                 h = self.fac[tgt]["hours"]
                 variants = [
