@@ -1,6 +1,6 @@
 # Town Trial
 
-**A test bench for local policy ideas.** Type a city and get a blocky 3D town full of residents. Type an idea, such as *"Extend library hours two evenings a week"* or *"Will working parents hear about the new hours if we only post online?"*, and a team of research agents living in **Heaven** (a floating island above the town) turns it into an experiment. They search for missing facts, run matched simulations, revise the idea when it fails, and report what works, for whom, and under which assumptions.
+**A test bench for local policy ideas.** Type a city and get a blocky 3D version of the real town, full of residents. Type an idea, such as *"Extend library hours two evenings a week"* or *"Will working parents hear about the new hours if we only post online?"*, and a team of research agents living in **Olympus** (a floating island above the town) turns it into an experiment. They search the web for missing facts, run matched simulations, revise the idea when it fails, check the cost against the town's budget, and report what works, for whom, and under which assumptions.
 
 Built at Iterate's AI Research Hackathon, San Francisco, Nov 14–15, 2026.
 **Track 4: World Models** (Track 5 Open as fallback) · sponsor challenges: **Exa**, **past.dev**, **Modal**.
@@ -9,21 +9,65 @@ Built at Iterate's AI Research Hackathon, San Francisco, Nov 14–15, 2026.
 
 ## Research question
 
-With the same search and simulation budget, does an agent that inspects failed runs and searches for the missing fact find better policies on **unseen** scenarios than a one-shot proposer or a simple parameter sweep?
+With the same search and simulation budget, does an agent that inspects failed runs and searches for the missing fact find better policies on **unseen** scenarios than a one-shot proposer or a simple parameter sweep? Results so far: [`town-trial/eval/RESULTS.md`](town-trial/eval/RESULTS.md).
+
+## The agents
+
+| Agent | Role |
+|---|---|
+| **Exa Dude** | Research god. Searches the web with Exa for local facts, budget records and similar towns, and checks every claim against its source passage, place and date. |
+| **Bo** | Designer. Turns the idea into allowed policy actions and proposes revisions. |
+| **Cy** | Reviewer. Reads failure traces, names the missing fact, blocks unsupported changes, and runs the Lesson Forge (what won and what failed, carried to the next trial). |
+| **Dee** | Runner. Fans experiments out to Modal workers and collects the results. |
+| **Past Dev** | Memory and audiences god. Keeps the team's shared memory in past.dev, plus the residents' identities and audiences (who has heard what, and when). |
+| **Treasurer** | Budget god. Costs every proposal line by line and checks the winner against the town's sourced budget. Advises only. |
+
+All agents use one OpenAI model (`gpt-5.4-mini` by default) with structured outputs.
 
 ## How it works
 
-1. **Claim:** the designer turns the idea into one testable claim with one primary metric and a constraint.
-2. **Baseline:** the researcher uses **Exa** to find current practice and saves it to **past.dev**.
-3. **Runs:** the runner fans out the baseline and the idea over 16 matched seeds on **Modal**.
-4. **Failure → search:** the reviewer reads the failure trace and names the missing fact. The researcher runs a failure-guided Exa search, and the designer revises using the fact (a cross-agent past.dev read).
-5. **Review:** unsupported changes are rejected, and the rejections are logged.
-6. **Comparison:** original idea vs. parameter sweep vs. one-shot proposer vs. iterative agent, with equal budgets. Picks are frozen, then tested on held-out towns.
-7. **Brief:** the recommendation, its assumptions and a pilot plan.
+1. **Town:** the real town is built from OpenStreetMap (places, names, streets, population). While it builds, Exa Dude researches the town's budget, local news channels and place details (cached per town).
+2. **Claim:** Bo frames the question as one measurable metric, a target place and any budget limit.
+3. **Baseline:** Exa Dude finds current practice (for example the place's real opening hours) and saves it to **past.dev**.
+4. **Runs:** Dee fans the baseline and your idea out over 16 matched seeds on **Modal**.
+5. **Failure → search (up to 3 rounds):** Cy reads the failure trace and names the missing fact. Exa Dude runs a failure-guided Exa search, and Bo revises using what he reads back from past.dev. Unsupported changes are rejected, and the rejections are logged.
+6. **Comparison:** your idea vs. a 6-option parameter sweep vs. a one-shot proposer vs. the iterative agent, with equal budgets. Picks are frozen, then tested on held-out scenarios.
+7. **Brief:** the recommendation, what it costs, whether the budget can pay for it, how each resident group is affected, and its assumptions.
+8. **Lessons:** what won and Cy's failure notes are saved to past.dev, and later town trials in the same page session read them back (a page reload starts fresh).
 
-Two kinds of trial share one engine:
+Three kinds of trial share one engine:
+- **Town trials** (the default for broad goals and the fallback, e.g. "Make school more accessible"): every public place has hours, capacity, fees and staff; residents want each kind of place, and unmet wants build up.
 - **Service trials** (e.g. library hours): residents queue, get served or get turned away.
-- **Perception trials** (who hears a notice, marketing): each resident is a past.dev identity, and hearing the notice moves them into a past.dev audience.
+- **Perception trials** (who hears a notice): each resident is a past.dev identity, and hearing the notice moves them into a past.dev audience.
+
+## Where each sponsor is used
+
+**Exa** runs in the main loop of every live trial. Exact lines are in [`town-trial/README.md`](town-trial/README.md#sponsor-pointers).
+- The one Exa call: [`town-trial/backend/agents/ada.py:49`](town-trial/backend/agents/ada.py#L49) (`search_and_contents` with highlights and page text). Every search goes through it.
+- In each trial: the place's hours, the town budget and notice channels, similar towns, and a failure-guided search every round ([`town-trial/backend/town_loop.py`](town-trial/backend/town_loop.py)).
+- On a town's first visit: its budget documents, channels and places ([`town-trial/backend/town_profile.py`](town-trial/backend/town_profile.py)).
+
+**past.dev** holds the shared memory. Several agents write to it and read from it, and Bo's and the Treasurer's prompts are built from what their reads return (details in [`town-trial/README.md`](town-trial/README.md#memory-which-store-holds-what-pastdev-challenge)).
+
+**Modal** runs the whole backend: the web API, one orchestrator per trial, background town builds, and the simulator fanned out as policy × seed chunk × held-out scenario with `run_batch.map` ([`town-trial/backend/app.py`](town-trial/backend/app.py)). Serial vs. fanned-out timing: 21× faster at 24,576 runs ([`town-trial/eval/RESULTS.md`](town-trial/eval/RESULTS.md)).
+
+## Memory: which store holds what (past.dev challenge)
+
+| Store | Holds | Written by | Read by |
+|---|---|---|---|
+| **past.dev** | Dated facts and constraints with sources (hours, budgets, channels, similar towns) | Exa Dude | Bo (in his revision prompt), Cy (before reviewing), Treasurer (funding check), Past Dev (at the start of a trial) |
+| **past.dev** | Failure notes and what won | Cy, Bo | Cy and Bo in later trials of the same page session |
+| **past.dev** | One identity per agent and per resident, rule audiences, the notice (only residents who heard it can recall it) | Past Dev | Residents' recall checks |
+| **Experiment log** (`modal.Dict`) | Exact run configs, seeds, results, parent links, every agent step | Orchestrator | The frontend, comparison tables, replay |
+
+## Status (Sunday)
+
+| Part | Status |
+|---|---|
+| 3D frontend: landing, real town, Olympus, logs, experiments, audiences and graphs, results popup, replay | Done |
+| Simulators: `town-trial/web/js/sim.js` (library hours, notices) and `townsim.js` (whole town); same code in the browser and on Modal | Done. 8 simulator, 9 parity, 33 classifier and 36 backend checks pass |
+| Live backend on Modal: research loop with LLM agents, Exa, past.dev, fan-out | Done, deployed |
+| Demo mode (no backend) | Scripted agents' words, **FIXTURE** evidence (labelled), real simulator numbers |
 
 ## Run it locally
 
@@ -31,9 +75,10 @@ Two kinds of trial share one engine:
 cd town-trial/web
 python3 -m http.server 8000
 ```
-Open http://localhost:8000. There's no build step, and it works offline.
-Shortcuts: `?city=Evart, MI&prompt=...&speed=16&view=heaven`.
-Simulator checks: `node town-trial/tests/sim_check.mjs`.
+Open http://localhost:8000. There's no build step, and it works offline (demo mode).
+Live mode: add `?api=https://constant-lab--town-trial-api-web.us-east.modal.run`.
+Shortcuts: `?city=Evart, MI&prompt=...&speed=16&view=heaven`. Type `DEV67` as the city for the labelled scripted demo.
+Checks: `node town-trial/tests/sim_check.mjs`, `node town-trial/tests/parity_check.mjs`, `node town-trial/tests/classify_check.mjs`, `python town-trial/tests/backend_check.py`.
 
 ## Deploy (Vercel)
 
@@ -43,6 +88,8 @@ Connect the repository through Vercel's GitHub integration and set `main` as the
 
 The frontend finds the backend through `town-trial/web/config.js` (`window.TOWN_TRIAL_API`), or with `?api=<url>` on any deploy. Leave it empty for demo mode.
 
+The backend deploys with `modal deploy town-trial/backend/app.py` ([`town-trial/backend/README.md`](town-trial/backend/README.md)).
+
 ## Branches
 
 | Branch | Owner | What |
@@ -50,32 +97,17 @@ The frontend finds the backend through `town-trial/web/config.js` (`window.TOWN_
 | `main` | Frontend | Production source when Vercel's GitHub integration is connected |
 | `main-backend` | Backend (Claude Code) | Live agents, Exa, past.dev, Modal API. Merged into `main` by PR. Plan: `town-trial/docs/BACKEND_PLAN.md` |
 
-## Memory: which store holds what (past.dev challenge)
-
-| Store | Holds | Written by | Read by |
-|---|---|---|---|
-| **past.dev** | Dated evidence and constraints with sources, agent handoffs, resident identities and audiences | Researcher, Archivist, Reviewer | Designer (uses the Researcher's facts to revise), Reviewer, Archivist |
-| **Experiment log** (`events.jsonl`) | Exact run configs, seeds, results, parent links | All agents | The frontend, comparison tables, replay |
-
-## Status (Saturday afternoon)
-
-| Part | Status |
-|---|---|
-| 3D frontend: landing, town, Heaven, logs, experiments, audiences, replay | Done |
-| Simulator (`town-trial/web/js/sim.js`), 8 checks passing | Done |
-| Research loop | Demo: the agents' words are scripted, but the numbers come from real batch runs. Live agents are in progress on `main-backend` |
-| Exa | Demo shows placeholder results labelled **FIXTURE**. Live calls in progress |
-| past.dev | Demo shows the events it will send. Live API in progress |
-| Modal | Demo runs batches in the browser. Modal fan-out in progress |
-
 ## Repo map
 
 ```
 town-trial/
   web/            the site (index.html, js/, vendor/three.js, fonts)
-  tests/          simulator checks
-  docs/           LOG_FORMAT.md (events), town-trial-outline.pdf, BACKEND_PLAN.md (on main-backend)
-  README.md       details: what's real vs demo, trial types, files
+  backend/        Modal app, orchestrator, agents, memory, towns
+  sim/            Node entry point for the simulator (Modal workers)
+  eval/           evaluation scripts and results
+  tests/          simulator, parity, classifier and backend checks
+  docs/           LOG_FORMAT.md (events), BACKEND_PLAN.md, town-trial-outline.pdf
+  README.md       details: what's real vs demo, sponsor pointers with exact lines, files
 ```
 
 More detail: [`town-trial/README.md`](town-trial/README.md) · outline: [`town-trial/docs/town-trial-outline.pdf`](town-trial/docs/town-trial-outline.pdf) · events: [`town-trial/docs/LOG_FORMAT.md`](town-trial/docs/LOG_FORMAT.md)
