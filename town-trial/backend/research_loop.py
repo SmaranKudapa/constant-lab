@@ -37,6 +37,9 @@ class LiveTrial(Trial):
         # exa_mode (evaluation): "failure" = baseline + failure-guided searches (default); "broad" = the same number of
         # searches, but generic town/library queries; "none" = no Exa calls (gaps logged, model defaults used).
         self.exa_mode = (options or {}).get("exa_mode", "failure")
+        self.prior = list((options or {}).get("prior") or [])  # earlier trials in this browser session: [{trial, city}]
+        self.session_lessons: list[dict] = []                  # what Bo and Cy read back about them (from shared memory)
+        self.fail_notes: list[str] = []                        # Cy's failure notes in this trial (saved at the end for later trials)
         self.budget = budget or Budget()
         self.llm = LLM(self.budget)
         self.ada, self.bo, self.cy = Ada(self.budget, self.llm), Bo(self.llm), Cy(self.llm)
@@ -84,6 +87,23 @@ class LiveTrial(Trial):
         if not self.evidence:
             return "none yet"
         return "; ".join(f"{e['claim']} [{e['url']}]" for e in self.evidence)
+
+    @staticmethod
+    def memory_text(records: list[dict]) -> str:
+        """A prompt section built only from the records a memory read returned (not from this trial's working copy).
+        Shows which store answered and who wrote each record, plus past.dev's own extracted claims when it returns them."""
+        recs = [r for r in records if r and r.get("claim")]
+        if not recs:
+            return ""
+        stores = ", ".join(sorted({str(r.get("_store") or "memory") for r in recs}))
+        authors = ", ".join(sorted({str(r.get("author") or "unknown") for r in recs}))
+        parts = []
+        for r in recs:
+            s = f"{r['claim']} [{r.get('source') or 'no source'}]"
+            if r.get("recalled"):
+                s += f" (recalled as: {str(r['recalled'][0])[:200]})"
+            parts.append(s)
+        return f"From shared memory ({stores}; written by {authors}): " + "; ".join(parts) + "\n"
 
     def constraints_text(self) -> str:
         if self.mode == "perception":
@@ -151,11 +171,12 @@ class LiveTrial(Trial):
         self.emit("MEMORY_WRITE", agent=agent, say=say, source_id=source_id, kind=kind, claim=claim, source=source,
                   effective=meta.get("effective"), supersedes=w["supersedes"], store=self.memory.last_store)
 
-    def read(self, agent: str, source_id: str, used_for: str, say: str | None = None) -> dict | None:
-        f = self.memory.get(self.city, source_id, reader=agent)
+    def read(self, agent: str, source_id: str, used_for: str, say: str | None = None, city: str | None = None) -> dict | None:
+        f = self.memory.get(city or self.city, source_id, reader=agent)
         if f:
             self.emit("MEMORY_READ", agent=agent, say=say, source_id=source_id, author=f["author"], claim=f["claim"], used_for=used_for,
                       store=self.memory.last_store)
+            f = {**f, "_store": self.memory.last_store}
         return f
 
     def trace_text(self, x: dict) -> str:
@@ -492,13 +513,13 @@ class LiveTrial(Trial):
             self.note("Exa budget used up; no failure-guided search this round.", agent="exa")
 
         # 3. Bo revises, reading Exa Dude's facts from memory
-        for sid in ("fact-staffing-cap", "fact-school-bulletin", "fact-notice-board", "fact-notice-channels"):
-            if sid in self.written:
-                self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
+        bo_mem = [f for sid in ("fact-staffing-cap", "fact-school-bulletin", "fact-notice-board", "fact-notice-channels") if sid in self.written
+                  and (f := self.read("bo", sid, f"Bo's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
         self.cy_recall()
         context = (f"Current practice: {describe_hours(self.base_hours) if mode == 'service' else ', '.join(self.base_policy['channels'])}\n"
                    f"Results so far: {self.results_text()}\nFailure trace: {self.trace_text(best)}\nReviewer's question: {fail['next_question']}\n"
                    f"Constraints (enforced in code): {self.constraints_text()}\nLocal sources: {self.evidence_text()}\n"
+                   + self.memory_text(bo_mem)
                    + (f"Channels with local evidence: {self.channels_grounded}\n" if mode == "perception" else "")
                    + "Already tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
 

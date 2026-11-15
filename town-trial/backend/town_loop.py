@@ -273,6 +273,7 @@ class TownTrial(LiveTrial):
         if fr is None:
             return
         self.base_policy = {"target": self.target}
+        self.learn_from_session()
         self.sourced_inputs()
         self.similar_towns(CMP.query_for(self.prompt, self.city), "broad", "Searching: similar towns")
         idea = fr["user_idea"]
@@ -308,6 +309,51 @@ class TownTrial(LiveTrial):
         if picks:
             finalists.append(max(picks, key=self.value))
         self.held_out_and_brief([f for f in finalists if f])
+
+    # ---------- learning across trials (this browser session only) ----------
+    def learn_from_session(self) -> None:
+        """Bo reads the winning policies and Cy reads its own failure notes from earlier trials of this session, from shared
+        memory (written there at the end of each trial). Only trials the page lists are read, so a reload starts fresh."""
+        if not self.prior:
+            return
+        for p in self.prior:
+            win = self.read("bo", f"lesson-{p['trial']}", "Bo's proposals: what won in an earlier trial this session", say="Recalling earlier trials",
+                            city=p["city"])
+            notes = self.read("cy", f"cy-notes-{p['trial']}", "Cy's failure analysis: its notes from an earlier trial this session",
+                              say="Recalling my earlier failure notes", city=p["city"])
+            if win or notes:
+                self.session_lessons.append({"trial": p["trial"], "city": p["city"], "win": win and win["claim"], "notes": notes and notes["claim"],
+                                             "author_win": win and win["author"], "author_notes": notes and notes["author"]})
+        n = len(self.session_lessons)
+        self.note(f"Learning from {n} earlier trial{'s' if n != 1 else ''} this session: Bo starts from what won, Cy from what failed."
+                  if n else "No lessons from earlier trials this session were found in shared memory yet.", level="info", agent="cy" if n else "eli")
+
+    def lessons_text(self, who: str) -> str:
+        """Prompt section built only from what the session reads returned."""
+        rows = []
+        for l in self.session_lessons:
+            if who == "bo" and l["win"]:
+                rows.append(f"{l['win']} (in {l['city']}; written by {l['author_win']})")
+            if l["notes"]:
+                rows.append(f"Cy's failure notes from that trial: {l['notes']} (written by {l['author_notes']})")
+        if not rows:
+            return ""
+        head = ("\nEarlier trials this session (from shared memory; build on what worked, avoid repeating what failed): " if who == "bo"
+                else "\nYour failure notes from earlier trials this session (from shared memory): ")
+        return head + " | ".join(rows) + "\n"
+
+    def save_lessons(self, best: dict | None, base: dict) -> None:
+        """At the end of a trial: Bo saves what won, Cy saves its failure notes, for later trials in this session."""
+        try:
+            if best:
+                self.remember("bo", f"lesson-{self.id}", f"Earlier trial \"{self.prompt}\" in {self.city}: the best policy was {best['label']} "
+                              f"({best['change']}), {self.fmt(best)} vs {self.fmt(base)} for current practice on {self.P['label']}.",
+                              "lesson", f"trial:{self.id}", say="Saving what won for later trials")
+            if self.fail_notes:
+                self.remember("cy", f"cy-notes-{self.id}", f"Question \"{self.prompt}\" in {self.city}: " + " / ".join(self.fail_notes[-3:]),
+                              "failure", f"trial:{self.id}", say="Saving my failure notes for later trials")
+        except Exception as ex:
+            self.note(f"Couldn't save this trial's lessons ({type(ex).__name__}); later trials won't see them.", agent="eli")
 
     def frame(self) -> dict | None:
         kinds = list(self.defaults) or list(KIND_LABEL)
@@ -546,9 +592,13 @@ class TownTrial(LiveTrial):
 
     def treasurer_final(self, best: dict, base: dict) -> dict:
         li = TR.line_items(best["budget"], base["budget"], best["policy"], self.scope_label)
-        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]:  # Treasurer reads Exa Dude's budget facts from shared memory
-            self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records")
-        fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, self.budget_docs))
+        # Treasurer reads Exa Dude's budget facts from shared memory; any sourced record not already in this trial's documents joins them
+        recs = [f for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-town-budget"))][:3]
+                if (f := self.read("treasurer", sid, f"funding check for {best['id']}", say="Reading the budget records"))]
+        have = {(d["statement"], d["url"]) for d in self.budget_docs}
+        docs = self.budget_docs + [{"statement": f["claim"], "kind": f.get("kind") or "fact", "amount": None, "url": f["source"], "published": None}
+                                   for f in recs if str(f.get("source") or "").startswith("http") and (f["claim"], f["source"]) not in have]
+        fund, err = self.attempt("treasurer", "funding", lambda e: TR.funding(self.llm, self.city, f"{best['label']} ({best['change']})", li, docs))
         if err:
             self.fallback_note("treasurer", "Funding check", err)
             fund = TR.funding(None, self.city, "", li, [])
@@ -593,7 +643,7 @@ class TownTrial(LiveTrial):
 
     def round(self, rnd: int, best: dict) -> dict:
         city = self.city
-        fail, err = self.attempt("cy", "failure", lambda e: self.cy.failure("town", city, self.results_text(), self.trace_text(best), self.constraints_text()))
+        fail, err = self.attempt("cy", "failure", lambda e: self.cy.failure("town", city, self.results_text() + self.lessons_text("cy"), self.trace_text(best), self.constraints_text()))
         if err:
             self.fallback_note("cy", "Reading the failure trace", err)
             fail = {"trace": f"Best so far {best['id']} reaches {self.fmt(best)}.", "next_question": "Is there a budget limit for this service this year?",
@@ -601,6 +651,7 @@ class TownTrial(LiveTrial):
         self.emit("FAILURE", agent="cy", say="Reading the failure trace", exp=best["id"], trace=fail["trace"], next_question=fail["next_question"],
                   entity=fail["entity"], scripted=bool(fail.get("scripted")))
         self.remember("cy", f"failure-{self.id}-{rnd + 1}", f"{best['id']}: {fail['trace']} Next: {fail['next_question']}", "failure", f"trial:{self.id}")
+        self.fail_notes.append(f"{fail['trace']} (next question: {fail['next_question']})")
         source = None
         ftype = fail.get("fact_type") or "local_fact"
         if self.budget.left("exa") > 0 and ftype == "comparable_result" and self.exa_mode == "failure":
@@ -624,8 +675,8 @@ class TownTrial(LiveTrial):
             elif res:
                 fx = __import__("agents.fixtures", fromlist=["x"]).FIXTURE_EXTRACT.get(res[0]["url"]) or {}
                 self.log_exa("exa", q, "failure-guided", res, live, "FIXTURE evidence: " + (fx.get("statement") or "placeholder"))
-        for sid in [s for s in list(self.written) if s.startswith(("fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]:
-            self.read("bo", sid, f"round {rnd + 1} revisions", say="Reading Exa Dude's finds")
+        bo_mem = [f for sid in [s for s in list(self.written) if s.startswith(("fact-town-budget", "fact-budget", "fact-hours", "fact-school", "fact-notice"))][:3]
+                  if (f := self.read("bo", sid, f"Bo's round {rnd + 1} revision prompt", say="Reading Exa Dude's finds"))]
         self.cy_recall()
         focus = (f"Target place: {self.target} ({self.fac[self.target]['name']}). Every proposal must change this place (or open/close a place "
                  f"of its kind, or add outreach about it); changes elsewhere do not answer the question.\n" if self.target else "")
@@ -634,7 +685,7 @@ class TownTrial(LiveTrial):
                    f"Constraints (enforced in code): {self.constraints_text()}\nWage used: ${self.wage:g}/staff hour ({self.wage_source})\n"
                    + (f"Budget covers: {self.scope_label}. To stay within a budget limit you may offset new costs inside it (trim hours at "
                       f"another place in it, or add a modest fee).\n" if self.constraint else "")
-                   + f"Local sources: {self.evidence_text()}\nSimilar towns (verified cases; adapt a promising one and name it in adapted_from): {CMP.text(self.cases)}\n"
+                   + f"Local sources: {self.evidence_text()}\n" + self.memory_text(bo_mem) + self.lessons_text("bo") + f"Similar towns (verified cases; adapt a promising one and name it in adapted_from): {CMP.text(self.cases)}\n"
                    + "Already tried (don't repeat): " + "; ".join(x["change"] for x in self.exps))
 
         def validate(props):
@@ -792,6 +843,7 @@ class TownTrial(LiveTrial):
                               f"({near['change']}) at {B.fmt_usd(near['budget']['net'])}/yr for the {self.scope_label}.",
                       assumptions=f"Wage ${self.wage:g}/h ({self.wage_source}); running costs per open hour are model defaults.",
                       pilot="Widen the search (e.g. combine hour cuts with fees) or revisit the limit.", scripted=False)
+            self.save_lessons(None, base)
             return
         best = max(feasible, key=self.value)
         self.set(best, best=True)
@@ -801,6 +853,7 @@ class TownTrial(LiveTrial):
         d = best["budget"]["net"] - base["budget"]["net"]
         b["summary"] += (f" Budget ({self.scope_label}): {B.fmt_usd(best['budget']['net'])}/yr ({'+' if d >= 0 else ''}{B.fmt_usd(d)} vs current; "
                          f"wage ${self.wage:g}/h from {self.wage_source}).")
+        self.save_lessons(best, base)
         self.emit("BRIEF", agent="bo", say="Writing the decision brief", scripted=b["scripted"], recommend=best["id"], label=best["label"],
                   summary=b["summary"], assumptions=b["assumptions"], pilot=b["pilot"], what=b["what"], reasoning=b["reasoning"],
                   budget=best["budget"], budget_delta=d, funding=fund["status"])

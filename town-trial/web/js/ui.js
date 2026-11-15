@@ -261,8 +261,8 @@ export function buildingHTML(b, model, events, profile = null) {
   const here = model ? model.S.filter((s) => s.at === b).map((s) => s.r.name) : [];
   if (b.osm || b.synthetic) extra += `<div class="kv"><b>Kind</b><span>${esc(b.kind.replace("_", " "))}${b.public ? " (public)" : ""}</span>` +
     (b.osm ? `<b>Source</b><span><a href="https://www.openstreetmap.org/${esc(b.osm)}" target="_blank" rel="noopener">OpenStreetMap ${esc(b.osm)}</a></span>` : "") +
-    (b.synthetic ? `<b>Source</b><span>synthetic (not mapped in OSM)</span>` : "") +
-    (b.hoursOsm ? `<b>Mapped hours</b><span>${esc(b.hoursOsm)}</span>` : "") + `</div>`;
+    (b.hoursOsm ? `<b>Mapped hours</b><span>${esc(b.hoursOsm)}</span>` : "") + `</div>` +
+    (b.synthetic ? `<div class="note">Note: OpenStreetMap has no ${esc(b.kind.replace("_", " "))} mapped near the town centre, so the model adds this stand-in so residents have one to use. Its name and position are made up.</div>` : "");
   return `<h3><span>${esc(b.name)}</span><button type="button" class="sel-x" data-close title="Close">✕</button></h3>${extra}<div class="note">${here.length} people here${here.length ? ": " + esc(here.slice(0, 12).join(", ")) + (here.length > 12 ? "..." : "") : ""}</div>`;
 }
 

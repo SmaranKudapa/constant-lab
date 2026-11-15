@@ -28,9 +28,10 @@ async function request(url, opts = {}) {
   return res.json();
 }
 
-export async function createLive({ api, city, prompt, emit, heaven, researchers, town, onChange, onView, onError }) {
+export async function createLive({ api, city, prompt, emit, heaven, researchers, town, onChange, onView, onError, prior = [] }) {
   const base = api.replace(/\/+$/, "");
-  const start = await request(`${base}/api/trials`, { method: "POST", body: JSON.stringify({ city, prompt }) });
+  // prior: earlier trials in this page session; the gods read their lessons from shared memory (a reload starts fresh)
+  const start = await request(`${base}/api/trials`, { method: "POST", body: JSON.stringify({ city, prompt, options: prior.length ? { prior } : undefined }) });
   const { trial_id: id, mode, primary, trial_type: hint } = start;
   const exps = [];
   const queue = [];

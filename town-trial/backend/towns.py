@@ -28,6 +28,7 @@ OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.sy
             "https://overpass.private.coffee/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 PREBUILT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "town_cache")  # specs shipped with the backend (demo towns)
 SPEC_VERSION = 2
+MIN_PLACES = 8  # fewer mapped places than this from Overpass is treated as a suspect (possibly truncated) answer
 
 # OSM tags -> place kinds the simulator knows. (kind, block|lot, cap shown in town, employs residents)
 KINDS = {
@@ -90,7 +91,13 @@ def geocode(city: str) -> dict:
         raise LookupError(f"OpenStreetMap has no place called {city!r}")
     # Prefer the town itself over a county or region with the same name (e.g. Hood River city, not Hood River County).
     SETTLEMENT = ("city", "town", "village", "hamlet", "municipality", "suburb", "borough")
-    g = next((r for r in res if r.get("addresstype") in SETTLEMENT or (r.get("class") == "place" and r.get("type") in SETTLEMENT)), res[0])
+    cands = [r for r in res if r.get("addresstype") in SETTLEMENT or (r.get("class") == "place" and r.get("type") in SETTLEMENT)]
+    # Same-named matches (e.g. "Town of Ithaca" vs "City of Ithaca"): a New England / New York "Town of X" is the township
+    # around the city, whose centre is often fields. Prefer the city, then the most important match.
+    def rank(r):
+        dn = str(r.get("display_name") or "").lower()
+        return (dn.startswith("city of "), not dn.startswith(("town of ", "township of ", "village of ")), float(r.get("importance") or 0))
+    g = max(cands, key=rank) if cands else res[0]
     s, n, w, e = map(float, g["boundingbox"])
     lat, lon = float(g["lat"]), float(g["lon"])
     half_diag = 0.5 * math.hypot((n - s) * 110540, (e - w) * 111320 * math.cos(math.radians(lat)))
@@ -104,22 +111,32 @@ def fetch_places(lat: float, lon: float, radius: int) -> tuple[list[dict], str]:
     fails (public Overpass servers are often overloaded), the same OpenStreetMap places from Nominatim's search."""
     small = min(radius, 1200)
     tries = [(OVERPASS[0], radius, 60), (OVERPASS[0], small, 40), (OVERPASS[2], small, 30), (OVERPASS[1], small, 30), (OVERPASS[3], small, 25)]
-    t0, last = time.time(), None
+    t0, last, thin = time.time(), None, None
+    n_places = lambda els: sum(1 for e in els if kind_of(e.get("tags", {})))  # noqa: E731
     for url, r, to in tries:
         left = 100 - (time.time() - t0)
         if left < 10:
             break
         try:
             els = _overpass(url, lat, lon, r, min(to, left))
-            if any(kind_of(e.get("tags", {})) for e in els):
+            if n_places(els) >= MIN_PLACES:
                 return els, "osm"
-            last = RuntimeError("no places returned")
+            # Suspiciously few places (a truncated answer, or a really small town): keep it, and compare with Nominatim below
+            if els and (thin is None or n_places(els) > n_places(thin)):
+                thin = els
+            last = RuntimeError(f"only {n_places(els)} places returned")
+            if thin is not None:
+                break
         except Exception as ex:  # try a smaller area / the next mirror
             last = ex
     try:
         els = nominatim_places(lat, lon, radius)
     except Exception as ex:
+        if thin:
+            return thin, "osm"
         raise RuntimeError(f"Overpass failed ({last}); Nominatim fallback failed ({ex})")
+    if thin and n_places(thin) >= n_places(els):
+        return thin, "osm"
     if not els:
         raise RuntimeError(f"Overpass failed ({last}); Nominatim found no places")
     return els, "osm-nominatim"
@@ -413,6 +430,9 @@ def lookup(city: str, cache, start_build, retry: bool = False) -> dict:
     """Non-blocking: {"status": "ready", "spec"} | {"status": "building"} | {"status": "error", "error"}."""
     spec = cache.get(norm_key(city), None) or prebuilt(city)
     st = cache.get(status_key(city), None) or {}
+    # A town saved before thin answers were caught, with almost no real places (e.g. Ithaca with 1 shop): build it again
+    if spec and not spec.get("built_at") and sum(1 for p in spec.get("places", []) if not p.get("synthetic")) < MIN_PLACES:
+        spec = None
     if spec and spec.get("version") == SPEC_VERSION:
         if not spec.get("census_checked") and os.environ.get("CENSUS_API_KEY"):
             spec = enrich_census(spec, city)
@@ -435,6 +455,8 @@ def get_spec(city: str, cache) -> dict:
     """Cached spec for a city (cache: dict-like). Raises if the data services fail and nothing is cached."""
     k = norm_key(city)
     spec = cache.get(k, None) or prebuilt(city)
+    if spec and not spec.get("built_at") and sum(1 for p in spec.get("places", []) if not p.get("synthetic")) < MIN_PLACES:
+        spec = None  # saved before thin answers were caught: build it again
     if spec and spec.get("version") == SPEC_VERSION:
         if not spec.get("census_checked") and os.environ.get("CENSUS_API_KEY"):
             spec = enrich_census(spec, city)
