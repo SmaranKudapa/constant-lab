@@ -71,7 +71,22 @@ class LiveTrial(Trial):
         return "; ".join(f"{e['claim']} [{e['url']}]" for e in self.evidence)
 
     def constraints_text(self) -> str:
+        if self.mode == "perception":
+            return ("Channel existence is handled in code for every arm: a channel with no local source still runs, labelled "
+                    "'assumes <channel> exists'. Do not reject a proposal for that; judge only other real-world inputs.")
         return self.constraint[0] if self.constraint else "none known"
+
+    def assumed(self, policy: dict) -> list[str]:
+        """Channels a policy uses that no local source shows exist (perception)."""
+        return [c for c in policy.get("channels", []) if c not in self.channels_grounded]
+
+    def exp(self, **e) -> dict:
+        if self.mode == "perception" and e.get("policy"):
+            miss = self.assumed(e["policy"])
+            if miss:
+                label = f"assumes {', '.join(miss)} exists (no local source)"
+                e["source"] = f"{label}; {e['source']}" if e.get("source") else label
+        return super().exp(**e)
 
     def search(self, agent: str, query: str, kind: str, fixture_fn, say: str) -> tuple[list[dict], bool]:
         """One Exa call; on failure, labelled fixture evidence. Returns (results, live)."""
@@ -151,7 +166,7 @@ class LiveTrial(Trial):
     def feasible(self, x: dict) -> bool:
         return self.constraint is None or self.constraint[1](x)
 
-    def review(self, x: dict, why: str) -> bool:
+    def review(self, x: dict, why: str, trace: str = "") -> bool:
         """Code checks first (constraint), then Cy. Rejections are kept in the log."""
         if not self.feasible(x):
             self.set(x, status="rejected")
@@ -159,7 +174,7 @@ class LiveTrial(Trial):
                       reason=f"Breaks {self.constraint[0]} (checked in code): needs {staff_hours(x['policy']['hours'])} staff hours.")
             return False
         out, err = self.attempt("cy", "review", lambda e: self.cy.review(self.mode, f"{x['id']}: {x['change']}. Why: {why}",
-                                                                          self.evidence_text(), self.constraints_text()))
+                                                                          self.evidence_text(), self.constraints_text(), trace))
         if err:
             self.fallback_note("cy", f"Review of {x['id']}", err)
             out = {"ok": True, "reason": "Supported actions; constraint check passed in code.", "ungrounded_inputs": [], "scripted": True}
@@ -203,12 +218,12 @@ class LiveTrial(Trial):
             finalists.append(max(agent_picks, key=self.value))
         self.held_out_and_brief([f for f in finalists if f])
 
-    def run_done(self, x: dict, out: dict, view: bool = False) -> None:
+    def run_done(self, x: dict, out: dict, view: bool = False, note: str | None = None) -> None:
         r = x["result"]["mean"]
         extra = ({"staff_hours": staff_hours(x["policy"]["hours"]), "turned_away": fixed(r["turnedAway"])} if self.mode == "service"
                  else {"overall": fixed(r["awarePct"], 0) + "%"})
         self.emit("RUN_DONE", agent="dee", exp=x["id"], metric=self.P["key"], value=self.fmt(x), wall_s=out["wall_s"], workers=out["workers"],
-                  view=x["id"] if view else None, **extra)
+                  view=x["id"] if view else None, note="new best so far" if view and x["role"] == "revision" else None, **extra)
 
     def recall_town(self) -> None:
         prior = self.memory.recall("eli", self.city, f"{self.city} library", kinds=("fact", "constraint"))
@@ -334,9 +349,13 @@ class LiveTrial(Trial):
         fail, err = self.attempt("cy", "failure", lambda e: self.cy.failure(mode, city, self.results_text(), self.trace_text(best), self.constraints_text()))
         if err:
             self.fallback_note("cy", "Reading the failure trace", err)
-            fail = ({"trace": f"{best['id']}: {self.fmt(best)}.", "next_question": "Is extra evening staffing allowed this fiscal year?", "entity": "library board"}
+            fail = ({"trace": f"Best so far {best['id']} reaches {self.fmt(best)}; whether it can be staffed is unchecked.",
+                     "next_question": "Is extra evening staffing allowed this fiscal year?", "entity": "library board",
+                     "search_topic": "board minutes staffing budget evening hours"}
                     if mode == "service" else
-                    {"trace": f"{best['id']}: {self.fmt(best)}.", "next_question": "What channel reaches parents during the school run?", "entity": "elementary school"})
+                    {"trace": f"Best so far {best['id']} reaches {self.fmt(best)} of working parents.",
+                     "next_question": "What channel reaches parents during the school run?", "entity": "elementary school",
+                     "search_topic": "weekly family bulletin newsletter"})
             fail["scripted"] = True
         self.emit("FAILURE", agent="cy", say="Reading the failure trace", exp=best["id"], trace=fail["trace"], next_question=fail["next_question"],
                   entity=fail["entity"], scripted=bool(fail.get("scripted")))
@@ -345,7 +364,7 @@ class LiveTrial(Trial):
         # 2. Ada's failure-guided search
         source = None
         if self.budget.left("exa") > 0:
-            q = f"{city} {fail['entity']} {fail['next_question']}"[:220]
+            q = " ".join(f"{city} {fail['entity']} {fail.get('search_topic') or fail['next_question']}".split()[:16])
             fx = fixtures.board_minutes if mode == "service" else fixtures.school_bulletin
             res, live = self.search("ada", q, "failure-guided", fx, "Failure-guided search")
             if mode == "service":
@@ -385,17 +404,15 @@ class LiveTrial(Trial):
                          source=p.get("evidence_url") or source)
             self.emit("PROPOSE", agent="bo", say=f"Proposing {x['id']}", exp=x["id"], parent=best["id"], change=x["change"], why=p["why"],
                       scripted=bool(p.get("scripted")))
-            if self.review(x, p["why"]):
+            if self.review(x, p["why"], self.trace_text(best)):
                 new.append(x)
         if not new:
             return best
         out = self.run(new, say=f"Running {' + '.join(x['id'] for x in new)}", trace=True)
-        for x in new:
-            self.run_done(x, out, view=False)
         cands = [x for x in self.exps if x.get("result") and x["status"] == "done" and x["role"] in ("revision", "user")]
         top = max(cands, key=self.value) if cands else best
-        if top in new:
-            self.emit("RUN_DONE", agent="dee", exp=top["id"], metric=self.P["key"], value=self.fmt(top), note="new best so far", view=top["id"])
+        for x in new:
+            self.run_done(x, out, view=x is top)
         return top
 
     def apply_constraint(self, q: str, res: list[dict], live: bool, question: str) -> str | None:
@@ -408,7 +425,8 @@ class LiveTrial(Trial):
         if cap is None:
             self.log_exa("ada", q, "failure-guided", res, live,
                          f"No staffing limit stated ({how if not ext else 'statement not about staff hours: ' + ext['statement']}). Gap logged.")
-            if not self.constraint:
+            if not self.constraint and not getattr(self, "_gap_noted", False):
+                self._gap_noted = True
                 self.note("Gap: no local source states a staffing limit. Experiments that add staff hours stay runnable but are "
                           f"flagged: they need more than the current {staff_hours(self.base_hours)} staff hours/week.", agent="ada")
             return None
@@ -495,9 +513,16 @@ class LiveTrial(Trial):
         ctx = (f"Recommended: {best['id']} {best['label']} ({best['change']}). {summary}\nAll results: {self.results_text()}\n"
                f"Held-out test: {json.dumps(self.held_out_table)}\nConstraints: {self.constraints_text()}\nLocal sources: {self.evidence_text()}\n"
                f"Inputs that are synthetic: resident schedules, arrival and word-of-mouth rates (model defaults). "
+               + (f"The recommended policy assumes these channels exist without a local source: {', '.join(self.assumed(best['policy']))}. "
+                  if self.mode == "perception" and self.assumed(best["policy"]) else "")
+               + 
                f"{'No real sources were found; evidence is FIXTURE.' if not sourced else ''}")
         out, err = self.attempt("bo", "brief", lambda e: self.bo.brief(self.mode, ctx))
         if err:
             self.fallback_note("bo", "Writing the brief", err)
-            return super().write_brief(best, base)
+            return {"summary": summary, "scripted": True,
+                    "assumptions": f"Resident schedules and arrival/word-of-mouth rates are synthetic. Constraints: {self.constraints_text()}. "
+                                   f"Sources: {self.evidence_text()}",
+                    "pilot": "Pilot for 4 weeks and count who uses the change; compare with the simulated cohorts." if self.mode == "service"
+                    else "Try the channel for 2 weeks and survey parents at pickup."}
         return {"summary": f"{summary} {out['why']}", "assumptions": out["assumptions"], "pilot": out["pilot"], "scripted": False}

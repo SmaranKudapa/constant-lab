@@ -30,7 +30,7 @@ town-trial/web  ── POST /api/trials ─▶  town-trial-api   (FastAPI, asgi_
   - Modal worker `run_batch` (image: `debian_slim` + `nodejs` + `town-trial/web/js` + `town-trial/sim`) and fan-out with `.map()` over (policy × seed-chunk × scenario).
   - Frontend: `web/js/live.js` + hook in `main.js` (see "Frontend contract" below). Demo mode unchanged when `TOWN_TRIAL_API` is empty.
   - Deploy: `modal deploy town-trial/backend/app.py`. Put the URL in the PR description. The frontend teammate sets it in `config.js` on `main`.
-- [ ] **M2: live Exa + LLM agents (target Sat 9 PM)**
+- [x] **M2: live Exa + LLM agents (target Sat 9 PM)**: done. `backend/research_loop.py` + `backend/agents/` (model `gpt-5.4-mini` for every agent and arm). Verified on Modal for Evart, MI: real hours extracted from evartlibrary.com with a code-verified quote; failure-guided searches; Cy's review is structured (code rejects only unsupported real-world inputs); perception channels without a local source are labelled for every arm.
   - Ada: baseline search for current practice, then a **failure-guided** search built from Cy's `next_question` plus city plus the specific entity (branch, school, board). Use contents/highlights; store the passage. An LLM extracts a value or constraint **only** if the passage states it, citing the passage. If nothing is found, log the gap and use a labelled sensitivity range.
   - Bo: proposes policies as JSON validated against the action schema below (reject and retry on invalid output). Cy: reviews causal assumptions, rejects inputs not grounded in local sources, reads failure traces (turned-away log, awareness by cohort) and writes `next_question`.
   - Constraints are checked in code (e.g. staff hours), never by the LLM.

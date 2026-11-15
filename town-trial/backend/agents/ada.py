@@ -23,6 +23,11 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[“”\"'’`*#_]", "", s or "")).strip().lower()
 
 
+def _clean(s: str) -> str:
+    """Display text: drop markdown markers and collapse whitespace (verification still checks the raw page text too)."""
+    return re.sub(r"\s+", " ", re.sub(r"(^|\s)[#*>]+|\*\*|__", " ", s)).strip()
+
+
 class Ada:
     def __init__(self, budget: Budget, llm: LLM):
         self.budget, self.llm = budget, llm
@@ -51,7 +56,7 @@ class Ada:
         for r in resp.results:
             hl = " … ".join(h.strip() for h in (getattr(r, "highlights", None) or []) if h.strip())
             text = (getattr(r, "text", None) or "").strip()
-            out.append({"title": r.title or r.url, "url": r.url, "passage": (hl or text)[:600],
+            out.append({"title": r.title or r.url, "url": r.url, "passage": _clean(hl or text)[:600],
                         "published": getattr(r, "published_date", None), "_text": text})
         return out
 

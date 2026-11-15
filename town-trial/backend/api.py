@@ -37,14 +37,14 @@ def create_app(store: EventStore, start: Callable[..., None]) -> FastAPI:
 
     @app.get("/api/health")
     def health():
-        return {"ok": True}
+        return {"ok": True, "version": os.environ.get("CODE_VERSION", "local")}
 
     @app.post("/api/trials")
     def create_trial(req: TrialRequest):
         city, prompt = req.city.strip(), req.prompt.strip()
         mode = classify(prompt)
         trial_id = uuid.uuid4().hex[:12]
-        store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode})
+        store.create(trial_id, {"city": city, "prompt": prompt, "mode": mode, "version": os.environ.get("CODE_VERSION", "local")})
         if not store.register_active(trial_id, MAX_ACTIVE):
             store.finish(trial_id, rejected="too many concurrent trials")
             raise HTTPException(429, f"Too many trials running (max {MAX_ACTIVE}). Try again in a minute.")

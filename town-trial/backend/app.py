@@ -18,10 +18,26 @@ ROOT = HERE.parent  # town-trial/
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, "/root/backend")
 
+
+def _code_version() -> str:
+    """Hash of the code shipped to containers. Part of the image env, so any code change forces fresh
+    containers (otherwise a container still warm from before a deploy can run the old code)."""
+    import hashlib
+    h = hashlib.sha1()
+    for d, pat in ((HERE, "**/*.py"), (ROOT / "sim", "*.mjs"), (ROOT / "web" / "js", "*.js")):
+        for f in sorted(d.glob(pat)):
+            if "__pycache__" not in f.parts:
+                h.update(f.read_bytes())
+    return h.hexdigest()[:12]
+
+
+CODE_VERSION = _code_version() if HERE.joinpath("api.py").exists() and ROOT.joinpath("sim").exists() else "container"
+
 image = (
     modal.Image.from_registry("node:22-slim", add_python="3.12")  # same Node major as local dev
+    .apt_install("ca-certificates")  # node:22-slim has no CA bundle; without it OpenAI (httpx) fails TLS
     .pip_install("fastapi[standard]==0.115.12", "openai>=1.60", "exa_py>=1.8", "httpx>=0.27")
-    .env({"TOWN_TRIAL_ROOT": "/root/town-trial", "PYTHONPATH": "/root/backend"})
+    .env({"TOWN_TRIAL_ROOT": "/root/town-trial", "PYTHONPATH": "/root/backend", "CODE_VERSION": CODE_VERSION})
     .add_local_dir(ROOT / "web" / "js", "/root/town-trial/web/js")
     .add_local_dir(ROOT / "sim", "/root/town-trial/sim")
     .add_local_dir(HERE, "/root/backend", ignore=["__pycache__", "*.pyc", ".venv"])

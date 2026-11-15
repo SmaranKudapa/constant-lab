@@ -51,4 +51,30 @@ for mode, prompt in (("service", "Keep the library open two late evenings"), ("p
     brief = next(e for e in evs if e["type"] == "BRIEF")
     print("   ", brief["summary"])
 
+# Live loop with Exa and the LLM failing: every step must fall back (labelled) and the trial must finish.
+from agents.ada import Ada  # noqa: E402
+from agents.llm import LLM  # noqa: E402
+from memory import LocalMemory  # noqa: E402
+from research_loop import LiveTrial  # noqa: E402
+
+def boom(*a, **k):
+    raise ConnectionError("forced failure (test)")
+LLM.json = boom
+Ada.search = boom
+for mode, prompt in (("service", "Keep the library open two late evenings"), ("perception", "Who hears about the new library hours notice?")):
+    store = EventStore({})
+    store.create("t2", {})
+    t = LiveTrial(store, "t2", "Evart, MI", prompt, mode, runner, memory=LocalMemory({}))
+    try:
+        t.start(); store.finish("t2"); err = None
+    except Exception as ex:
+        err = f"{type(ex).__name__}: {ex}"
+    evs, done = store.read("t2")
+    types = Counter(e["type"] for e in evs)
+    exa = [e for e in evs if e["type"] == "EXA"]
+    check(f"live fallback {mode}: finishes", done and not err, err or "")
+    check(f"live fallback {mode}: Exa fell back to labelled fixtures", exa and all(e["fixture"] for e in exa), str(len(exa)))
+    check(f"live fallback {mode}: brief written, scripted", types["BRIEF"] == 1 and next(e for e in evs if e["type"] == "BRIEF")["scripted"])
+    check(f"live fallback {mode}: fallbacks logged", types["NOTE"] >= 3, str(types["NOTE"]))
+
 sys.exit(1 if fails else 0)
